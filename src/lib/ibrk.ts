@@ -1,69 +1,99 @@
 import puppeteer from 'puppeteer';
+import { delay } from '@/lib/utils';
+import { TOTP } from '@otplib/totp';
+import NodeCryptoPlugin from '@otplib/plugin-crypto-node';
+import ScureBase32Plugin from '@otplib/plugin-base32-scure';
 
 function randomDelay(min: number, max: number) {
     const ms: number = Math.floor(Math.random() * (max - min + 1)) + min;
-    return new Promise((resolve) => setTimeout(resolve, ms));
+    return delay(ms)
 }
 
-export async function loginToIBKR(username: string, password: string, totp_tok: string) {
-  const browser = await puppeteer.launch({
-    headless: false, 
-    args: [
-          '--ignore-certificate-errors',
-          '--ignore-certificate-errors-spki-list',
-          '--disable-web-security',
-          '--disable-features=IsolateOrigins,site-per-process'
-      ]
-  });
-  const page = await browser.newPage();
+export interface IBRKCredentials {
+  username: string,
+  password: string,
+  secret: string
+}
 
-  // Ignore SSL errors (because of self-signed certificate)
-  await page.setBypassCSP(true);
-  await page.goto('https://localhost:5000', { waitUntil: 'networkidle2' });
+export class IBRKManager {
+  isLoggedIn : boolean;
+  isGWRunning: boolean;
+  creds : IBRKCredentials;
 
-  // Fill in the username and password
-  await page.type('input[name="username"]', username);
-  await page.type('input[name="password"]', password);
-  
-  // Click the login button
-  await page.click('button[type="submit"]');
-
-  console.log('Waiting for 2FA input...');
-  await randomDelay(1500,3000)
-  
-  try {
-    // Wait for the 2FA input field to appear (with timeout)
-    await page.waitForSelector('#xyz-field-silver-response', { 
-      visible: true, 
-      timeout: 10000 // 10 second timeout
-    });
-    
-    console.log('2FA field found, generating TOTP code...');
-    
-    const navigationPromise = page.waitForNavigation({ waitUntil: 'networkidle2' });
-    // Enter the TOTP code
-    await page.type('#xyz-field-silver-response', totp_tok);
-    
-    // Submit the 2FA form (press Enter or find submit button)
-    // Option A: Press Enter key
-    await page.keyboard.press('Enter');
-    
-    // Option B: If there's a submit button, click it
-    // await page.click('button[type="submit"]');
-    
-    console.log('Submitted 2FA code, waiting for navigation...');
-    await navigationPromise; // Wait for navigation to complete
-    
-  } catch (error) {
-    console.log('No 2FA field found or timed out. Continuing...');
+  constructor(creds : IBRKCredentials) {
+    this.creds = creds;
+    this.isLoggedIn  = false;
+    this.isGWRunning = false;
   }
 
-  await randomDelay(4000,5000)
+  get_isLoggedIn() : boolean {
+    return this.isLoggedIn
+  }
 
-  const cookies = await browser.cookies();
-  const currentUrl = page.url();
+  get_isGWRunning() : boolean {
+    return this.isGWRunning;
+  }
 
-  await browser.close();
+  async startGW() : Promise<string> {
+    let stdout = ''
+    let stderr = ''
+    const { spawn } = require('node:child_process');
+    const child = spawn('./bin/run.sh', ['root/conf.yaml'],{
+      cwd:'/home/linux/cli_gw'
+    });
 
-  return { cookies, currentUrl };
+    child.stdout.on('data', (data : string) => {
+      stdout += data
+    })
+
+    child.stderr.on('data', (data : string) => {
+      stderr += data
+    });
+
+    await delay(1000)
+
+    this.isGWRunning = true;
+    return stdout + "\n" + stderr
+  }
+
+  async login() : Promise<string> {
+    const browser = await puppeteer.launch({
+      headless: false, 
+      args: [
+            '--ignore-certificate-errors',
+            '--ignore-certificate-errors-spki-list',
+            '--disable-web-security',
+            '--disable-features=IsolateOrigins,site-per-process'
+        ]
+    });
+    const page = await browser.newPage();
+    await page.setBypassCSP(true);
+    await page.goto('https://localhost:5000', { waitUntil: 'networkidle2' });
+
+    await page.type('input[name="username"]', this.creds.username);
+    await page.type('input[name="password"]', this.creds.password);
+    await page.click('button[type="submit"]');
+
+    await page.waitForSelector('#xyz-field-silver-response', { 
+      visible: true, 
+      timeout: 10000 
+    });
+
+    const totp = new TOTP({
+      issuer: 'MyApp',
+      label: 'user@example.com',
+      crypto: new NodeCryptoPlugin(),
+      base32: new ScureBase32Plugin(),
+    });
+    const token = await totp.generate({secret : this.creds.secret});
+
+    await page.type('#xyz-field-silver-response', token);
+    await page.keyboard.press('Enter');
+    await page.waitForNavigation()
+
+    await browser.close();
+
+    this.isLoggedIn = true
+    return page.url()
+  }
 }

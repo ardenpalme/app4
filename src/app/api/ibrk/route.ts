@@ -1,24 +1,39 @@
 import { NextRequest } from 'next/server';
-import { loginToIBKR } from '@/lib/ibrk';
-import { TOTP } from '@otplib/totp';
-import { NodeCryptoPlugin } from '@otplib/plugin-crypto-node';
-import { ScureBase32Plugin } from '@otplib/plugin-base32-scure';
+import { IBRKCredentials, IBRKManager } from '@/lib/ibrk';
+
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 export async function GET(request: NextRequest) {
-  const totp = new TOTP({
-    issuer: 'MyApp',
-    label: 'user@example.com',
-    crypto: new NodeCryptoPlugin(),
-    base32: new ScureBase32Plugin(),
-  });
+  const creds : IBRKCredentials = {
+    username : "gallery4484",
+    password : "KKYt&PD8ZezRxz%Ee",
+    secret : "LKM42F626IDDFS4BLUFFBTWL55VZN42U"
+  }
 
-  const secret = "LKM42F626IDDFS4BLUFFBTWL55VZN42U";
-  const token = await totp.generate({ secret});
-  //const isValid = await totp.verify(token, {secret});
-  //@assert(isValid)
+  const ibrk = new IBRKManager(creds);
 
-  const res = await loginToIBKR('gallery4484', 'KKYt&PD8ZezRxz%Ee', token);
-  console.error(res)
-  return Response.json({res})
+  if(ibrk.get_isGWRunning() === false) {
+    const res = await ibrk.startGW();
+    console.error(res)
+  }
+
+  if(ibrk.get_isLoggedIn() == false) {
+    const res = await ibrk.login()
+    console.error(res)
+  }
+
+  const base_url = "https://localhost:5000/v1/api"
+
+  const res1 = await fetch(base_url + '/iserver/auth/status', {
+    method: 'GET',
+    headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+    }
+  }); 
+  const resp1 = await res1.json();
+  console.error(resp1)
+
+  return Response.json({resp1})
 }
 
