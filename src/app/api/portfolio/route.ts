@@ -41,7 +41,6 @@ type btc_balance_res = {
 }
 type BTCResp = Record<string, btc_balance_res>
 
-
 export async function GET() {
   const alchemyUrl = 'https://eth-mainnet.g.alchemy.com/v2/4qvjXduqxyINu3Ksfx-2P';
   const address = '0x2be433a6b41b3917086220c7D4386c7181D19942';
