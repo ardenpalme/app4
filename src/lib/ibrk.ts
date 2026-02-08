@@ -3,22 +3,24 @@ import { delay } from '@/lib/utils';
 import { TOTP } from '@otplib/totp';
 import NodeCryptoPlugin from '@otplib/plugin-crypto-node';
 import ScureBase32Plugin from '@otplib/plugin-base32-scure';
+import '@/lib/envConfig'
 
 function randomDelay(min: number, max: number) {
     const ms: number = Math.floor(Math.random() * (max - min + 1)) + min;
     return delay(ms)
 }
 
-export interface IBRKCredentials {
+interface IBRKCredentials {
   username: string,
   password: string,
   secret: string
 }
 
-export class IBRKManager {
+class IBRKManager {
   isLoggedIn : boolean;
   isGWRunning: boolean;
   creds : IBRKCredentials;
+  // TODO: Last login, must re-login every 12h
 
   constructor(creds : IBRKCredentials) {
     this.creds = creds;
@@ -58,7 +60,7 @@ export class IBRKManager {
 
   async login() : Promise<string> {
     const browser = await puppeteer.launch({
-      headless: false, 
+      headless: true, 
       args: [
             '--ignore-certificate-errors',
             '--ignore-certificate-errors-spki-list',
@@ -79,6 +81,8 @@ export class IBRKManager {
       timeout: 10000 
     });
 
+    await randomDelay(150,350)
+
     const totp = new TOTP({
       issuer: 'MyApp',
       label: 'user@example.com',
@@ -97,3 +101,11 @@ export class IBRKManager {
     return page.url()
   }
 }
+
+const creds : IBRKCredentials = {
+    username : process.env.IBRK_username ?? 'X',
+    password : process.env.IBRK_password ?? 'Y',
+    secret : process.env.IBRK_secret ?? 'Z',
+}
+export const ibrk= new IBRKManager(creds);
+

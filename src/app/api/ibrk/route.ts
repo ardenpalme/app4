@@ -1,17 +1,8 @@
 import { NextRequest } from 'next/server';
-import { IBRKCredentials, IBRKManager } from '@/lib/ibrk';
-
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+import { ibrk } from '@/lib/ibrk';
+import '@/lib/envConfig'
 
 export async function GET(request: NextRequest) {
-  const creds : IBRKCredentials = {
-    username : "gallery4484",
-    password : "KKYt&PD8ZezRxz%Ee",
-    secret : "LKM42F626IDDFS4BLUFFBTWL55VZN42U"
-  }
-
-  const ibrk = new IBRKManager(creds);
-
   if(ibrk.get_isGWRunning() === false) {
     const res = await ibrk.startGW();
     console.error(res)
@@ -24,16 +15,19 @@ export async function GET(request: NextRequest) {
 
   const base_url = "https://localhost:5000/v1/api"
 
-  const res1 = await fetch(base_url + '/iserver/auth/status', {
+  // only re-login if necessary (i.e. request fails)
+  const saved_rej_status = process.env.NODE_TLS_REJECT_UNAUTHORIZED
+  process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+  const res2 = await fetch(base_url + `/portfolio/${process.env.IBRK_accountId}/allocation`, {
     method: 'GET',
     headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
     }
   }); 
-  const resp1 = await res1.json();
-  console.error(resp1)
+  const resp2 = await res2.json();
+  process.env.NODE_TLS_REJECT_UNAUTHORIZED = saved_rej_status;
 
-  return Response.json({resp1})
+  return Response.json({resp2})
 }
 
