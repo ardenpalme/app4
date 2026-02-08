@@ -11,28 +11,29 @@ import { PfTokResp, PricesResp } from "@/lib/types"
 
 export default function PortfolioPage() {
   const [data, setData] = useState<PfTokResp[]>()
-  const [prices, setPrices] = useState(null)//useState<(PricesResp | null | undefined)[]>()
+  const [prices, setPrices] = useState<PricesResp[]>()
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     async function fetchData() {
       try {
+        const resp = await fetch('/api/ibrk')
+        const res = await resp.json()
+        console.log(res)
+
+        /*
         const resp = await fetch('/api/portfolio')
         const newData : PfTokResp[] = await resp.json()
         setData(newData)
         console.log(newData)
 
-        const resp1 = await fetch(`/api/prices/BTC-USD`)
-        console.log(await resp1.json())
-
-        /*
         const p_promises = newData.map(async (e) => {
-          const resp = await fetch(`/api/prices/${e.symbol}USD`)
+          const resp = await fetch(`/api/prices/${e.symbol}?type=CC`)
           const newData : PricesResp = await resp.json()
           return newData
         });
 
-        const ps : (PricesResp | null | undefined)[] = await Promise.all(p_promises)
+        const ps : PricesResp[] = await Promise.all(p_promises)
         setPrices(ps)
         console.log(ps)
         */

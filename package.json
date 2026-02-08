@@ -9,17 +9,22 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@gadicc/yahoo-finance2": "jsr:^3.13.0",
+    "@otplib/plugin-base32-scure": "^13.2.1",
+    "@otplib/plugin-crypto-node": "^13.2.1",
+    "@otplib/totp": "^13.2.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.563.0",
     "next": "16.1.6",
+    "otplib": "^13.2.1",
     "pm2": "^6.0.14",
+    "puppeteer": "^24.37.2",
     "radix-ui": "^1.4.3",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-icons": "^5.5.0",
-    "tailwind-merge": "^3.4.0"
+    "tailwind-merge": "^3.4.0",
+    "websocket": "^1.0.35"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
