@@ -132,7 +132,7 @@ export async function GET() {
         console.error(`Failed to fetch metadata for token at address ${e.contractAddress}:`, error);
         return {
           symbol: 'UNKNOWN',
-          balance: '0.0000',
+          balance: 0.0,
           logo: '',
           contractAddress: e.contractAddress,
           error: true,
@@ -141,7 +141,7 @@ export async function GET() {
     }
   );
 
-  const toks : (PfTokResp | null | undefined)[] = await Promise.all(tok_promises) // await all promises in parallel (pipelined time)
+  const toks : (PfTokResp | null )[] = await Promise.all(tok_promises) // await all promises in parallel (pipelined time)
   const filteredToks = toks.filter(tok => tok !== null && tok !== undefined);
   const processedData : PfTokResp[] = [
     ...filteredToks,

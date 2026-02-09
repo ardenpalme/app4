@@ -41,7 +41,7 @@ class IBRKManager {
     let stderr = ''
     const { spawn } = require('node:child_process');
     const child = spawn('./bin/run.sh', ['root/conf.yaml'],{
-      cwd:'/home/linux/cli_gw'
+      cwd:'/home/ubuntu/cli_gw' // TODO place in a config file
     });
 
     child.stdout.on('data', (data : string) => {
@@ -66,20 +66,24 @@ class IBRKManager {
             '--ignore-certificate-errors-spki-list',
             '--disable-web-security',
             '--disable-features=IsolateOrigins,site-per-process'
-        ]
+        ],
+	executablePath: '/usr/bin/chromium-browser'
     });
     const page = await browser.newPage();
     await page.setBypassCSP(true);
     await page.goto('https://localhost:5000', { waitUntil: 'networkidle2' });
+    console.log("accessed page")
 
     await page.type('input[name="username"]', this.creds.username);
     await page.type('input[name="password"]', this.creds.password);
     await page.click('button[type="submit"]');
+    console.log("credentials submitted")
 
     await page.waitForSelector('#xyz-field-silver-response', { 
       visible: true, 
       timeout: 10000 
     });
+    console.log("TOTP input field available")
 
     await randomDelay(150,350)
 
@@ -93,8 +97,11 @@ class IBRKManager {
 
     await page.type('#xyz-field-silver-response', token);
     await page.keyboard.press('Enter');
-    await page.waitForNavigation()
+    console.log("inputed TOTP")
 
+    await page.waitForNavigation()
+    console.log(await browser.cookies())
+    console.log(await page.content())
     await browser.close();
 
     this.isLoggedIn = true

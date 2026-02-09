@@ -21,6 +21,7 @@ export default function PortfolioPage() {
         const res3 = await resp3.json()
         console.log(res3)
 
+	/*
         const resp = await fetch('/api/portfolio')
         const newData : PfTokResp[] = await resp.json()
         setData(newData)
@@ -35,6 +36,7 @@ export default function PortfolioPage() {
         const ps : PricesResp[] = await Promise.all(p_promises)
         setPrices(ps)
         console.log(ps)
+       */
 
       } catch (error) {
         console.error('Error fetching data:', error)
