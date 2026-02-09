@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@formkit/tempo": "^1.0.0",
     "@next/env": "^16.1.6",
     "@otplib/plugin-base32-scure": "^13.2.1",
     "@otplib/plugin-crypto-node": "^13.2.1",

@@ -3,6 +3,7 @@ import { delay } from '@/lib/utils';
 import { TOTP } from '@otplib/totp';
 import NodeCryptoPlugin from '@otplib/plugin-crypto-node';
 import ScureBase32Plugin from '@otplib/plugin-base32-scure';
+import { addHour, diffSeconds, format } from "@formkit/tempo"
 import '@/lib/envConfig'
 
 function randomDelay(min: number, max: number) {
@@ -18,16 +19,58 @@ interface IBRKCredentials {
 
 class IBRKManager {
   isLoggedIn : boolean;
+  isGWRunning: boolean;
   creds : IBRKCredentials;
+  login_ts : Date;
+  relogin_ts : Date;
+  curr_time : Date;
   // TODO: Last login, must re-login every 12h
 
   constructor(creds : IBRKCredentials) {
+    this.login_ts = new Date()
+    this.relogin_ts = new Date()
+    this.curr_time = new Date()
+
     this.creds = creds;
     this.isLoggedIn  = false;
+    this.isGWRunning = false;
   }
 
-  get_isLoggedIn() : boolean {
+  async get_isLoggedIn() : Promise<boolean> {
+    this.curr_time.setTime(Date.now())
+    console.log(`Current time: ${format(this.curr_time,{ date: "full", time: "short"})}`)
+    console.log(`Re-login time: ${format(this.relogin_ts,{ date: "full", time: "short"})}`)
+    if(this.isLoggedIn && diffSeconds(this.curr_time, this.relogin_ts, 'floor') > 0) {
+      await this.startGW()
+      return false;
+    }
     return this.isLoggedIn
+  }
+
+  get_isGWRunning() : boolean {
+    return this.isGWRunning;
+  }
+
+  async startGW() : Promise<string> {
+    let stdout = ''
+    let stderr = ''
+    const { spawn } = require('node:child_process');
+    const child = spawn('./bin/run.sh', ['root/conf.yaml'],{
+      cwd:`/home/${process.env.Hostname}/cli_gw`
+    });
+
+    child.stdout.on('data', (data : string) => {
+      stdout += data
+    })
+
+    child.stderr.on('data', (data : string) => {
+      stderr += data
+    });
+
+    await delay(1000)
+
+    this.isGWRunning = true;
+    return stdout + "\n" + stderr
   }
 
   async login() : Promise<string> {
@@ -39,7 +82,7 @@ class IBRKManager {
             '--disable-web-security',
             '--disable-features=IsolateOrigins,site-per-process'
         ],
-	executablePath: '/usr/bin/chromium-browser'
+      executablePath: '/usr/bin/chromium-browser' 
     });
     const page = await browser.newPage();
     await page.setBypassCSP(true);
@@ -76,7 +119,14 @@ class IBRKManager {
     console.log(await page.content())
     await browser.close();
 
+    this.login_ts.setTime(Date.now());
+    this.relogin_ts = addHour(this.login_ts, 12)
+    console.log(`Logged in at ${format(this.login_ts,{ date: "full", time: "short" })}`)
+    console.log(`Must login again at ${format(this.relogin_ts,{ date: "full", time: "short" })}`)
     this.isLoggedIn = true
+
+    await randomDelay(800, 1500)
+
     return page.url()
   }
 }
