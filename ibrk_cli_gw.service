@@ -1,0 +1,13 @@
+[Unit]
+Description=International Brokers Web API Client Gateway
+After=network.target
+
+[Service]
+User=ubuntu
+WorkingDirectory=/home/ubuntu/cli_gw
+ExecStart=/home/ubuntu/cli_gw/bin/run.sh root/conf.yaml
+Restart=always 
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

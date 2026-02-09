@@ -18,44 +18,16 @@ interface IBRKCredentials {
 
 class IBRKManager {
   isLoggedIn : boolean;
-  isGWRunning: boolean;
   creds : IBRKCredentials;
   // TODO: Last login, must re-login every 12h
 
   constructor(creds : IBRKCredentials) {
     this.creds = creds;
     this.isLoggedIn  = false;
-    this.isGWRunning = false;
   }
 
   get_isLoggedIn() : boolean {
     return this.isLoggedIn
-  }
-
-  get_isGWRunning() : boolean {
-    return this.isGWRunning;
-  }
-
-  async startGW() : Promise<string> {
-    let stdout = ''
-    let stderr = ''
-    const { spawn } = require('node:child_process');
-    const child = spawn('./bin/run.sh', ['root/conf.yaml'],{
-      cwd:'/home/ubuntu/cli_gw' // TODO place in a config file
-    });
-
-    child.stdout.on('data', (data : string) => {
-      stdout += data
-    })
-
-    child.stderr.on('data', (data : string) => {
-      stderr += data
-    });
-
-    await delay(1000)
-
-    this.isGWRunning = true;
-    return stdout + "\n" + stderr
   }
 
   async login() : Promise<string> {
