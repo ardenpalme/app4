@@ -8,6 +8,7 @@ import axios from 'axios';
 import https, { Agent } from 'https';
 
 import '@/lib/envConfig'
+import { puppeteer_params_aws } from '@/lib/envConfig';
 
 function randomDelay(min: number, max: number) {
     const ms: number = Math.floor(Math.random() * (max - min + 1)) + min;
@@ -127,7 +128,8 @@ class IBRKManager {
             '--ignore-certificate-errors-spki-list',
             '--disable-web-security',
             '--disable-features=IsolateOrigins,site-per-process'
-        ]
+        ],
+        ...puppeteer_params_aws
     });
     const page = await browser.newPage();
     await page.setBypassCSP(true);

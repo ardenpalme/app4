@@ -5,6 +5,7 @@ module.exports = {
     args: 'start',
     interpreter: 'bash',
     cwd: '/home/ubuntu/app4',
+    interpreter: 'bash',
     instances: 1,
     exec_mode: 'fork',
     env: {
