@@ -1,16 +1,5 @@
 import { PfTokResp } from "@/lib/types";
 
-const ADDR_TO_DEC: Record<string, number> = {
-  "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48": 6, // USDC
-  "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2": 18 // ETH
-}
-
-const ADDR_TO_SYM: Record<string, string> = {
-  "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48": "USDC",
-  "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2": "ETH"
-}
-
-// Define the response structure
 interface TokenBalance {
   contractAddress: string;
   tokenBalance: string;
@@ -118,36 +107,40 @@ export async function GET() {
         const final_tok_bal = decimals ? Number(balanceBigInt) / 10 ** decimals : 0.0
 
         if(final_tok_bal > 0) { 
-          return {
-            symbol: symbol,
-            balance: final_tok_bal,
-            contractAddress: e.contractAddress,
-            error: false,
-            logo: logo,
-          };
+          const ret : PfTokResp = {
+            [symbol]: {
+              balance: final_tok_bal,
+              contractAddress: e.contractAddress,
+              logo: logo,
+            }
+          }
+          return ret;
         }else{
           return null
         }
       } catch (error) {
         console.error(`Failed to fetch metadata for token at address ${e.contractAddress}:`, error);
-        return {
-          symbol: 'UNKNOWN',
-          balance: 0.0,
-          logo: '',
-          contractAddress: e.contractAddress,
-          error: true,
-        };
+        return null;
       }
     }
   );
 
-  const toks : (PfTokResp | null )[] = await Promise.all(tok_promises) // await all promises in parallel (pipelined time)
-  const filteredToks = toks.filter(tok => tok !== null && tok !== undefined);
-  const processedData : PfTokResp[] = [
-    ...filteredToks,
-    {symbol: 'BTC', balance: btc_balance, logo: "https://static.alchemyapi.io/images/assets/1.png", contractAddress: '', error: false},
-    {symbol: 'ETH', balance: ethBalance, logo: "/eth-logo.png", contractAddress: '0x4f7A67464B5976d7547c860109e4432d50AfB38e', error: false}
-  ];
+  const toks : (PfTokResp | null)[] = await Promise.all(tok_promises) // await all promises in parallel (pipelined time)
+  const filteredToks = toks.filter(tok => tok !== null);
+  const processedData : PfTokResp = filteredToks.reduce((acc, token) => {
+    return {...acc, ...token}
+  },{});
+
+  processedData['BTC']= {
+    balance: btc_balance, 
+    logo: "https://static.alchemyapi.io/images/assets/1.png", 
+    contractAddress: '0xb1c',
+  }
+  processedData['ETH']= { 
+    balance: ethBalance, 
+    logo: "/eth-logo.png", 
+    contractAddress: '0x4f7A67464B5976d7547c860109e4432d50AfB38e',
+  }
 
   return Response.json(processedData)
 }

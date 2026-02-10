@@ -1,42 +1,57 @@
 "use client"
 
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs"
+
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useEffect, useState } from "react"
 import { Skeleton } from "@/components/ui/skeleton"
-import { Allocations } from "../_components/allocations"
-import { PfTokResp, PricesResp } from "@/lib/types"
+import { CryptoAllocations } from "../_components/allocations"
+import { CryptoPortfolio, PfTokResp, PricesResp, TradPortfolio } from "@/lib/types"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { StockAllocations } from "../_components/stock_allocations"
 
 
 export default function PortfolioPage() {
-  const [data, setData] = useState<PfTokResp[]>()
-  const [prices, setPrices] = useState<PricesResp[]>()
+  const [cryptoPf, setCryptoPf] = useState<CryptoPortfolio>()
+  const [tradPf, setTradPf] = useState<TradPortfolio>()
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     async function fetchData() {
       try {
-        const resp3 = await fetch('/api/ibrk')
-        const res3 = await resp3.json()
-        console.log(res3)
-
-	/*
         const resp = await fetch('/api/portfolio')
-        const newData : PfTokResp[] = await resp.json()
-        setData(newData)
-        console.log(newData)
+        const coins : PfTokResp = await resp.json()
 
-        const p_promises = newData.map(async (e) => {
-          const resp = await fetch(`/api/prices/${e.symbol}?type=CC`)
+        const p_promises = Object.keys(coins).map(async (symbol) => {
+          const resp = await fetch(`/api/prices/${symbol}?type=CC`)
           const newData : PricesResp = await resp.json()
-          return newData
+          return {
+            [symbol]: {
+              ...newData[symbol], 
+              ...coins[symbol],
+              balance_usd : newData[symbol].close * coins[symbol].balance
+            }
+          }
         });
+        const holdings_and_prices_arr = await Promise.all(p_promises)
 
-        const ps : PricesResp[] = await Promise.all(p_promises)
-        setPrices(ps)
-        console.log(ps)
-       */
+        const digital_assets : CryptoPortfolio = holdings_and_prices_arr.reduce((acc, price) => {
+          return {...acc, ...price}
+        }, {})
+        setCryptoPf(digital_assets)
+        console.log(digital_assets)
+
+        const resp3  = await fetch('/api/ibrk')
+        const trad_pf : TradPortfolio = await resp3.json()
+        setTradPf(trad_pf)
+        console.log(trad_pf)
 
       } catch (error) {
         console.error('Error fetching data:', error)
@@ -112,6 +127,49 @@ export default function PortfolioPage() {
               </Link>].
             </div>
         </div>
+
+        <Card className="w-full gap-3">
+          <CardHeader>
+            <CardTitle>Portfolio Allocations</CardTitle>
+            <CardDescription>
+              Holdings as percent of total portfolio
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Tabs defaultValue="trad" className="w-full">
+              <TabsList>
+                <TabsTrigger value="trad">Stocks & Options</TabsTrigger>
+                <TabsTrigger value="crypto">Crypto</TabsTrigger>
+              </TabsList>
+              <TabsContent value="trad">
+                <Card className="w-full">
+                  <CardHeader>
+                    <CardDescription>
+                      Stocks and Options managed via International Brokers.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="text-muted-foreground text-sm">
+                    <StockAllocations tradPf={tradPf} />
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="crypto">
+                <Card>
+                  <CardHeader>
+                    <CardDescription>
+                      Crytocurrencies stored in Trezor hardware wallet.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="text-muted-foreground text-sm">
+                    <CryptoAllocations cryptoPf={cryptoPf} />
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
+
+          </CardContent>
+        </Card>
       </main>
     </div>
   );

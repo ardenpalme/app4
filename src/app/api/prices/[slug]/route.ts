@@ -41,18 +41,22 @@ export async function GET(
     const eodhd_data : EODHDResp = await res.json()
 
     const resp_out : PricesResp = {
-      symbol: slug,
-      pct_change : eodhd_data.change_p,
-      close : eodhd_data.close
+      [slug] : {
+        symbol: slug,
+        pct_change : eodhd_data.change_p,
+        close : eodhd_data.close
+      }
     }
     return Response.json(resp_out)
 
   } catch (e) {
     console.error('EODHD error:', e);
     return Response.json({
-      symbol: slug,
-      close: 0,
-      pct_change: 0,
+      [slug]: {
+        symbol: slug,
+        close: 0,
+        pct_change: 0,
+      }
     })
   }
 }

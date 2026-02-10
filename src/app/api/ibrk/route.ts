@@ -5,41 +5,39 @@ import https from 'https';
 import '@/lib/envConfig'
 
 export async function GET(request: NextRequest) {
-  const base_url = "https://localhost:5000/v1/api"
-  const agent = new https.Agent({
-    rejectUnauthorized: false // WebAPI has self-signed cert
-  });
+  console.log(`LoggedIn status: ${ibrk.get_isLoggedIn()}, GW status : ${ibrk.get_isGWRunning() ? 'active' : 'inactive'}`)
 
-  if(ibrk.get_isGWRunning() == false) {
+  if(ibrk.get_isGWRunning() === false) {
     const res = await ibrk.startGW()
     console.log(res)
   }
 
-  if(await ibrk.get_isLoggedIn() == false) {
+  if(ibrk.get_isLoggedIn() === false) {
+    if(ibrk.get_isGWRunning() === false) {
+      console.log("Not logged in and GW not running - restarting GW")
+      const res = await ibrk.startGW()
+      console.log(res)
+    }
     const res = await ibrk.login()
     console.log(res)
-
-    const resp = await axios.get(base_url + `/iserver/auth/status`, {
-      httpsAgent:agent,
-      headers :{
-        'Accept':'application/json',
-        'User-Agent':'Mozilla/5.0',
-        'Connection':'keep-alive',
-      }
-    });
-    console.log(resp.data)
   }
 
-  const resp = await axios.get(base_url + `/portfolio/${process.env.IBRK_accountId}/summary`, {
-    httpsAgent:agent,
-    headers :{
-      'Accept':'application/json',
-      'User-Agent':'Mozilla/5.0',
-      'Connection':'keep-alive',
-    }
-  });
-  const pf_summary = resp.data;
+  const allocation = ibrk.request('GET',`/portfolio/${process.env.IBRK_accountId}/allocation`, {})
 
-  return Response.json({pf_summary})
+  const pos_pages = [0,1]
+  const positions_arr = await Promise.all(
+    pos_pages.map(
+      async (page) => {
+        return ibrk.request('GET',`/portfolio/${process.env.IBRK_accountId}/positions/${page}`, {})
+      }
+    )
+  )
+
+  const positions = positions_arr.flat().reduce((acc, elem) => {
+    acc[elem.contractDesc] = elem
+    return acc
+  }, {})
+
+  return Response.json({allocation, positions})
 }
 

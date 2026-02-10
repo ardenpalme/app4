@@ -1,14 +1,33 @@
+import { PortfolioHoldings, Positions } from "./ibrk_types"
+
 export interface PfTokResp {
-  symbol: string,
-  logo: string,
-  balance: number,
-  contractAddress: string,
-  error: boolean,
+  [key: string]: {
+    logo: string,
+    balance: number,
+    contractAddress: string,
+  }
 }
 
 export interface PricesResp {
-  symbol: string,
-  close: number,
-  pct_change: number,
+  [key: string]: {
+    symbol: string,
+    close: number,
+    pct_change: number,
+  }
 }
 
+export interface CryptoPortfolio{
+  [key: string] : {
+    logo: string,
+    balance: number,
+    contractAddress: string,
+    balance_usd: number,
+    close: number,
+    pct_change: number,
+  }
+}
+
+export interface TradPortfolio {
+  positions : Positions,
+  allocation: PortfolioHoldings,
+}
