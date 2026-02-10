@@ -36,3 +36,5 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
 
 systemd service file should be in /etc/systemd/system/ibrk_cli_gw.service
+
+change @/lib/envConfig.ts to set the puppeteer_params_aws to null if running locally
