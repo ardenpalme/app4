@@ -149,7 +149,11 @@ export default function PortfolioPage() {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="text-muted-foreground text-sm">
+                  {tradPf ? (
                     <StockAllocations tradPf={tradPf} />
+                  ) : (
+                    <div>No portfolio available</div>  
+                  )}
                   </CardContent>
                 </Card>
               </TabsContent>
@@ -160,10 +164,14 @@ export default function PortfolioPage() {
                     <CardDescription>
                       Crytocurrencies stored in Trezor hardware wallet.
                     </CardDescription>
-                  </CardHeader>
-                  <CardContent className="text-muted-foreground text-sm">
-                    <CryptoAllocations cryptoPf={cryptoPf} />
-                  </CardContent>
+                      </CardHeader>
+                      <CardContent className="text-muted-foreground text-sm">
+                      {cryptoPf ? (
+                        <CryptoAllocations cryptoPf={cryptoPf} />
+                      ) : (
+                      <div>No portfolio available</div>  
+                      )}
+                      </CardContent>
                 </Card>
               </TabsContent>
             </Tabs>
