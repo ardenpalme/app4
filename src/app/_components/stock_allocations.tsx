@@ -16,9 +16,9 @@ export function StockAllocations({tradPf} : {tradPf : TradPortfolio}) {
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead className="w-[100px]">Token</TableHead>
-          <TableHead>Balance</TableHead>
-          <TableHead className="text-right">Balance (USD)</TableHead>
+          <TableHead className="w-[100px]">Ticker</TableHead>
+          <TableHead>Shares</TableHead>
+          <TableHead className="text-right">Market Value (USD)</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -30,6 +30,7 @@ export function StockAllocations({tradPf} : {tradPf : TradPortfolio}) {
           </TableRow>
         ))}
       </TableBody>
+      {/*
       <TableFooter>
         <TableRow>
           <TableCell colSpan={2}>Total</TableCell>
@@ -40,6 +41,7 @@ export function StockAllocations({tradPf} : {tradPf : TradPortfolio}) {
           </TableCell>
         </TableRow>
       </TableFooter>
+      */}
     </Table>
   );
 }

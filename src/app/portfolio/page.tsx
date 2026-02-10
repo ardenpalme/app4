@@ -32,11 +32,12 @@ export default function PortfolioPage() {
         const p_promises = Object.keys(coins).map(async (symbol) => {
           const resp = await fetch(`/api/prices/${symbol}?type=CC`)
           const newData : PricesResp = await resp.json()
+          const balance_usd = newData[symbol].close * coins[symbol].balance
           return {
             [symbol]: {
               ...newData[symbol], 
               ...coins[symbol],
-              balance_usd : newData[symbol].close * coins[symbol].balance
+              balance_usd : Number(balance_usd.toFixed(2))
             }
           }
         });
@@ -128,7 +129,7 @@ export default function PortfolioPage() {
             </div>
         </div>
 
-        <Card className="w-full gap-3">
+        <Card className="w-full gap-4">
           <CardHeader>
             <CardTitle>Portfolio Allocations</CardTitle>
             <CardDescription>
@@ -138,7 +139,7 @@ export default function PortfolioPage() {
           <CardContent>
             <Tabs defaultValue="trad" className="w-full">
               <TabsList>
-                <TabsTrigger value="trad">Stocks & Options</TabsTrigger>
+                <TabsTrigger value="trad">Stocks</TabsTrigger>
                 <TabsTrigger value="crypto">Crypto</TabsTrigger>
               </TabsList>
               <TabsContent value="trad">

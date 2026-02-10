@@ -17,7 +17,7 @@ export function CryptoAllocations({cryptoPf} : {cryptoPf : CryptoPortfolio }) {
         <TableRow>
           <TableHead className="w-[100px]">Token</TableHead>
           <TableHead>Balance</TableHead>
-          <TableHead>Daily Change</TableHead>
+          <TableHead className="hidden sm:table-cell">Daily Change</TableHead>
           <TableHead className="text-right">Balance (USD)</TableHead>
         </TableRow>
       </TableHeader>
@@ -26,14 +26,15 @@ export function CryptoAllocations({cryptoPf} : {cryptoPf : CryptoPortfolio }) {
           <TableRow key={cryptoPf[token].contractAddress}>
             <TableCell className="font-medium">{token}</TableCell>
             <TableCell>{cryptoPf[token].balance}</TableCell>
-            <TableCell>{cryptoPf[token].pct_change}</TableCell>
+            <TableCell className="hidden sm:table-cell">{cryptoPf[token].pct_change}</TableCell>
             <TableCell className="text-right">{cryptoPf[token].balance_usd}</TableCell>
           </TableRow>
         ))}
       </TableBody>
+      {/*
       <TableFooter>
         <TableRow>
-          <TableCell colSpan={3}>Total</TableCell>
+          <TableCell colSpan={3} className="sm:col-span-1">Total</TableCell>
           <TableCell className="text-right">
           {Object.keys(cryptoPf).reduce((acc, token) => {
             return acc + cryptoPf[token].balance_usd
@@ -41,6 +42,7 @@ export function CryptoAllocations({cryptoPf} : {cryptoPf : CryptoPortfolio }) {
           </TableCell>
         </TableRow>
       </TableFooter>
+      */}
     </Table>
   );
 }
