@@ -17,8 +17,8 @@ export function CryptoAllocations({cryptoPf} : {cryptoPf : CryptoPortfolio }) {
         <TableRow>
           <TableHead className="w-[100px]">Token</TableHead>
           <TableHead>Balance</TableHead>
-          <TableHead className="hidden sm:table-cell">Daily Change</TableHead>
-          <TableHead className="text-right">Balance (USD)</TableHead>
+          <TableHead className="hidden sm:table-cell">Daily Change (%)</TableHead>
+          <TableHead className="text-right">Allocation (%)</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>

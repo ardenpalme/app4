@@ -67,6 +67,7 @@ export interface Position {
   assetClass: string; // e.g., "STK"
   undConid: number;
   model: string;
+  pct_total_pf : number;
 }
 
 export interface Positions {

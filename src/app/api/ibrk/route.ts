@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
     console.log(res)
   }
 
-  const allocation = ibrk.request('GET',`/portfolio/${process.env.IBRK_accountId}/allocation`, {})
+  const allocation = await ibrk.request('GET',`/portfolio/${process.env.IBRK_accountId}/allocation`, {})
 
   const pos_pages = [0,1]
   const positions_arr = await Promise.all(
@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
   )
 
   const positions = positions_arr.flat().reduce((acc, elem) => {
-    acc[elem.contractDesc] = elem
+    acc[elem.contractDesc] = {...elem, pct_total_pf: 0}
     return acc
   }, {})
 

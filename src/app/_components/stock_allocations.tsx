@@ -18,7 +18,7 @@ export function StockAllocations({tradPf} : {tradPf : TradPortfolio}) {
         <TableRow>
           <TableHead className="w-[100px]">Ticker</TableHead>
           <TableHead>Shares</TableHead>
-          <TableHead className="text-right">Market Value (USD)</TableHead>
+          <TableHead className="text-right">Allocation (%)</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -26,7 +26,7 @@ export function StockAllocations({tradPf} : {tradPf : TradPortfolio}) {
           <TableRow key={tradPf.positions[contract].conid}>
             <TableCell className="font-medium">{contract}</TableCell>
             <TableCell>{tradPf.positions[contract].position}</TableCell>
-            <TableCell className="text-right">{tradPf.positions[contract].mktValue}</TableCell>
+            <TableCell className="text-right">{tradPf.positions[contract].pct_total_pf}</TableCell>
           </TableRow>
         ))}
       </TableBody>
