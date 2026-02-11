@@ -1,6 +1,8 @@
 import { PricesResp } from '@/lib/types';
 import { NextRequest } from 'next/server';
 
+import '@/lib/envConfig'
+
 interface EODHDResp {
   code: string,
   timestamp: number,
@@ -26,11 +28,17 @@ export async function GET(
   const EODHD_url = "https://eodhd.com/api/real-time/"
   const url_params = new  URLSearchParams({
     'fmt' : 'json',
-    'api_token' : '6988a5f821a6e5.04358720',
+    'api_token' : `${process.env.EODHD_api_token}`,
   })
+  let sym = ''
+  if(type == 'CC') {
+    sym = `${slug}-USD`
+  }else if(type == 'US') {
+    sym = `${slug}`
+  }
   try {
-    console.error(EODHD_url + `${slug}-USD.${type}?${url_params}`)
-    const res = await fetch(EODHD_url + `${slug}-USD.${type}?${url_params}`, {
+    console.log(EODHD_url + `${sym}.${type}?${url_params}`)
+    const res = await fetch(EODHD_url + `${sym}.${type}?${url_params}`, {
       method : 'GET',
       headers: {
           'Accept': 'application/json',

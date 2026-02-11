@@ -54,6 +54,18 @@ export default function PortfolioPage() {
 
         const resp3  = await fetch('/api/ibrk')
         const trad_pf : TradPortfolio = await resp3.json()
+
+        const trad_pf_asset_data_arr : PricesResp[] = await Promise.all(Object.keys(trad_pf.positions).map(async (ticker) => {
+          const resp = await fetch(`/api/prices/${ticker}?type=US`)
+          const resp_data : PricesResp = await resp.json()
+          return resp_data
+        }))
+        const trad_pf_asset_data = trad_pf_asset_data_arr.reduce((acc,elem) => {
+          return {...acc, ...elem}
+        }, {})
+        console.log(trad_pf_asset_data)
+
+
         const total_trad_assets_usd = Object.keys(trad_pf.allocation.assetClass.long).reduce((acc, asset) => {
             return acc + trad_pf.allocation.assetClass.long[asset]
           },0)
@@ -69,7 +81,8 @@ export default function PortfolioPage() {
           const ret : Positions = {
             [contract] : {
               ...trad_pf.positions[contract],
-              pct_total_pf: Number(norm_asset_price.toFixed(2))
+              pct_total_pf: Number(norm_asset_price.toFixed(2)),
+              pct_change : trad_pf_asset_data[contract].pct_change
             }
           }
           return {...ret, ...acc}
@@ -185,7 +198,7 @@ export default function PortfolioPage() {
                 <Card className="w-full">
                   <CardHeader>
                     <CardDescription>
-                      Stocks and Options managed via International Brokers.
+                      Stocks managed via International Brokers.
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="text-muted-foreground text-sm">

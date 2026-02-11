@@ -1,7 +1,5 @@
 import { NextRequest } from 'next/server';
 import { ibrk } from '@/lib/ibrk';
-import axios from 'axios';
-import https from 'https';
 import '@/lib/envConfig'
 
 export async function GET(request: NextRequest) {
@@ -34,7 +32,7 @@ export async function GET(request: NextRequest) {
   )
 
   const positions = positions_arr.flat().reduce((acc, elem) => {
-    acc[elem.contractDesc] = {...elem, pct_total_pf: 0}
+    acc[elem.contractDesc] = {...elem, pct_total_pf: 0, pct_change: 0}
     return acc
   }, {})
 

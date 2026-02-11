@@ -16,7 +16,6 @@ export function CryptoAllocations({cryptoPf} : {cryptoPf : CryptoPortfolio }) {
       <TableHeader>
         <TableRow>
           <TableHead className="w-[100px]">Token</TableHead>
-          <TableHead>Balance</TableHead>
           <TableHead className="hidden sm:table-cell">Daily Change (%)</TableHead>
           <TableHead className="text-right">Allocation (%)</TableHead>
         </TableRow>
@@ -25,8 +24,7 @@ export function CryptoAllocations({cryptoPf} : {cryptoPf : CryptoPortfolio }) {
         {Object.keys(cryptoPf).map((token) => (
           <TableRow key={cryptoPf[token].contractAddress}>
             <TableCell className="font-medium">{token}</TableCell>
-            <TableCell>{cryptoPf[token].balance}</TableCell>
-            <TableCell className="hidden sm:table-cell">{cryptoPf[token].pct_change}</TableCell>
+            <TableCell className="hidden sm:table-cell">{cryptoPf[token].pct_change.toFixed(2)}</TableCell>
             <TableCell className="text-right">{cryptoPf[token].balance_usd}</TableCell>
           </TableRow>
         ))}

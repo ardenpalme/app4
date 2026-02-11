@@ -68,6 +68,7 @@ export interface Position {
   undConid: number;
   model: string;
   pct_total_pf : number;
+  pct_change : number;
 }
 
 export interface Positions {
