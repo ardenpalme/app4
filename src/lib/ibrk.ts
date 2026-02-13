@@ -191,24 +191,23 @@ class IBRKManager {
   ) {
     const base_url = "https://localhost:5000/v1/api"
 
-    if(method == 'GET') {
-      const resp = await axios.get(base_url + endpt, {
-        httpsAgent:this.agent,
-        headers
-      });
-      return resp.data
+    try {
+      if(method == 'GET') {
+        const resp = await axios.get(base_url + endpt, {
+          httpsAgent:this.agent,
+          headers
+        });
+        return resp.data
 
-    /*
-     * TODO: POST method is broken, check this out later
-     * POST endpoint work if you query them with GET
-    }else if(method == 'POST') {
-      const resp = await axios.post(base_url + endpt, {
-        httpsAgent:this.agent,
-        headers,
-        ...params
-      });
-      return resp.data
-    */
+      /*
+       * TODO: POST method is broken, check this out later
+       * POST endpoint work if you query them with GET
+      */
+      }
+    } catch(e) {
+      console.error(`${base_url}${endpt} failed with ${e}`)
+      this.isLoggedIn = false;
+      this.isGWRunning = false;
     }
     console.error("Unsupported method: " + method)
     return {}
