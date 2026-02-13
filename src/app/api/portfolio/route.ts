@@ -1,5 +1,7 @@
 import { PfTokResp } from "@/lib/types";
 
+import '@/lib/envConfig'
+
 interface TokenBalance {
   contractAddress: string;
   tokenBalance: string;
@@ -31,10 +33,9 @@ type btc_balance_res = {
 type BTCResp = Record<string, btc_balance_res>
 
 export async function GET() {
-  const alchemyUrl = 'https://eth-mainnet.g.alchemy.com/v2/4qvjXduqxyINu3Ksfx-2P';
-  const address = '0x2be433a6b41b3917086220c7D4386c7181D19942';
-
-  const btc_addr  = 'bc1qarvpt9dldfcey6m86sqzlfgg4vjutlsdehr39k'
+  const alchemyUrl = `https://eth-mainnet.g.alchemy.com/v2/${process.env.Alchemy_api_token}`;
+  const eth_addr = process.env.ETH_addr ?? '';
+  const btc_addr  = process.env.BTC_addr ?? '';
 
   const params = new URLSearchParams({ "active": btc_addr });
   const btc_res  = await fetch(`https://blockchain.info/balance?${params}`);
@@ -53,7 +54,7 @@ export async function GET() {
     jsonrpc: "2.0",
     method: "alchemy_getTokenBalances",
     params: [
-        "0x2be433a6b41b3917086220c7D4386c7181D19942",
+        eth_addr,
         "erc20"
         ]
     })
@@ -71,7 +72,7 @@ export async function GET() {
         jsonrpc: '2.0',
         id: 1,
         method: 'eth_getBalance',
-        params: [address, 'latest']
+        params: [eth_addr, 'latest']
       })
     });
     
