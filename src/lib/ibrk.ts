@@ -8,7 +8,7 @@ import axios from 'axios';
 import https, { Agent } from 'https';
 
 import '@/lib/envConfig'
-import { puppeteer_params_aws } from '@/lib/envConfig';
+import { puppeteer_params } from '@/lib/envConfig';
 
 function randomDelay(min: number, max: number) {
     const ms: number = Math.floor(Math.random() * (max - min + 1)) + min;
@@ -121,16 +121,7 @@ class IBRKManager {
   }
 
   async login() {
-    const browser = await puppeteer.launch({
-      headless: true, 
-      args: [
-            '--ignore-certificate-errors',
-            '--ignore-certificate-errors-spki-list',
-            '--disable-web-security',
-            '--disable-features=IsolateOrigins,site-per-process'
-        ],
-        ...puppeteer_params_aws
-    });
+    const browser = await puppeteer.launch( puppeteer_params);
     const page = await browser.newPage();
     await page.setBypassCSP(true);
     await page.goto('https://localhost:5000', { waitUntil: 'networkidle2' });
@@ -208,6 +199,7 @@ class IBRKManager {
       console.error(`${base_url}${endpt} failed with ${e}`)
       this.isLoggedIn = false;
       this.isGWRunning = false;
+      this.stop_pings();
     }
     console.error("Unsupported method: " + method)
     return {}
