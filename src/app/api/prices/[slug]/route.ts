@@ -1,5 +1,5 @@
 import { PricesResp } from '@/lib/types';
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 import '@/lib/envConfig'
 
@@ -17,6 +17,9 @@ interface EODHDResp {
   change_p: number,
 }
 
+const cache: Record<string, { data: any; timestamp: number }> = {}
+const TTL=82_800_000 // 23 hours
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ slug: string }> }) 
@@ -24,6 +27,13 @@ export async function GET(
   const { slug } = await params
   const req_params = request.nextUrl.searchParams;
   const type = req_params.get('type');
+
+  const now = Date.now()
+  const key = `${slug}-${type}`
+  if(cache[key] && (now - cache[key].timestamp < TTL)) {
+    console.log("serving from cache")
+    return NextResponse.json(cache[key].data)
+  }
 
   const EODHD_url = "https://eodhd.com/api/real-time/"
   const url_params = new  URLSearchParams({
@@ -55,16 +65,19 @@ export async function GET(
         close : eodhd_data.close
       }
     }
-    return Response.json(resp_out)
+    cache[key] = {data: resp_out, timestamp:now}
+    return NextResponse.json(resp_out)
 
   } catch (e) {
     console.error('EODHD error:', e);
-    return Response.json({
+    const ret = {
       [slug]: {
         symbol: slug,
         close: 0,
         pct_change: 0,
       }
-    })
+    }
+    cache[key] = {data: ret, timestamp:now}
+    return NextResponse.json(ret)
   }
 }

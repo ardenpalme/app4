@@ -44,7 +44,7 @@ export default function PortfolioPage() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const resp = await fetch('/api/portfolio')
+        const resp = await fetch('/api/portfolio' )
         const coins : PfTokResp = await resp.json()
 
         const p_promises = Object.keys(coins).map(async (symbol) => {
@@ -169,8 +169,8 @@ export default function PortfolioPage() {
         <CardContent>
           <Tabs defaultValue="trad" className="w-full">
             <TabsList>
-              <TabsTrigger value="trad">Stocks</TabsTrigger>
-              <TabsTrigger value="crypto">Crypto</TabsTrigger>
+              <TabsTrigger className="cursor-pointer" value="trad">Stocks</TabsTrigger>
+              <TabsTrigger className="cursor-pointer" value="crypto">Crypto</TabsTrigger>
             </TabsList>
             <TabsContent value="trad">
               <Card className="w-full">
@@ -209,7 +209,7 @@ export default function PortfolioPage() {
         </CardContent>
       </Card>
 
-      <Card className="w-full gap-4 py-4">
+      <Card className="w-full gap-4">
         <CardHeader>
           <CardTitle>Trading Log</CardTitle>
         </CardHeader>

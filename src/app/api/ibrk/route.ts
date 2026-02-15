@@ -1,9 +1,20 @@
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { ibrk } from '@/lib/ibrk';
 import '@/lib/envConfig'
 
+const cache: Record<string, { data: any; timestamp: number }> = {}
+const TTL=82_800_000 // 23 hours
+
 export async function GET(request: NextRequest) {
   console.log(`LoggedIn status: ${ibrk.get_isLoggedIn()}, GW status : ${ibrk.get_isGWRunning() ? 'active' : 'inactive'}`)
+
+  const now = Date.now()
+  const key = 'ibrk'
+
+  if(cache[key] && (now - cache[key].timestamp < TTL)) {
+    console.log("serving from cache")
+    return NextResponse.json(cache[key].data)
+  }
 
   if(ibrk.get_isGWRunning() === false) {
     const res = await ibrk.startGW()
@@ -36,6 +47,8 @@ export async function GET(request: NextRequest) {
     return acc
   }, {})
 
-  return Response.json({allocation, positions})
+
+  cache[key] = {data: {allocation, positions}, timestamp:now}
+  return NextResponse.json({allocation, positions})
 }
 

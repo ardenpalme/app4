@@ -1,6 +1,7 @@
 import { PfTokResp } from "@/lib/types";
 
 import '@/lib/envConfig'
+import { NextResponse } from "next/server";
 
 interface TokenBalance {
   contractAddress: string;
@@ -32,7 +33,18 @@ type btc_balance_res = {
 }
 type BTCResp = Record<string, btc_balance_res>
 
+const cache: Record<string, { data: any; timestamp: number }> = {}
+const TTL=82_800_000 // 23 hours
+
 export async function GET() {
+
+  const now = Date.now()
+  const key = 'portfolio'
+  if(cache[key] && (now - cache[key].timestamp < TTL)) {
+    console.log("serving from cache")
+    return NextResponse.json(cache[key].data)
+  }
+
   const alchemyUrl = `https://eth-mainnet.g.alchemy.com/v2/${process.env.Alchemy_api_token}`;
   const eth_addr = process.env.ETH_addr ?? '';
   const btc_addr  = process.env.BTC_addr ?? '';
@@ -41,6 +53,8 @@ export async function GET() {
   const btc_res  = await fetch(`https://blockchain.info/balance?${params}`);
   const btc_data : BTCResp = await btc_res.json()
   const btc_balance = btc_data[btc_addr].final_balance / 1e8
+
+  
 
   // Get ERC-20 tokens
   const res = await fetch(alchemyUrl , {
@@ -143,5 +157,6 @@ export async function GET() {
     contractAddress: '0x4f7A67464B5976d7547c860109e4432d50AfB38e',
   }
 
-  return Response.json(processedData)
+  cache[key] = {data: processedData, timestamp: now}
+  return NextResponse.json(processedData)
 }

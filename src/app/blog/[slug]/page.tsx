@@ -22,10 +22,8 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { format } from "@formkit/tempo"
-import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { FaGithub } from "react-icons/fa";
-import { ArrowLeft } from "lucide-react";
+import { BackButton } from "@/app/_components/back_button";
 
 function formatCurrency(value: number) {
   return new Intl.NumberFormat("en-US", {
@@ -56,12 +54,7 @@ export default async function BlogPost({
             ADP
           </Link>
           <nav className="flex items-center gap-2">
-            <Button variant="outline" size="sm" asChild>
-              <Link href="/blog">
-                <ArrowLeft className="size-4" />
-                Back
-              </Link>
-            </Button>
+            <BackButton />
           </nav>
         </div>
       </header>
