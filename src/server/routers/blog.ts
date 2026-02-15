@@ -1,7 +1,7 @@
 import prisma from "@/lib/prisma";
 import {z} from 'zod'
 import { publicProcedure, router } from "../trpc";
-import { BlogPostSchema, OptionsTradeDataSchema, OptionsTradePostSchema } from "@/schemas/blog";
+import { BlogPostSchema, OptionsStrategySchema, StrategySummary, TradeStatusEnum } from "@/schemas/blog";
 
 export const BlogPostRouter = router({
   listAllPosts : publicProcedure
@@ -40,23 +40,92 @@ export const BlogPostRouter = router({
       return data
     }),
 
-  getTradeDataById : publicProcedure
+  getOptionsStrategySummaryById : publicProcedure
     .input(z.number())
-    .output(OptionsTradeDataSchema.nullable())
+    .output(StrategySummary.nullable())    
     .query(async ({input}) => {
-      const data = await prisma.optionsTradePost.findUnique({
-        where : {id : input},
+      const data = await prisma.optionsStrategy.findUnique({
+        where: {id : input},
+        select: { 
+          date: true,
+          underlying: true,
+          status: true,
+        }
+      })
+      if(data != null) {
+        return {
+          date: data.date,
+          status: data.status, 
+          assets: [data.underlying]
+        }
+      } else {
+        return null
+      }
+    }),
+
+  getOptionsStrategyById : publicProcedure
+      .input(z.number())
+      .output(OptionsStrategySchema.nullable())    
+      .query(async ({input}) => {
+        const data = await prisma.optionsStrategy.findUnique({
+          where: {id : input},
+          select: {
+            id: true,
+            date: true,
+            underlying: true,
+            name: true,
+            status: true,
+            netPremium: true,
+            pnl: true,
+            legs: {
+              select: {
+                id: true,
+                type: true,
+                direction: true,
+                strike: true,
+                expiry: true,
+                contracts: true,
+                premium: true
+              }
+            },
+            post: {
+              select: {
+                slug: true
+              }
+            }
+          }
+        })
+        return data
+      }),
+
+  listAllOptionsStrategies : publicProcedure
+    .output(z.array(OptionsStrategySchema))
+    .query(async () => {
+      const data = await prisma.optionsStrategy.findMany({
         select : {
           id: true,
+          date: true,
           underlying: true,
-          type: true,
-          direction: true,
-          strike: true,
-          expiry: true,
-          contracts: true,
-          premium: true,
+          name: true,
           status: true,
+          netPremium: true,
           pnl: true,
+          legs: {
+            select: {
+              id: true,
+              type: true,
+              direction: true,
+              strike: true,
+              expiry: true,
+              contracts: true,
+              premium: true
+            }
+          },
+          post: {
+            select: {
+              slug: true
+            }
+          }
         }
       })
       return data

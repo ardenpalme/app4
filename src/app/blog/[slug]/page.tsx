@@ -1,8 +1,15 @@
-import { DisplayPost } from "@/lib/types";
-import { BlogPostSchema, OptionsTradeDataSchema, TradeDirectionEnum, TradeStatusEnum } from "@/schemas/blog"
+import { BlogPostSchema, OptionsStrategySchema } from "@/schemas/blog"
 import {createCaller} from "@/server/index"
-import ReactMarkdown from "react-markdown";
-import rehypeHighlight from "rehype-highlight";
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
+import 'katex/dist/katex.min.css';
+import rehypeRaw from 'rehype-raw';
+import rehypeSanitize from 'rehype-sanitize';
+import rehypeHighlight from 'rehype-highlight';
+import rehypeSlug from 'rehype-slug';
+import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -14,6 +21,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { format } from "@formkit/tempo"
 
 function formatCurrency(value: number) {
   return new Intl.NumberFormat("en-US", {
@@ -28,30 +36,42 @@ export default async function BlogPost({
   params: Promise<{ slug: string }>
 }) {
   const { slug } = await params
-  console.log(slug)
   const trpc_caller = createCaller({});
-  const blog_post : BlogPostSchema = await trpc_caller.blog.getBlogPostBySlug(slug);
+  const post : BlogPostSchema | null= await trpc_caller.blog.getBlogPostBySlug(slug);
 
-  let trade_data = null;
-  if(blog_post?.type == 'TRADE') {
-    trade_data = await trpc_caller.blog.getTradeDataById(blog_post.id)
+  let trade_data : OptionsStrategySchema | null = null;
+  if(post && post.type == 'OPTIONS_STRATEGY') {
+    trade_data = await trpc_caller.blog.getOptionsStrategyById(post.id)
   }
-  console.log(blog_post)
+  console.log(post)
 
   // supposes that all trade_data is of type OptionsTradeDataSchema
   return (
     <div>
       <div className="mb-8">
         <div className="mb-4 flex flex-wrap items-center gap-2">
-        {trade_data &&<Badge variant={trade_data.status === "OPEN" ? "default" : trade_data.status === "CLOSED" ? "secondary" : "outline"}>
-            {trade_data.status}
-          </Badge>}
-          {trade_data && <Badge variant="outline">
-            {trade_data.direction} {blog_post.type}
-          </Badge>}
-          <span className="text-sm text-muted-foreground">{blog_post.date.toString()}</span>
+          <Badge variant={trade_data?.status === "OPEN" ? "default" : trade_data?.status === "CLOSED" ? "secondary" : "outline"}>
+            {trade_data?.status}
+          </Badge>
+          <Badge variant="outline">
+            {trade_data?.name}
+          </Badge>
+
+          <span className="text-sm text-muted-foreground">{trade_data && format(trade_data.date,"short","en")}</span>
+
+          {trade_data && trade_data.pnl !== null && (
+            <span
+              className={`text-sm ${
+                trade_data.pnl >= 0 ? "text-green-600" : "text-red-600"
+              }`}
+            >
+              {trade_data.pnl >= 0 ? "+" : ""}
+              {trade_data.pnl.toFixed(2)}%
+            </span>
+          )}
+
         </div>
-        <h1 className="text-2xl font-bold text-foreground text-balance">{blog_post.title}</h1>
+        <h1 className="text-2xl font-bold text-foreground text-balance">{post?.title}</h1>
       </div>
 
       {trade_data && <Card className="mb-8">
@@ -62,31 +82,29 @@ export default async function BlogPost({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Underlying</TableHead>
                 <TableHead>Direction</TableHead>
+                <TableHead>Type</TableHead>
                 <TableHead>Strike</TableHead>
                 <TableHead>Expiry</TableHead>
                 <TableHead className="text-right">Contracts</TableHead>
                 <TableHead className="text-right">Premium</TableHead>
-                {trade_data.pnl !== undefined && <TableHead className="text-right">P&L</TableHead>}
               </TableRow>
             </TableHeader>
             <TableBody>
-              <TableRow>
-                <TableCell className="font-medium">{trade_data.underlying}</TableCell>
-                <TableCell>
-                  {trade_data.direction} {trade_data.type}
+            {trade_data.legs.map((leg) => (
+              <TableRow key={leg.id} className="hover:bg-transparent"> 
+                <TableCell className="py-1.5">
+                  <Badge variant={leg.direction === "BUY" ? "default" : "secondary"} className="text-xs">
+                    {leg.direction}
+                  </Badge>
                 </TableCell>
-                <TableCell>{formatCurrency(trade_data.strike)}</TableCell>
-                <TableCell>{trade_data.expiry.toString()}</TableCell>
-                <TableCell className="text-right">{trade_data.contracts[0]}</TableCell>
-                <TableCell className="text-right">{formatCurrency(trade_data.premium)}</TableCell>
-                {trade_data.pnl !== undefined && (
-                  <TableCell className={`text-right font-medium ${trade_data.pnl >= 0 ? "text-green-500" : "text-red-500"}`}>
-                    {formatCurrency(trade_data.pnl)}
-                  </TableCell>
-                )}
+                <TableCell className="py-1.5 text-sm">{leg.type}</TableCell>
+                <TableCell className="py-1.5 text-sm">{formatCurrency(leg.strike)}</TableCell>
+                <TableCell className="py-1.5 text-sm text-muted-foreground">{format(leg.expiry,"short","en")}</TableCell>
+                <TableCell className="py-1.5 text-sm text-right">{leg.contracts.length}</TableCell>
+                <TableCell className="py-1.5 text-sm text-right">{formatCurrency(leg.premium)}</TableCell>
               </TableRow>
+            ))}
             </TableBody>
           </Table>
         </CardContent>
@@ -94,9 +112,19 @@ export default async function BlogPost({
 
       <div className="space-y-8">
         <section>
-          <ReactMarkdown rehypePlugins={[rehypeHighlight]}>
-            {blog_post.content}
-          </ReactMarkdown >
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm, remarkMath]}
+            rehypePlugins={[
+              rehypeRaw,
+              rehypeSanitize,
+              rehypeHighlight,
+              rehypeSlug,
+              rehypeKatex,
+              rehypeAutolinkHeadings,
+            ]}
+          >
+            {post?.content}
+          </ReactMarkdown>
         </section>
       </div>
     </div>

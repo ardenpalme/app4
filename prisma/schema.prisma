@@ -24,35 +24,47 @@ enum TradeStatus {
 }
 
 enum PostType {
-  TRADE
-  RESEARCH
+  OPTIONS_STRATEGY
+  GENERIC
 }
 
 model Post {
-  id        Int     @id @default(autoincrement())
-  slug      String  @unique
-  title     String
-  date      DateTime
-  content   String?
-  summary   String?
-  type      PostType
+  id              Int     @id @default(autoincrement())
+  slug            String  @unique
+  title           String
+  date            DateTime
+  content         String
+  summary         String
+  type            PostType
 
-  optionsTradePost  OptionsTradePost?
+  optionsStrategy OptionsStrategy?
 }
 
-model OptionsTradePost {
+model OptionsStrategy {
   id          Int             @id @default(autoincrement())
+  PostId      Int             @unique
+  post        Post            @relation(fields: [PostId], references: [id])
 
-  postId      Int             @unique
-  blog_post   Post            @relation(fields: [postId], references: [id])
-
+  date        DateTime
   underlying  String
+  name        String
+  status      TradeStatus
+  netPremium  Float
+  pnl         Float?
+
+  legs        OptionsStrategyLeg[]
+}
+
+model OptionsStrategyLeg {
+  id          Int               @id @default(autoincrement())
+
+  strategyId  Int               
+  strategy    OptionsStrategy   @relation(fields: [strategyId], references: [id])
   type        OptionType
   direction   TradeDirection
   strike      Float
   expiry      DateTime
   contracts   String[]
   premium     Float
-  status      TradeStatus
-  pnl         Float?
 }
+

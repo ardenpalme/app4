@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/tabs"
 
 import Link from "next/link"
-import { ArrowLeft } from "lucide-react"
+import { ArrowLeft, ChevronDown, ExternalLink } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useEffect, useState } from "react"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -17,6 +17,23 @@ import { CryptoPortfolio, PfTokResp, PricesResp, TradPortfolio } from "@/lib/typ
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { StockAllocations } from "../_components/stock_allocations"
 import { Positions } from "@/lib/ibrk_types"
+import { OptionsStrategyLegSchema, OptionsStrategySchema } from "@/schemas/blog"
+import { format } from "@formkit/tempo"
+
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import { Badge } from "@/components/ui/badge"
+import { trpc } from "../_trpc/client"
+
+function formatCurrency(value: number) {
+  return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(value)
+}
 
 export default function PortfolioPage() {
   const [cryptoPf, setCryptoPf] = useState<CryptoPortfolio>()
@@ -116,96 +133,198 @@ export default function PortfolioPage() {
     fetchData()
   }, []) // Empty array = runs once on mount
 
-  if (loading) {
+  const {data : optionsStrategies, isLoading : optionsStrategiesLoading, isError} = trpc.blog.listAllOptionsStrategies.useQuery()
+
+  if (loading || optionsStrategiesLoading) {
      return(
-       <div className="min-h-screen bg-background">
-        <main className="mx-auto max-w-5xl px-6 py-12">
-          <h1 className="mb-8 text-2xl font-bold text-foreground">Investment Portfolio</h1>
-          <div className="mb-8">
-            <h2 className="mb-4 text-lg font-semibold text-foreground">Strategy</h2>
-              <div>
-                This is a long-only swing-trading strategy for Ethereum and Bitcoin, 
-                which achieved an SR of 1.8 with a MDD of 20% over 2024-2025. 
-                For more details see
-                [<Link href="https://github.com/ardenpalme/strat_v0/blob/main/strategy.ipynb" > 
-                  <span className="underline underline-offset-1">link</span>
-                </Link>].
-              </div>
-          </div>
-          <Skeleton className="w-full h-64"/>
-        </main>
-      </div>
+       <>
+        <h1 className="text-2xl font-bold text-foreground">Investment Portfolio</h1>
+        <Skeleton className="w-full h-64"/>
+        <Skeleton className="w-full h-64"/>
+      </>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <main className="mx-auto max-w-5xl px-6 py-12">
-        <h1 className="mb-8 text-2xl font-bold text-foreground">Investment Portfolio</h1>
-        <div className="mb-8">
-          <h2 className="mb-4 text-lg font-semibold text-foreground">Strategy</h2>
-            <div>
-              This is a long-only swing-trading strategy for Ethereum and Bitcoin, 
-              which achieved an SR of 1.8 with a MDD of 20% over 2024-2025. 
-              For more details see
-              [<Link href="https://github.com/ardenpalme/strat_v0/blob/main/strategy.ipynb" > 
-                <span className="underline underline-offset-1">link</span>
-              </Link>].
-            </div>
-        </div>
+    <>
+      <h1 className="text-2xl font-bold text-foreground">Investment Portfolio</h1>
+      <Card className="w-full gap-4">
+        <CardHeader>
+          <CardTitle>Allocations</CardTitle>
+          <CardDescription>
+            Holdings as percent of total portfolio (currently {cash.toFixed(2)}% cash).
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Tabs defaultValue="trad" className="w-full">
+            <TabsList>
+              <TabsTrigger value="trad">Stocks</TabsTrigger>
+              <TabsTrigger value="crypto">Crypto</TabsTrigger>
+            </TabsList>
+            <TabsContent value="trad">
+              <Card className="w-full">
+                <CardHeader>
+                  <CardDescription>
+                    Stocks managed via International Brokers.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="text-muted-foreground text-sm">
+                {tradPf ? (
+                  <StockAllocations tradPf={tradPf} />
+                ) : (
+                  <div>No portfolio available</div>  
+                )}
+                </CardContent>
+              </Card>
+            </TabsContent>
 
-        <Card className="w-full gap-4">
-          <CardHeader>
-            <CardTitle>Portfolio Allocations</CardTitle>
-            <CardDescription>
-              Holdings as percent of total portfolio (currently {cash.toFixed(2)}% cash).
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Tabs defaultValue="trad" className="w-full">
-              <TabsList>
-                <TabsTrigger value="trad">Stocks</TabsTrigger>
-                <TabsTrigger value="crypto">Crypto</TabsTrigger>
-              </TabsList>
-              <TabsContent value="trad">
-                <Card className="w-full">
-                  <CardHeader>
-                    <CardDescription>
-                      Stocks managed via International Brokers.
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="text-muted-foreground text-sm">
-                  {tradPf ? (
-                    <StockAllocations tradPf={tradPf} />
-                  ) : (
+            <TabsContent value="crypto">
+              <Card>
+                <CardHeader>
+                  <CardDescription>
+                    Crytocurrencies stored in Trezor hardware wallet.
+                  </CardDescription>
+                    </CardHeader>
+                    <CardContent className="text-muted-foreground text-sm">
+                    {cryptoPf ? (
+                      <CryptoAllocations cryptoPf={cryptoPf} />
+                    ) : (
                     <div>No portfolio available</div>  
-                  )}
-                  </CardContent>
-                </Card>
-              </TabsContent>
+                    )}
+                    </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
 
-              <TabsContent value="crypto">
-                <Card>
-                  <CardHeader>
-                    <CardDescription>
-                      Crytocurrencies stored in Trezor hardware wallet.
-                    </CardDescription>
-                      </CardHeader>
-                      <CardContent className="text-muted-foreground text-sm">
-                      {cryptoPf ? (
-                        <CryptoAllocations cryptoPf={cryptoPf} />
-                      ) : (
-                      <div>No portfolio available</div>  
-                      )}
-                      </CardContent>
-                </Card>
-              </TabsContent>
-            </Tabs>
-
-          </CardContent>
-        </Card>
-      </main>
-    </div>
+      <Card className="w-full gap-4 py-4">
+        <CardHeader>
+          <CardTitle>Trading Log</CardTitle>
+        </CardHeader>
+        <CardContent>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-8">
+                <span className="sr-only">Expand</span>
+              </TableHead>
+              <TableHead className="hidden sm:table-cell">Date</TableHead>
+              <TableHead className="hidden sm:table-cell">Underlying</TableHead>
+              <TableHead>Strategy</TableHead>
+              <TableHead className="hidden sm:table-cell text-right">P&L</TableHead>
+              <TableHead className="hidden sm:table-cell">Status</TableHead>
+              <TableHead className="w-10">
+                <span className="sr-only">Write-up</span>
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {optionsStrategies?.map((strat) => (
+              <OptionsTradeRow key={strat.id} strat={strat} />
+            ))}
+          </TableBody>
+        </Table>
+          
+        </CardContent>
+      </Card>
+    </>
   );
 }
+
+
+function OptionsTradeRow({strat} : {strat: OptionsStrategySchema }) {
+  const [open, setOpen] = useState(false)
+  
+  return (
+    <>
+      <TableRow
+        className="cursor-pointer hover:bg-muted/50"
+        onClick={() => setOpen((prev) => !prev)}
+      >
+        <TableCell>
+          <ChevronDown
+            className={`size-4 text-muted-foreground transition-transform ${open ? "rotate-180" : ""}`}
+          />
+        </TableCell>
+        <TableCell className="hidden sm:table-cell text-muted-foreground text-sm">{format(strat.date, "short", "en")}</TableCell>
+        <TableCell className="hidden sm:table-cell font-medium">{strat.underlying}</TableCell>
+        <TableCell>{strat.name}</TableCell>
+        <TableCell className="hidden sm:table-cell text-right">
+          {strat.pnl !== null ? (
+            <span className={strat.pnl >= 0 ? "text-green-500" : "text-red-500"}>
+              {formatCurrency(strat.pnl)}
+            </span>
+          ) : (
+            <span className="text-muted-foreground">--</span>
+          )}
+        </TableCell>
+        <TableCell className="hidden sm:table-cell">
+          <Badge
+            variant={
+              strat.status === "OPEN"
+                ? "default"
+                : strat.status === "CLOSED"
+                  ? "secondary"
+                  : "outline"
+            }
+          >
+            {strat.status}
+          </Badge>
+        </TableCell>
+        <TableCell>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-8"
+            asChild
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Link href={`/blog/${strat.post.slug}`}>
+              <ExternalLink className="size-4" />
+              <span className="sr-only">Read trade write-up</span>
+            </Link>
+          </Button>
+        </TableCell>
+      </TableRow>
+      {open && (
+        <tr>
+          <td colSpan={9} className="p-0">
+            <div className="border-b border-border bg-muted/30 px-6 py-3">
+              <Table>
+                <TableHeader>
+                  <TableRow className="hover:bg-transparent">
+                    <TableHead className="text-xs">Direction</TableHead>
+                    <TableHead className="text-xs">Type</TableHead>
+                    <TableHead className="text-xs">Strike</TableHead>
+                    <TableHead className="text-xs">Expiry</TableHead>
+                    <TableHead className="text-xs text-right hidden sm:table-cell">Contracts</TableHead>
+                    <TableHead className="text-xs text-right hidden sm:table-cell">Premium</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {strat.legs.map((leg, i) => (
+                    <TableRow key={i} className="hover:bg-transparent">
+                      <TableCell className="py-1.5">
+                        <Badge variant={leg.direction === "BUY" ? "default" : "secondary"} className="text-xs">
+                          {leg.direction}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="py-1.5 text-sm">{leg.type}</TableCell>
+                      <TableCell className="py-1.5 text-sm">{formatCurrency(leg.strike)}</TableCell>
+                      <TableCell className="py-1.5 text-sm text-muted-foreground">{format(leg.expiry,"short","en")}</TableCell>
+                      <TableCell className="py-1.5 text-sm text-right hidden sm:table-cell">{leg.contracts.length}</TableCell>
+                      <TableCell className="py-1.5 text-sm text-right hidden sm:table-cell">{formatCurrency(leg.premium)}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </td>
+        </tr>
+      )}
+    </>
+  )
+}
+
 
