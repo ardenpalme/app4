@@ -1,7 +1,7 @@
 import prisma from "@/lib/prisma";
 import {z} from 'zod'
 import { publicProcedure, router } from "../trpc";
-import { BlogPostSchema, OptionsStrategySchema, StrategySummary, TradeStatusEnum } from "@/schemas/blog";
+import { BlogPostSchema, OptionsStrategySchema, StrategySummary } from "@/schemas/blog";
 
 export const BlogPostRouter = router({
   listAllPosts : publicProcedure

@@ -22,6 +22,7 @@ export default async function BlogPage() {
       slug: post.slug,
       summary: post.summary,
       content: post.content,
+      type: post.type,
       date: post.date,
       data: strategy_summary
     }
