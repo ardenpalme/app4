@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+/prisma/generated/prisma
+
+/prisma/generated/prisma

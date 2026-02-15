@@ -34,24 +34,6 @@ const projects = [
 export default function Home() {
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border">
-        <div className="mx-auto flex max-w-3xl items-center justify-between px-6 py-4">
-          <Link href="/" className="font-semibold text-foreground">
-            ADP
-          </Link>
-          <nav className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" asChild>
-              <Link href="/portfolio">Portfolio</Link>
-            </Button>
-            <Button variant="ghost" size="sm" asChild>
-              <a href="https://github.com/ardenpalme" target="_blank" rel="noopener noreferrer">
-                <FaGithub className="size-5" />
-              </a>
-            </Button>
-          </nav>
-        </div>
-      </header>
-
       <main className="mx-auto max-w-3xl px-6 py-16">
         <section className="mb-16 flex items-center gap-6">
           <Avatar className="size-20">

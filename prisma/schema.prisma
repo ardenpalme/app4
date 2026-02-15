@@ -1,0 +1,58 @@
+generator client {
+  provider = "prisma-client"
+  output   = "generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum OptionType {
+  CALL
+  PUT
+}
+
+enum TradeDirection {
+  BUY
+  SELL
+}
+
+enum TradeStatus {
+  OPEN
+  CLOSED
+  EXPIRED
+}
+
+enum PostType {
+  TRADE
+  RESEARCH
+}
+
+model Post {
+  id        Int     @id @default(autoincrement())
+  slug      String  @unique
+  title     String
+  date      DateTime
+  content   String?
+  summary   String?
+  type      PostType
+
+  optionsTradePost  OptionsTradePost?
+}
+
+model OptionsTradePost {
+  id          Int             @id @default(autoincrement())
+
+  postId      Int             @unique
+  blog_post   Post            @relation(fields: [postId], references: [id])
+
+  underlying  String
+  type        OptionType
+  direction   TradeDirection
+  strike      Float
+  expiry      DateTime
+  contracts   String[]
+  premium     Float
+  status      TradeStatus
+  pnl         Float?
+}

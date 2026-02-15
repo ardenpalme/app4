@@ -1,3 +1,4 @@
+import { BlogPostSchema, OptionsTradeDataSchema, TradeDirectionEnum, TradeStatusEnum } from "@/schemas/blog"
 import { PortfolioHoldings, Positions } from "./ibrk_types"
 
 export interface PfTokResp {
@@ -30,4 +31,8 @@ export interface CryptoPortfolio{
 export interface TradPortfolio {
   positions : Positions,
   allocation: PortfolioHoldings,
+}
+
+export interface DisplayPost extends BlogPostSchema {
+  data: OptionsTradeDataSchema | null,
 }
