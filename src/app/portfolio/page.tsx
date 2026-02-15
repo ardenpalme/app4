@@ -134,6 +134,7 @@ export default function PortfolioPage() {
   }, []) // Empty array = runs once on mount
 
   const {data : options_strategies_raw, isLoading : optionsStrategiesLoading, isError} = trpc.blog.listAllOptionsStrategies.useQuery()
+  console.log(options_strategies_raw)
 
   //TODO Prisma returns date as ISO
   const optionsStrategies = options_strategies_raw?.map((strategy) => ({
