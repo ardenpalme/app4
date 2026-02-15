@@ -14,6 +14,6 @@ export const puppeteer_params : LaunchOptions = {
     '--disable-web-security',
     '--disable-features=IsolateOrigins,site-per-process'
   ],
-  executablePath: '/usr/bin/chromium-browser' 
+  //executablePath: '/usr/bin/chromium-browser' 
 }
 
