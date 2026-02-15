@@ -13,9 +13,9 @@ export default function BlogLayout({
     <header className="border-b border-border">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
           <Link href="/" className="font-semibold text-foreground">
-            AC
+            ADP
           </Link>
-          <Button variant="ghost" size="sm" asChild>
+          <Button variant="outline" size="sm" asChild>
             <Link href="/">
               <ArrowLeft className="size-4" />
               Back

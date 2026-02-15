@@ -57,18 +57,10 @@ export default async function BlogPost({
           </Link>
           <nav className="flex items-center gap-2">
             <Button variant="outline" size="sm" asChild>
-              <Link href="/">
+              <Link href="/blog">
                 <ArrowLeft className="size-4" />
                 Back
               </Link>
-            </Button>
-            <Button variant="ghost" size="sm" asChild>
-              <Link href="/portfolio">Portfolio</Link>
-            </Button>
-            <Button variant="ghost" size="sm" asChild>
-              <a href="https://github.com/ardenpalme" target="_blank" rel="noopener noreferrer">
-                <FaGithub className="size-5" />
-              </a>
             </Button>
           </nav>
         </div>
