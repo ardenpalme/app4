@@ -22,6 +22,10 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { format } from "@formkit/tempo"
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { FaGithub } from "react-icons/fa";
+import { ArrowLeft } from "lucide-react";
 
 function formatCurrency(value: number) {
   return new Intl.NumberFormat("en-US", {
@@ -43,36 +47,60 @@ export default async function BlogPost({
   if(post && post.type == 'OPTIONS_STRATEGY') {
     trade_data = await trpc_caller.blog.getOptionsStrategyById(post.id)
   }
-  console.log(post)
 
-  // supposes that all trade_data is of type OptionsTradeDataSchema
   return (
-    <div>
-      <div className="mb-8">
-        <div className="mb-4 flex flex-wrap items-center gap-2">
-          <Badge variant={trade_data?.status === "OPEN" ? "default" : trade_data?.status === "CLOSED" ? "secondary" : "outline"}>
-            {trade_data?.status}
-          </Badge>
-          <Badge variant="outline">
-            {trade_data?.name}
-          </Badge>
-
-          <span className="text-sm text-muted-foreground">{trade_data && format(trade_data.date,"short","en")}</span>
-
-          {trade_data && trade_data.pnl !== null && (
-            <span
-              className={`text-sm ${
-                trade_data.pnl >= 0 ? "text-green-600" : "text-red-600"
-              }`}
-            >
-              {trade_data.pnl >= 0 ? "+" : ""}
-              {trade_data.pnl.toFixed(2)}%
-            </span>
-          )}
-
+    <div className="min-h-screen bg-background">
+      <header className="border-b border-border">
+        <div className="mx-auto flex max-w-3xl items-center justify-between px-6 py-4">
+          <Link href="/" className="font-semibold text-foreground">
+            ADP
+          </Link>
+          <nav className="flex items-center gap-2">
+            <Button variant="outline" size="sm" asChild>
+              <Link href="/">
+                <ArrowLeft className="size-4" />
+                Back
+              </Link>
+            </Button>
+            <Button variant="ghost" size="sm" asChild>
+              <Link href="/portfolio">Portfolio</Link>
+            </Button>
+            <Button variant="ghost" size="sm" asChild>
+              <a href="https://github.com/ardenpalme" target="_blank" rel="noopener noreferrer">
+                <FaGithub className="size-5" />
+              </a>
+            </Button>
+          </nav>
         </div>
-        <h1 className="text-2xl font-bold text-foreground text-balance">{post?.title}</h1>
-      </div>
+      </header>
+      <main className="mx-auto max-w-3xl px-6 py-12">
+        <div className="mb-8">
+          <div className="mb-4 flex flex-wrap items-center gap-2">
+          {trade_data && (<>
+            <Badge variant={trade_data?.status === "OPEN" ? "default" : trade_data?.status === "CLOSED" ? "secondary" : "outline"}>
+              {trade_data?.status}
+            </Badge>
+            <Badge variant="outline">
+              {trade_data?.name}
+            </Badge>
+            </>)}
+
+            <span className="text-sm text-muted-foreground">{trade_data && format(trade_data.date,"short","en")}</span>
+
+            {trade_data && trade_data.pnl !== null && (
+              <span
+                className={`text-sm ${
+                  trade_data.pnl >= 0 ? "text-green-600" : "text-red-600"
+                }`}
+              >
+                {trade_data.pnl >= 0 ? "+" : ""}
+                {trade_data.pnl.toFixed(2)}%
+              </span>
+            )}
+
+          </div>
+          <h1 className="text-2xl font-bold text-foreground text-balance">{post?.title}</h1>
+        </div>
 
       {trade_data && <Card className="mb-8">
         <CardHeader>
@@ -127,7 +155,8 @@ export default async function BlogPost({
           </ReactMarkdown>
         </section>
       </div>
-    </div>
+    </main>
+  </div>
   )
 
 }
