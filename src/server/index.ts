@@ -1,8 +1,14 @@
 import { BlogPostRouter } from './routers/blog';
-import { createCallerFactory, publicProcedure, router } from './trpc';
+import { PositionRouter } from './routers/position';
+import { StrategyRouter } from './routers/strategy';
+import { TradeRouter } from './routers/trade';
+import { createCallerFactory, router } from './trpc';
  
 export const appRouter = router({
   blog: BlogPostRouter,
+  strategy : StrategyRouter,
+  position : PositionRouter,
+  trade : TradeRouter,
   //test: publicProcedure.query(async () => { return [10,20,30]; })
 });
  

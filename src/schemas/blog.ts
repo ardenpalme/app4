@@ -1,58 +1,38 @@
 import {z} from 'zod'
 
-export const OptionTypeEnum = z.enum(["CALL", "PUT"])
-export type OptionTypeEnum = z.infer<typeof OptionTypeEnum>
-
-export const TradeDirectionEnum = z.enum(["BUY", "SELL"])
-export type TradeDirectionEnum  = z.infer<typeof TradeDirectionEnum>
-
-export const TradeStatusEnum = z.enum(["OPEN", "CLOSED", "EXPIRED"])
-export type TradeStatusEnum = z.infer<typeof TradeStatusEnum>
-
-export const PostTypeEnum = z.enum(["OPTIONS_STRATEGY", "GENERIC"])
+export const PostTypeEnum = z.enum(["STRATEGY", "GENERIC"])
 export type PostTypeEnum = z.infer<typeof PostTypeEnum >
 
 export const BlogPostSchema = z.object({
-  id: z.number(),
+  id: z.int(),
   slug: z.string(),
   title: z.string(),
-  date: z.date(),
+  date: z.date(),  // set by postgres server on creation
   summary: z.string(),
-  content: z.string().optional(),
+  content: z.string(),
   type: PostTypeEnum,
+
+  seoTitle: z.string(),
+  seoDescription: z.string(),
+  strategy: z.object({
+    id: z.number().optional()
+  }).nullable()
 })
 export type BlogPostSchema = z.infer<typeof BlogPostSchema>
 
-export const OptionsStrategyLegSchema = z.object({
-  id: z.number(),
-  type: OptionTypeEnum,
-  direction: TradeDirectionEnum,
-  strike: z.number(),
-  expiry: z.date(),
-  contracts: z.array(z.string()),
-  premium: z.number(),
-})
-export type OptionsStrategyLegSchema = z.infer<typeof OptionsStrategyLegSchema>
+/* ADDITIONAL SCHEMAS (HELPERS) */
+export const CreatePostInputSchema = z.object({
+  id: z.number().nullable(),
+  slug: z.string(),
+  title: z.string(),
+  summary: z.string(),
+  content: z.string(),
+  type: PostTypeEnum,
 
-export const OptionsStrategySchema = z.object({
-  id: z.number(),
-  date: z.date(),
-  underlying: z.string(),
-  name: z.string(),
-  status: TradeStatusEnum,
-  netPremium: z.number(),
-  pnl: z.number().nullable(),
-
-  legs: z.array(OptionsStrategyLegSchema),
-  post: z.object({
-    slug: z.string(),
+  seoTitle: z.string(),
+  seoDescription: z.string(),
+  strategy: z.object({
+    id: z.number().nullable()
   })
-})
-export type OptionsStrategySchema = z.infer<typeof OptionsStrategySchema>
-
-export const StrategySummary = z.object({
-  date: z.date(),
-  assets: z.array(z.string()),
-  status: TradeStatusEnum
-})
-export type StrategySummary = z.infer<typeof StrategySummary >
+});
+export type CreatePostInputSchema = z.infer<typeof CreatePostInputSchema>

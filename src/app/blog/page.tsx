@@ -1,31 +1,26 @@
 import { Badge } from "@/components/ui/badge"
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { DisplayPost } from "@/lib/types"
-import { BlogPostSchema, StrategySummary } from "@/schemas/blog"
+import { BlogPostSchema } from "@/schemas/blog"
 import {createCaller} from "@/server/index"
 import Link from "next/link"
 import { format } from "@formkit/tempo"
 import { Button } from "@/components/ui/button";
 import { FaGithub } from "react-icons/fa";
+import { DisplayPost } from "@/lib/types"
+import { CreateStrategyInputSchema } from "@/schemas/strategy"
 
 export default async function BlogPage() {
   const trpc_caller = createCaller({});
   const all_posts_raw : BlogPostSchema[]  = await trpc_caller.blog.listAllPosts();
   const all_posts: DisplayPost[] = await Promise.all(all_posts_raw.map(async (post : BlogPostSchema) => {
-    let strategy_summary : StrategySummary | null = null;
+    let strategy_summary : CreateStrategyInputSchema | null = null;
 
-    if(post.type === 'OPTIONS_STRATEGY') {
-      strategy_summary = await trpc_caller.blog.getOptionsStrategySummaryById(post.id)
+    if(post.type === 'STRATEGY') {
+      strategy_summary = await trpc_caller.strategy.getById(post.strategy.id)
     }
 
     return {
-      id: post.id,
-      title: post.title,
-      slug: post.slug,
-      summary: post.summary,
-      content: post.content,
-      type: post.type,
-      date: post.date,
+      ...post,
       data: strategy_summary
     }
   }))
@@ -60,28 +55,20 @@ export default async function BlogPage() {
             <Link key={post.id} href={`/blog/${post.slug}`}>
               <Card className="transition-colors hover:border-primary/40">
                 <CardHeader>
-                  {post.data && <div className="mb-2 flex flex-wrap items-center gap-2">
-                      <Badge
-                        variant={
-                          post.data.status === "OPEN"
-                            ? "default"
-                            : post.data.status === "CLOSED"
-                              ? "secondary"
-                              : "outline"
-                        }
-                      >
-                        {post.data.status}
-                      </Badge>
+                  <div className="mb-2 flex flex-wrap items-center gap-2">
+                     {post.data && 
+                      <div className="flex items-center gap-4">
+                        <Badge>{post.data.status}</Badge>
+                        <Badge variant="secondary">{post.data.category}</Badge>
+                        <Badge variant="secondary">{post.data.timeframe}</Badge>
+                        <Badge variant="secondary">{post.data.riskProfile} RISK</Badge>
+                      </div>}
                       <span className="text-sm text-muted-foreground">{format(post.date, "short", "en")}</span>
                     </div>
-                  }
-                  {!post.data && 
-                    <div className="mb-2 flex flex-wrap items-center gap-2">
-                      <span className="text-sm text-muted-foreground"> {format(post.date, "short", "en")} </span>
-                    </div>
-                  }
                   <CardTitle className="text-base">{post.title}</CardTitle>
-                  <CardDescription>{post.summary}</CardDescription>
+                  <CardDescription>
+                    {post.summary.slice(0, 50)}...
+                  </CardDescription>
                 </CardHeader>
               </Card>
             </Link>

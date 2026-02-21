@@ -1,5 +1,6 @@
-import { BlogPostSchema, OptionsStrategySchema } from "@/schemas/blog"
+import { CreatePostInputSchema } from "@/schemas/blog"
 import {createCaller} from "@/server/index"
+
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
@@ -13,24 +14,9 @@ import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-import { format } from "@formkit/tempo"
 import Link from "next/link";
 import { BackButton } from "@/app/_components/back_button";
-
-function formatCurrency(value: number) {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-  }).format(value)
-}
+import { CreateStrategyInputSchema } from "@/schemas/strategy";
 
 export default async function BlogPost({
   params,
@@ -39,11 +25,11 @@ export default async function BlogPost({
 }) {
   const { slug } = await params
   const trpc_caller = createCaller({});
-  const post : BlogPostSchema | null= await trpc_caller.blog.getBlogPostBySlug(slug);
+  const post : CreatePostInputSchema | null= await trpc_caller.blog.getPostBySlug(slug);
 
-  let trade_data : OptionsStrategySchema | null = null;
-  if(post && post.type == 'OPTIONS_STRATEGY') {
-    trade_data = await trpc_caller.blog.getOptionsStrategyById(post.id)
+  let strategy : CreateStrategyInputSchema | null = null;
+  if(post && post.type == 'STRATEGY') {
+    strategy = await trpc_caller.strategy.getById(post.id)
   }
 
   return (
@@ -60,69 +46,24 @@ export default async function BlogPost({
       </header>
       <main className="mx-auto max-w-3xl px-6 py-12">
         <div className="mb-8">
-          <div className="mb-4 flex flex-wrap items-center gap-2">
-          {trade_data && (<>
-            <Badge variant={trade_data?.status === "OPEN" ? "default" : trade_data?.status === "CLOSED" ? "secondary" : "outline"}>
-              {trade_data?.status}
-            </Badge>
-            <Badge variant="outline">
-              {trade_data?.name}
-            </Badge>
-            </>)}
-
-            <span className="text-sm text-muted-foreground">{trade_data && format(trade_data.date,"short","en")}</span>
-
-            {trade_data && trade_data.pnl !== null && (
-              <span
-                className={`text-sm ${
-                  trade_data.pnl >= 0 ? "text-green-600" : "text-red-600"
-                }`}
-              >
-                {trade_data.pnl >= 0 ? "+" : ""}
-                {trade_data.pnl.toFixed(2)}%
-              </span>
-            )}
-
-          </div>
+          <Card>
+            <CardHeader>
+              <CardTitle className="">
+                {strategy?.name}
+              </CardTitle>
+              <div className="flex items-center gap-4">
+                <Badge>{strategy?.status}</Badge>
+                <Badge variant="secondary">{strategy?.category}</Badge>
+                <Badge variant="secondary">{strategy?.timeframe}</Badge>
+                <Badge variant="secondary">{strategy?.riskProfile} RISK</Badge>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {strategy?.description}
+            </CardContent>
+          </Card>
           <h1 className="text-2xl font-bold text-foreground text-balance">{post?.title}</h1>
         </div>
-
-      {trade_data && <Card className="mb-8">
-        <CardHeader>
-          <CardTitle className="text-sm font-medium text-muted-foreground">Trade Details</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Direction</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Strike</TableHead>
-                <TableHead>Expiry</TableHead>
-                <TableHead className="text-right">Contracts</TableHead>
-                <TableHead className="text-right">Premium</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-            {trade_data.legs.map((leg) => (
-              <TableRow key={leg.id} className="hover:bg-transparent"> 
-                <TableCell className="py-1.5">
-                  <Badge variant={leg.direction === "BUY" ? "default" : "secondary"} className="text-xs">
-                    {leg.direction}
-                  </Badge>
-                </TableCell>
-                <TableCell className="py-1.5 text-sm">{leg.type}</TableCell>
-                <TableCell className="py-1.5 text-sm">{formatCurrency(leg.strike)}</TableCell>
-                <TableCell className="py-1.5 text-sm text-muted-foreground">{format(leg.expiry,"short","en")}</TableCell>
-                <TableCell className="py-1.5 text-sm text-right">{leg.contracts.length}</TableCell>
-                <TableCell className="py-1.5 text-sm text-right">{formatCurrency(leg.premium)}</TableCell>
-              </TableRow>
-            ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>}
-
       <div className="space-y-8">
         <section>
           <ReactMarkdown

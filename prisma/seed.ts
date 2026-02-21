@@ -1,4 +1,4 @@
-import {  PrismaClient, Prisma } from '../prisma/generated/prisma/client'
+import { PrismaClient, Prisma } from '../prisma/generated/prisma/client'
 import { PrismaPg } from '@prisma/adapter-pg'
 import 'dotenv/config'
 
@@ -8,133 +8,165 @@ const adapter = new PrismaPg({
 
 const prisma = new PrismaClient({
   adapter,
-});
+})
 
-const tradeStrategies: Prisma.OptionsStrategyCreateInput[] = [
+// 2 strategy posts with nested positions and trades
+const strategyPost: Prisma.StrategyCreateInput[] = [
   {
-    underlying: "NVDA",
-    name: "NVDA Bull Call Spread",
-    date: new Date("2025-12-15"),
-    status: "OPEN",
-    netPremium: 2500,
-    legs: {
+    name: 'Tech Swing',
+    description: 'Swing trading strategy based on moving averages and RSI on major tech stocks.',
+    category: 'SWING',
+    timeframe: 'DAILY',
+    riskProfile: 'MODERATE',
+    status: 'ACTIVE',
+    post: {
+      create: {
+        title: 'Swing Trading Strategy for Tech Stocks',
+        slug: 'swing-trading-tech-stocks',
+        content: 'This strategy uses the 50-day and 200-day moving averages along with RSI divergence to identify swing entries in stocks like AAPL, MSFT, and NVDA. Positions are held from a few days to several weeks.',
+        summary: 'A systematic swing trading approach for tech stocks using moving averages and RSI.',
+        type: 'STRATEGY',
+        seoTitle: 'Swing Trading Tech Stocks Strategy',
+        seoDescription: 'Learn a proven swing trading strategy for tech stocks using moving averages and RSI.',
+      },
+    },
+    positions: {
       create: [
         {
-          type: "CALL",
-          direction: "BUY",
-          strike: 600,
-          expiry: new Date("2026-01-17"),
-          contracts: ["C600"],
-          premium: 50,
+          underlying: 'AAPL',
+          status: 'OPEN',
+          openedAt: new Date(),
+          capitalUsed: 5000,
+          thesis: 'Bullish breakout above resistance with strong volume.',
+          notes: 'Entered after earnings dip; expecting recovery.',
+          trades: {
+            create: [
+              {
+                date: new Date(),
+                direction: 'LONG',
+                orderType: 'MARKET',
+                status: 'FILLED',
+                quantity: 33.333,
+                filledPrice: 150.00,
+                fees: 1.50,
+                notes: 'Initial entry.',
+              },
+            ],
+          },
         },
-        {
-          type: "CALL",
-          direction: "SELL",
-          strike: 650,
-          expiry: new Date("2026-01-17"),
-          contracts: ["C650"],
-          premium: 25,
-        }
-      ]
+      ],
     },
+  },
+  {
+    name: 'ES Scalper',
+    description: 'Intraday scalping strategy on S&P 500 E-mini futures using order flow and market profile.',
+    category: 'SCALP',
+    timeframe: 'INTRADAY',
+    riskProfile: 'HIGH',
+    status: 'ACTIVE',
     post: {
       create: {
-        title: "NVDA Long Calls: AI Capex Cycle Acceleration",
-        slug: "nvda-call-spread-ai-capex",
-        date: new Date("2025-12-15"),
-        summary: "Positioning for hyperscaler capex acceleration and Blackwell ramp through Q4 earnings.",
-        content: "Hyperscaler capex guidance for 2026 signals continued GPU demand growth. MSFT, GOOGL, and AMZN all raised AI infrastructure spending targets by 30-50% YoY. NVDA remains the bottleneck supplier with Blackwell ramp providing a new product cycle tailwind. Data center revenue should exceed consensus by 15%+ through Q1 2026.",
-        type: "OPTIONS_STRATEGY",
-      }
-    }
-  },
-
-  // Single-leg Options Trade
-  {
-    underlying: "AAPL",
-    name: "AAPL Long Call",
-    date: new Date("2026-01-10"),
-    status: "OPEN",
-    netPremium: 1200,
-    legs: {
+        title: 'Scalping ES Futures',
+        slug: 'scalping-es-futures',
+        content: 'This scalping strategy focuses on the ES futures during the first two hours of the session. Entries are based on order flow imbalances and market profile structure. Targets are typically 2-4 points with tight stops.',
+        summary: 'High-frequency scalping approach for ES futures using order flow.',
+        type: 'STRATEGY',
+        seoTitle: 'Scalping ES Futures Strategy',
+        seoDescription: 'Learn how to scalp ES futures using order flow and market profile.',
+      },
+    },
+    positions: {
       create: [
         {
-          type: "CALL",
-          direction: "BUY",
-          strike: 180,
-          expiry: new Date("2026-02-21"),
-          contracts: ["C180"],
-          premium: 12,
-        }
-      ]
+          underlying: 'ES',
+          status: 'OPEN',
+          openedAt: new Date(),
+          capitalUsed: 10000,
+          thesis: 'Strong buying pressure at support level.',
+          notes: 'Scalping with partial exits.',
+          trades: {
+            create: [
+              {
+                date: new Date(),
+                direction: 'LONG',
+                orderType: 'MARKET',
+                status: 'FILLED',
+                quantity: 2,
+                filledPrice: 5000.00,
+                fees: 2.50,
+                notes: 'Initial entry.',
+              },
+              {
+                date: new Date(Date.now() + 3600000), // 1 hour later
+                direction: 'LONG',
+                orderType: 'LIMIT',
+                status: 'FILLED',
+                quantity: 1,
+                limitPrice: 5005.00,
+                filledPrice: 5005.00,
+                fees: 1.25,
+                notes: 'Added on pullback.',
+              },
+            ],
+          },
+        },
+      ],
     },
-    post: {
-      create: {
-        title: "AAPL Single Long Call for Earnings Play",
-        slug: "aapl-single-long-call-earnings",
-        date: new Date("2026-01-10"),
-        summary: "Taking a directional long call position ahead of AAPL earnings.",
-        content: "Expecting upside in AAPL stock post-earnings driven by strong iPhone and services revenue. Buying a single call to leverage upside while limiting capital at risk.",
-        type: "OPTIONS_STRATEGY",
-      }
-    }
   },
 ]
 
-const posts: Prisma.PostCreateInput[] = [
+// 3 generic posts (standalone)
+const genericPosts: Prisma.PostCreateInput[] = [
   {
-    title: "Factor Decomposition of AAPL Returns: Post-Earnings Drift and Volatility Regime Shift",
-    slug: "aapl-factor-decomposition-post-earnings-drift",
-    date: new Date("2025-11-20"),
-    summary: "Event study and multi-factor regression analysis of AAPL’s post-earnings drift under elevated volatility conditions.",
-    content: `
-    # Factor Decomposition of AAPL Returns: Post-Earnings Drift and Volatility Regime Shift
-
-    **Date:** 2025-11-20  
-
-    **Summary:** Event study and multi-factor regression analysis of AAPL’s post-earnings drift under elevated volatility conditions.
-
-    ---
-
-    This study analyzes Apple (AAPL) price behavior following its Q4 earnings announcement using a cross-sectional event study framework and a Fama-French 5-factor + Momentum regression model.
-
-    ### Analysis Objectives
-    1. Abnormal returns (CAR) over a [-1, +20] trading-day window  
-    2. Changes in implied volatility term structure  
-    3. Regime classification using realized volatility clustering (GARCH(1,1))  
-
-    ### Key Findings
-    - **Cumulative Abnormal Returns (CAR):**  
-      AAPL exhibited statistically significant positive cumulative abnormal returns (CAR = +2.3%, t = 2.41) over the +2 to +10 day window, consistent with post-earnings announcement drift (PEAD).
-
-    - **Implied Volatility:**  
-      Implied volatility spiked to the 87th percentile of its 1-year distribution pre-event and mean-reverted within 4 sessions, producing a temporary variance risk premium expansion.
-
-    - **Factor Regression:**  
-      Excess return attribution primarily to the Momentum factor (β_MOM = 0.42) rather than market beta expansion.
-
-    - **Volatility Regime:**  
-      Volatility regime classification shows transition from high-vol (σ > 1.5× 60-day median) to mean-reverting state within 6 trading days.
-
-    ### Implications
-    1. PEAD remains present in mega-cap equities despite increased institutional efficiency.  
-    2. Short-horizon variance risk premium spikes create systematic options-selling opportunities.  
-    3. Factor tilts toward Momentum exposure post-event improve risk-adjusted returns versus delta-only positioning.
-
-    > All results are based on daily data from 2015–2025 with Newey-West adjusted standard errors.
-
-    `,
-    type: "GENERIC"
-  }
-];
+    title: 'Understanding Market Cycles',
+    slug: 'understanding-market-cycles',
+    content: 'Market cycles are recurring patterns of bull and bear phases driven by investor psychology and economic conditions. This post explains the four stages: accumulation, markup, distribution, and markdown.',
+    summary: 'A primer on the four stages of market cycles and how to identify them.',
+    type: 'GENERIC',
+    seoTitle: 'Market Cycles Explained',
+    seoDescription: 'Learn about accumulation, markup, distribution, and markdown phases.',
+  },
+  {
+    title: 'Risk Management in Trading',
+    slug: 'risk-management-trading',
+    content: 'Effective risk management is the cornerstone of long-term trading success. Topics include position sizing, stop-loss placement, risk-reward ratios, and diversification.',
+    summary: 'Essential risk management techniques every trader should know.',
+    type: 'GENERIC',
+    seoTitle: 'Risk Management for Traders',
+    seoDescription: 'Discover key risk management principles to protect your capital.',
+  },
+  {
+    title: 'Technical Analysis Basics',
+    slug: 'technical-analysis-basics',
+    content: 'Technical analysis involves studying price charts and indicators to forecast future price movements. This article covers support/resistance, trend lines, and common chart patterns.',
+    summary: 'An introduction to technical analysis concepts and tools.',
+    type: 'GENERIC',
+    seoTitle: 'Technical Analysis for Beginners',
+    seoDescription: 'Learn the fundamentals of technical analysis including support, resistance, and patterns.',
+  },
+]
 
 export async function main() {
-  for (const u of tradeStrategies) {
-    await prisma.optionsStrategy.create({ data: u });
+  console.log('Seeding started...')
+
+  for (const strategy of strategyPost) {
+    await prisma.strategy.create({ data: strategy })
+    console.log(`Created strategy: ${strategy.name}`)
   }
-  for (const u of posts) {
-    await prisma.post.create({ data: u });
+
+  for (const post of genericPosts) {
+    await prisma.post.create({ data: post })
+    console.log(`Created generic post: ${post.title}`)
   }
+
+  console.log('Seeding finished.')
 }
 
-main();
+main()
+  .catch((e) => {
+    console.error(e)
+    process.exit(1)
+  })
+  .finally(async () => {
+    await prisma.$disconnect()
+  })

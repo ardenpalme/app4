@@ -1,5 +1,6 @@
 import { BlogPostSchema, StrategySummary } from "@/schemas/blog"
 import { PortfolioHoldings, Positions } from "./ibrk_types"
+import { CreateStrategyInputSchema } from "@/schemas/strategy"
 
 export interface PfTokResp {
   [key: string]: {
@@ -34,5 +35,5 @@ export interface TradPortfolio {
 }
 
 export interface DisplayPost extends BlogPostSchema {
-  data: StrategySummary | null,
+  data: CreateStrategyInputSchema | null,
 }

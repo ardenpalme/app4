@@ -7,64 +7,150 @@ datasource db {
   provider = "postgresql"
 }
 
-enum OptionType {
-  CALL
-  PUT
-}
-
 enum TradeDirection {
-  BUY
-  SELL
+  LONG
+  SHORT
 }
 
 enum TradeStatus {
+  PENDING
+  FILLED
+  PARTIAL
+  CANCELLED
+  REJECTED
+}
+
+enum OrderType {
+  MARKET
+  LIMIT
+  STOP
+  STOP_LIMIT
+  TRAILING_STOP
+}
+
+enum PositionStatus {
   OPEN
   CLOSED
   EXPIRED
+  STOPPED
+}
+
+enum StrategyStatus {
+  DEVELOPMENT
+  ACTIVE
+  PAUSED
+  RETIRED
+}
+
+enum StrategyCategory {
+  INCOME
+  SWING
+  SCALP
+  TREND
+  BREAKOUT
+  REVERSAL
+}
+
+enum Timeframe {
+  INTRADAY
+  DAILY
+  WEEKLY
+  MONTHLY
+  POSITION
+}
+
+enum RiskProfile {
+  LOW
+  MODERATE
+  HIGH
+  SPECULATIVE
 }
 
 enum PostType {
-  OPTIONS_STRATEGY
+  STRATEGY
   GENERIC
 }
 
 model Post {
-  id              Int     @id @default(autoincrement())
-  slug            String  @unique
+  id              Int       @id @default(autoincrement())
+
+  slug            String    @unique
   title           String
-  date            DateTime
+  date            DateTime  @default(now())
   content         String
   summary         String
   type            PostType
 
-  optionsStrategy OptionsStrategy?
+  seoTitle        String?
+  seoDescription  String?
+
+  strategy        Strategy?   @relation
 }
 
-model OptionsStrategy {
+model Strategy {
   id          Int             @id @default(autoincrement())
-  PostId      Int             @unique
-  post        Post            @relation(fields: [PostId], references: [id])
+  PostId      Int?            @unique
+  post        Post?           @relation(fields: [PostId], references: [id])
 
-  date        DateTime
-  underlying  String
-  name        String
-  status      TradeStatus
-  netPremium  Float
-  pnl         Float?
+  name          String
+  description   String
+  category      StrategyCategory
+  timeframe     Timeframe
+  riskProfile   RiskProfile
+  status        StrategyStatus
 
-  legs        OptionsStrategyLeg[]
+  createdAt     DateTime         @default(now())
+
+  positions     Position[]
 }
 
-model OptionsStrategyLeg {
-  id          Int               @id @default(autoincrement())
+model Position {
+  id              Int       @id @default(autoincrement())
+  strategyId      Int
+  strategy        Strategy  @relation(fields: [strategyId], references: [id])
 
-  strategyId  Int               
-  strategy    OptionsStrategy   @relation(fields: [strategyId], references: [id])
-  type        OptionType
-  direction   TradeDirection
-  strike      Float
-  expiry      DateTime
-  contracts   String[]
-  premium     Float
+  underlying      String
+
+  status          PositionStatus
+
+  openedAt        DateTime
+  closedAt        DateTime?
+
+  capitalUsed     Float
+  realizedPnl     Float?
+  unrealizedPnl   Float?
+  returnPct       Float?
+
+  trades          Trade[]
+
+  thesis          String?
+  notes           String?
+
+  createdAt       DateTime        @default(now())
+}
+
+model Trade {
+  id            Int            @id @default(autoincrement())
+
+  positionId    Int
+  position      Position       @relation(fields: [positionId], references: [id])
+
+  date          DateTime
+
+  direction     TradeDirection
+  orderType     OrderType
+  status        TradeStatus
+
+  quantity      Float
+
+  limitPrice    Float?
+  filledPrice   Float?
+
+  fees          Float?
+  slippage      Float?
+
+  realizedPnl   Float?
+
+  notes         String?
 }
 
