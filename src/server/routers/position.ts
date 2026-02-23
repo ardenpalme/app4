@@ -54,7 +54,39 @@ export const PositionRouter = router({
         data: data
       })
     }) 
-  })
+  }),
+
+  upsert : publicProcedure
+  .input(z.array(UpdatePositionSchema))
+  .mutation(async ({input}) => {
+    input.map(async (ele) => {
+      const data  = {
+        id: ele.positionId,
+        underlying: ele.underlying,
+        status: ele.status,
+        openedAt: ele.openedAt,
+        capitalUsed: ele.capitalUsed,
+        strategy: {
+          connect : {id : ele.strategyId}
+        }
+      }
+      // emulates findOrCreate()
+      return await prisma.position.upsert({
+        where: {id: ele.positionId},
+        update: { ...data },
+        create: { ...data } 
+      })
+    }) 
+  }),
+
+
+  delete : publicProcedure
+  .input(z.string())
+  .mutation(async ({input}) => {
+    return await prisma.position.delete({
+      where: {id: input},
+    })
+  }),
 
 });
 

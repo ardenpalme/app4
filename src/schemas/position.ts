@@ -14,7 +14,7 @@ export const CreatePositionSchema = z.object({
   openedAt : z.coerce.date(),
   capitalUsed : z.number(),
   status: PositionStatusEnum,
-  strategyId : z.number(),
+  strategyId : z.string(),
 })
 export type CreatePositionSchema = z.infer<typeof CreatePositionSchema>
 
@@ -28,7 +28,7 @@ export const PositionSchema = CreatePositionSchema.extend({
 export type PositionSchema = z.infer<typeof PositionSchema>
 
 export const UpdatePositionSchema = PositionSchema.extend({
-  positionId: z.number(),
+  positionId: z.string(),
 })
 export type UpdatePositionSchema = z.infer<typeof UpdatePositionSchema >
 

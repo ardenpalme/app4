@@ -30,7 +30,7 @@ export const CreateTradeSchema = z.object({
   orderType: OrderTypeEnum,
   status: TradeStatusEnum,
   quantity: z.number(),
-  positionId : z.number()
+  positionId : z.string()
 })
 export type CreateTradeSchema = z.infer<typeof CreateTradeSchema>
 
@@ -44,6 +44,6 @@ export const TradeSchema = CreateTradeSchema.extend({
 export type TradeSchema = z.infer<typeof TradeSchema>
 
 export const UpdateTradeSchema = TradeSchema.extend({
-  tradeId : z.number(),
+  tradeId : z.string(),
 })
 export type UpdateTradeSchema  = z.infer<typeof UpdateTradeSchema >

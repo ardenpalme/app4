@@ -72,7 +72,7 @@ enum PostType {
 }
 
 model Post {
-  id              Int       @id @default(autoincrement())
+  id              String    @id
 
   slug            String    @unique
   title           String
@@ -88,9 +88,9 @@ model Post {
 }
 
 model Strategy {
-  id          Int             @id @default(autoincrement())
-  PostId      Int?            @unique
-  post        Post?           @relation(fields: [PostId], references: [id])
+  id            String          @id
+  PostId        String          @unique
+  post          Post?           @relation(fields: [PostId], references: [id])
 
   name          String
   description   String
@@ -104,9 +104,9 @@ model Strategy {
 }
 
 model Position {
-  id              Int       @id @default(autoincrement())
-  strategyId      Int
-  strategy        Strategy  @relation(fields: [strategyId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  id              String    @id
+  strategyId      String
+  strategy        Strategy  @relation(fields: [strategyId], references: [id], onDelete: Cascade)
 
   underlying      String
   status          PositionStatus
@@ -125,10 +125,10 @@ model Position {
 }
 
 model Trade {
-  id            Int            @id @default(autoincrement())
+  id            String         @id
 
-  positionId    Int
-  position      Position       @relation(fields: [positionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  positionId    String
+  position      Position       @relation(fields: [positionId], references: [id], onDelete: Cascade)
 
   date          DateTime
   direction     TradeDirection

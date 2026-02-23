@@ -57,7 +57,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs"
-import { CreateStrategyInputSchema, RiskProfileEnum, StrategyCategoryEnum, StrategySchema, StrategyStatusEnum, TimeframeEnum } from "@/schemas/strategy"
+import {  RiskProfileEnum, StrategyCategoryEnum, StrategySchema, _StrategySchema, StrategyStatusEnum, TimeframeEnum, UpsertStrategyInputSchema } from "@/schemas/strategy"
 import { Badge } from "@/components/ui/badge"
 import { toast } from "sonner"
 import {
@@ -74,58 +74,33 @@ import { CreateTradeSchema, OrderTypeEnum, TradeDirectionEnum, TradeStatusEnum, 
 import { Switch } from "@/components/ui/switch"
 import { nanoid } from "nanoid"
 import {PositionStatusEnum, CreatePositionSchema, UpdatePositionSchema } from "@/schemas/position"
+import { Form } from "radix-ui"
 
-const formSchema = z.object({
-  id: z.number().optional(),
-  name: z.string(),
-  description: z.string(),
-  category: StrategyCategoryEnum.nullable(),
-  timeframe: TimeframeEnum.nullable(),
-  riskProfile: RiskProfileEnum.nullable(),
-  status: StrategyStatusEnum.nullable(),
-  createdAt: z.date().optional(),
-  post: z.object({
-    id: z.number().nullable()
-  }),
-  positions: z.array(z.object({
-    id: z.number().nullable(),
-    underlying: z.string(),
-    openedAt : z.date(),
-    capitalUsed : z.number(),
-    status: PositionStatusEnum.nullable(),
-    notes: z.string().optional(),
-    trades: z.array(z.object({
-      id: z.number().nullable(),
-      date: z.date().nullable(),
-      direction: TradeDirectionEnum.nullable(),
-      orderType: OrderTypeEnum.nullable(),
-      status: TradeStatusEnum.nullable(),
-      quantity: z.number(),
-    })),
-  })),
-})
+type FormValues = z.infer<typeof StrategySchema>;
 
-const dfl_form_vals : z.infer<typeof formSchema>= {
-  id: undefined,
-  name: "",
-  description: "",
-  category: null,
-  timeframe: null,
-  riskProfile: null,
-  status: null,
-  post: { id: null },
+const dfl_form_vals : FormValues = {
+  id: nanoid(),
+  name: "test",
+  description: "test",
+  category: "INCOME",
+  timeframe: "DAILY",
+  riskProfile: "LOW",
+  status: "ACTIVE",
+  createdAt: new Date(),
+  post: { id: nanoid() },
   positions: [{
-    id: null,
-    underlying: "",
+    id: "",
+    underlying: "APPL",
     openedAt: new Date(),
     capitalUsed: 0,
-    status: null,
+    status: "OPEN",
+    notes: "example",
     trades : [{
-      id: null,
-      date: null,
-      direction: null,
-      orderType: null,
-      status: null,
+      id: "",
+      date: new Date(),
+      direction: "LONG",
+      orderType: "LIMIT",
+      status: "FILLED",
       quantity: 0,
     }]
   }]
@@ -133,41 +108,60 @@ const dfl_form_vals : z.infer<typeof formSchema>= {
 
 export function StrategyCreator() {
   const [isEditMode, setIsEditMode] = React.useState(false);
-  const [selectedStrategyId, setSelectedStrategyId] = React.useState<number | null>(null);
-  const [preview, setPreview] = React.useState<z.infer<typeof formSchema> | null>(null)
+  const [selectedStrategyId, setSelectedStrategyId] = React.useState<string | null>(null);
+  const [preview, setPreview] = React.useState<FormValues | null>(null)
+  const [selectedStrategy_snap, setSelectedStrategy_snap] = React.useState<FormValues | null>(null);
 
   const {data: strategies } = trpc.strategy.listAll.useQuery()
   const {data: posts } = trpc.blog.listAllPosts.useQuery()
-  const upsertStrategy = trpc.strategy.upsertStrategy.useMutation()
 
-  const updatePositions = trpc.position.update.useMutation()
-  const createPositions = trpc.position.create.useMutation()
-  const updateTrades = trpc.trade.update.useMutation()
-  const createTrades = trpc.trade.create.useMutation()
+  const upsertStrategy = trpc.strategy.upsertStrategy.useMutation()
+  const upsertPositions = trpc.position.upsert.useMutation()
+  const upsertTrades = trpc.trade.upsert.useMutation()
+
+  const deletePosition = trpc.position.delete.useMutation()
+  const deleteTrade = trpc.trade.delete.useMutation()
 
   const { data: selectedStrategy } = trpc.strategy.getById.useQuery(selectedStrategyId, { enabled: !!selectedStrategyId });
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<FormValues>({
+    resolver: zodResolver(StrategySchema),
     defaultValues: dfl_form_vals,
   });
 
-  let newPosArray: string[]= [];
-  const { fields: positionFields, append: appendPosition, remove: removePosition } = useFieldArray({
-    control : form.control,
-    name: "positions",
-  });
+  const [delPosArray, setDelPosArray] = React.useState<string[]>([]);
+  const [addedPosArray, setAddedPosArray] = React.useState<string[]>([]);
+  const [delTradeArray, setDelTradeArray] = React.useState<string[]>([]);
+  const [addedTradeArray, setAddedTradeArray] = React.useState<string[]>([]);
 
-  const addPosition = () => {
-    appendPosition(dfl_form_vals.positions)
-    const newId = positionFields[positionFields.length - 1]?.id;
-    if (newId) {
-      newPosArray.push(newId); // but newPosArray might need to be state or ref.
-    }
+  // Position handlers
+  const handleAddPositionToDelete = (posId: string) => {
+    setDelPosArray(prev => [...prev, posId]);
+  };
+
+  const handleRemovePositionFromAdded = (posId: string) => {
+    setAddedPosArray(prev => prev.filter(id => id !== posId));
+  };
+
+  const handleAddPosToAdded = (ele : string) => {
+    setAddedPosArray(prev => [...prev, ele])
   }
 
-  let newTradeArray: {pos_idx: number, trade_idx: number}[] = [];
-  const onSubmit = async (data: z.infer<typeof formSchema>) => {
+  // Trade handlers
+  const handleAddTradeToDelete = (tradeId : string) => {
+    setDelTradeArray(prev => [...prev, tradeId]);
+  };
+
+  const handleRemoveTradeFromAdded = (tradeId : string) => {
+    setAddedTradeArray(prev => prev.filter(id => id !== tradeId));
+  };
+
+  const handleAddTradeToAdded = (tradeId : string) => {
+    setAddedTradeArray(prev => [...prev, tradeId])
+  }
+  
+  const onSubmit = async (data: FormValues) => {
+    console.log(data)
     if(data.post.id === null) {
       toast("Strategy must associate to a post")
       return
@@ -178,8 +172,11 @@ export function StrategyCreator() {
       return
     }
 
-    const payload : CreateStrategyInputSchema = {
-      id: selectedStrategyId,
+    const strat_id = selectedStrategyId ? selectedStrategyId : nanoid();
+    console.log(">>>",strat_id)
+
+    const payload : UpsertStrategyInputSchema = {
+      id: strat_id,
       name: data.name,
       description: data.description,
       category: data.category ?? "INCOME",
@@ -189,121 +186,95 @@ export function StrategyCreator() {
       post: { id: data.post.id }, 
     };
     const res = await upsertStrategy.mutateAsync(payload);
-    console.log(`upsertStrategy() returned: ${res}`)
+    console.log(res)
 
-    // Editing a current strategy
-    if(selectedStrategyId != null) {
-      const update_pos_payload  = data.positions.map(((pos) => {
-        // ensure that the pos.id exists in remote db
-        if(pos.id != null) { 
-          return {
-            positionId: pos.id,
-            strategyId: selectedStrategyId,
-            underlying: pos.underlying,
-            openedAt: pos.openedAt,
-            capitalUsed: pos.capitalUsed,
-            status: pos.status,
-          }
-        }
-      }))
-
-      if (update_pos_payload.length > 0) {
-        await updatePositions.mutateAsync(update_pos_payload as UpdatePositionSchema[])
-      }
-
-      const create_pos_payload = newPosArray.map((ele) => {
-        const position = positionFields.find((field) => {if(field) { return field.id === ele} else { return false}});
-        if(position){
-          return {
-            strategyId: selectedStrategyId,
-            underlying: position.underlying,
-            openedAt: position.openedAt,
-            capitalUsed: position.capitalUsed,
-            status: position.status,
-          }
-        }
+    //console.log(delTradeArray)
+    if(delTradeArray.length > 0) {
+      delTradeArray.map(async (trade_id) => {
+        await deleteTrade.mutateAsync(trade_id)
       })
+      setDelTradeArray([])
+    }
 
-      if (create_pos_payload.length > 0) {
-        await createPositions.mutateAsync(update_pos_payload as CreatePositionSchema[])
-      }
-
-      // flatMap flattens the inner arrays into one level.
-      // filter ensures only valid trades are mapped.
-      const update_trades_payload = data.positions.flatMap((pos) =>
-        pos.trades
-          .filter((trade) => trade.id != null && pos.id != null)
-          .map((trade) => ({
-            date: trade.date,
-            direction: trade.direction,
-            orderType: trade.orderType,
-            status: trade.status,
-            quantity: trade.quantity,
-            positionId: pos.id,
-            tradeId: trade.id,
-          }))
-      );
-
-      if(update_trades_payload.length > 0) {
-        await updateTrades.mutateAsync(update_trades_payload as UpdateTradeSchema[])
-      }
-
-      const create_trade_payload = newTradeArray.map((ele) => {
-        if(ele.pos_idx != null) { 
-          const { fields: tradeFields } = useFieldArray({
-            control : form.control,
-            name: `positions.${ele.pos_idx}.trades`,
-          });
-          const trade = tradeFields.find((field) => field.id === ele.trade_idx);
-          if(trade) {
-            return {   
-              date: trade.date,
-              direction: trade.direction,
-              orderType: trade.orderType,
-              status: trade.status,
-              quantity: trade.quantity,
-              positionId: ele.pos_idx,
-            }
-          }
-        }
+    //console.log(delPosArray)
+    if(delPosArray.length > 0) {
+      delPosArray.map(async (pos_id) => {
+        await deletePosition.mutateAsync(pos_id)
       })
-      if(create_trade_payload.length > 0) {
-        await createTrades.mutateAsync(create_trade_payload as CreateTradeSchema[])
+      setDelPosArray([])
+    }
+
+    const upsert_pos_payload  = data.positions.map(((pos) => {
+      return {
+        positionId: pos.id,
+        strategyId: strat_id,
+        underlying: pos.underlying,
+        openedAt: pos.openedAt,
+        capitalUsed: pos.capitalUsed,
+        status: pos.status,
+        notes: pos.notes,
       }
+    }))
+
+    if (upsert_pos_payload.length > 0) {
+      const res = await upsertPositions.mutateAsync(upsert_pos_payload as UpdatePositionSchema[])
+      console.log(res)
+    }
+
+    // flatMap flattens the inner arrays into one level.
+    // filter ensures only valid trades are mapped.
+    const upsert_trades_payload = data.positions.flatMap((pos) =>
+      pos.trades.map((trade) => ({
+          date: trade.date,
+          direction: trade.direction,
+          orderType: trade.orderType,
+          status: trade.status,
+          quantity: trade.quantity,
+          positionId: pos.id,
+          tradeId: trade.id,
+        }))
+    );
+
+    if(upsert_trades_payload.length > 0) {
+      const res = await upsertTrades.mutateAsync(upsert_trades_payload as UpdateTradeSchema[])
+      console.log(res)
     }
   }
 
+  /* ======= Form Handlers ======= */
+  const { fields: positionFields, append: appendPosition, remove: removePosition } = useFieldArray({
+    control : form.control,
+    name: "positions",
+  });
+  
   // Update form when selectedStrategy changes
   React.useEffect(() => {
   if (selectedStrategy) {
     setIsEditMode(true);
 
-    // Transform dates
     const adaptedStrategy = {
       ...selectedStrategy,
-      // Convert top-level createdAt if present
-      createdAt: selectedStrategy.createdAt 
-        ? new Date(selectedStrategy.createdAt) 
-        : undefined,
-      // Convert nested dates
+      createdAt: new Date(selectedStrategy.createdAt),
       positions: selectedStrategy.positions.map((pos) => ({
         ...pos,
         openedAt: new Date(pos.openedAt),
         trades: pos.trades.map((trade) => ({
           ...trade,
-          date: trade.date ? new Date(trade.date) : null,
+          date: new Date(trade.date) 
         })),
       })),
     };
 
-    form.reset(adaptedStrategy);  // ✅
+    form.reset(adaptedStrategy);
+    setSelectedStrategy_snap(form.watch())
   }
 }, [selectedStrategy]);
 
-  const handleStrategySelection = async (value: string) => {
-    const id = Number(value);
-    setSelectedStrategyId(id);
-  };
+  const addPosition = () => {
+    const pos_id = nanoid()
+    appendPosition({...dfl_form_vals.positions[0], id: pos_id})
+    handleAddPosToAdded(pos_id) // addedPosArray.push(pos_id)
+  }
 
   const handleNewStrat = () => {
     setSelectedStrategyId(null);
@@ -317,9 +288,6 @@ export function StrategyCreator() {
     const {watch} = form
     setPreview(watch());
   };
-
-
-  
 
   return (
     <Tabs defaultValue="editor" className="max-w-3/4">
@@ -346,7 +314,7 @@ export function StrategyCreator() {
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button variant="outline">
-                              {posts?.find((p) => p.id === Number(field.value))?.title ||
+                              {posts?.find((p) => p.id === field.value)?.title ||
                                 "Select Post"}
                               <ChevronDown className="h-4 w-4" />
                             </Button>
@@ -355,13 +323,13 @@ export function StrategyCreator() {
                             <DropdownMenuLabel>Posts</DropdownMenuLabel>
                             <DropdownMenuSeparator />
                             <DropdownMenuRadioGroup
-                              value={field.value?.toString() ?? ""}
+                              value={field.value}
                               onValueChange={(value) => field.onChange(value)}
                             >
                               {posts?.map((p) => (
                                 <DropdownMenuRadioItem
                                   key={p.id}
-                                  value={p.id.toString()}
+                                  value={p.id}
                                 >
                                   {p.title}
                                 </DropdownMenuRadioItem>
@@ -396,15 +364,15 @@ export function StrategyCreator() {
                       <DropdownMenuSeparator />
                       <DropdownMenuRadioGroup
                         value={selectedStrategyId?.toString() ?? ""}
-                        onValueChange={handleStrategySelection}
+                        onValueChange={setSelectedStrategyId}
                       >
                         {strategies?.map((strat) => (
                           <DropdownMenuRadioItem
                             key={strat.id}
-                            value={strat.id.toString()}
+                            value={strat.id}
                           >
                             <div className="flex flex-col">
-                              <span className="font-medium">{strat.name}</span>
+                              <span className="font-medium">{strat.id}</span>
                               <span className="text-xs text-muted-foreground">
                                 {strat.description.slice(0, 50)}...
                               </span>
@@ -621,6 +589,7 @@ export function StrategyCreator() {
               <div className="flex justify-between items-center gap-x-2">
                 <CardTitle> Positions </CardTitle>
                 <Button variant="secondary" 
+                        type="button"
                         className="cursor-pointer" 
                         onClick={addPosition}
                 > 
@@ -644,11 +613,19 @@ export function StrategyCreator() {
                 {positionFields?.map((position, positionIndex) => (
                   <PositionsTradesEditorRow
                     key={position.id}
+                    watch={form.watch}
                     position={position}
                     positionIndex={positionIndex}
+                    positionFields={positionFields}
                     control={form.control}
                     removePosition={removePosition}
-                    newTradeArray={newTradeArray}
+                    addedPosArray={addedPosArray}
+                    addedTradeArray={addedTradeArray}
+                    handleAddPositionToDelete={handleAddPositionToDelete}
+                    handleRemovePositionFromAdded={handleRemovePositionFromAdded}
+                    handleAddTradeToDelete={handleAddTradeToDelete}
+                    handleRemoveTradeFromAdded={handleRemoveTradeFromAdded}
+                    handleAddTradeToAdded={handleAddTradeToAdded}
                   />
                 ))}
                 </TableBody>
@@ -721,7 +698,19 @@ export function StrategyCreator() {
   );
 }
 
-function PositionsTradesEditorRow({control, position, positionIndex, setValue, removePosition, newTradeArray} : any) {
+function PositionsTradesEditorRow(
+  {control, 
+    watch,
+    positionIndex, 
+    positionFields, 
+    removePosition, 
+    addedPosArray,
+    addedTradeArray,
+    handleAddTradeToAdded,
+    handleAddTradeToDelete,
+    handleRemoveTradeFromAdded,
+    handleAddPositionToDelete,
+    handleRemovePositionFromAdded} : any) {
   const [open, setOpen] = React.useState(false)
 
   const { fields: tradeFields, append: appendTrade, remove : removeTrade } = useFieldArray({
@@ -730,12 +719,41 @@ function PositionsTradesEditorRow({control, position, positionIndex, setValue, r
   });
 
   const addTrade = () => {
-    appendTrade({ direction: "LONG", id: nanoid() });
-    const newId = tradeFields[tradeFields.length - 1]?.id;
-    if (newId) {
-      newTradeArray.push({pos_idx :positionIndex, trade_idx: newId})
-    }
+    const trade_id = nanoid()
+    appendTrade({...dfl_form_vals.positions[0].trades[0], id: trade_id});
+    handleAddTradeToAdded(trade_id) 
   };
+
+  const handleDeletePosition = async (form_idx : number) => {
+    const pos_id_to_delete : string = watch().positions[form_idx].id
+
+    const ele = addedPosArray.find((ele : string) => {
+      return ele == pos_id_to_delete
+    }) 
+    //if the added position has not been added manually, delet from remote DB
+    if(ele == null) {
+      handleAddPositionToDelete(pos_id_to_delete) //delPosArray.push(pos_id_to_delete)
+    }else{
+      handleRemovePositionFromAdded(ele) // addedPosArray.pop(ele)
+    }
+    removePosition(form_idx)
+  }
+
+  const handleDeleteTrade = async (form_idx : number) => {
+    const trade_id : string = watch().positions[positionIndex].trades[form_idx].id
+
+    const ele = addedTradeArray.find((ele : string) => {
+      return ele == trade_id
+    }) 
+    if(ele == null) {
+
+      handleAddTradeToDelete(trade_id) //delTradeArray.push({pos_id : pos_id, trade_id : trade_id})
+    }else{
+      // if trade we're deleting is one we've added, then it won't be added
+      handleRemoveTradeFromAdded(ele) // addedPosArray.pop(ele)
+    }
+    removeTrade(form_idx)
+  }
   
   return (
     <>
@@ -797,7 +815,7 @@ function PositionsTradesEditorRow({control, position, positionIndex, setValue, r
           <Button 
             variant="ghost" 
             className="cursor-pointer text-red-500 hover:text-red-600"
-            onClick={() => removePosition(positionIndex)}
+            onClick={() => handleDeletePosition(positionIndex)}
           >
             <Trash className="w-4 h-4"/>
           </Button>
@@ -810,6 +828,7 @@ function PositionsTradesEditorRow({control, position, positionIndex, setValue, r
           <div className="border-b border-border bg-muted/30 px-6 py-3">
             <Button 
               variant="secondary"
+              type="button"
               onClick={addTrade} 
               className="cursor-pointer rounded-full"
               >
@@ -856,8 +875,9 @@ function PositionsTradesEditorRow({control, position, positionIndex, setValue, r
                       <TableCell>
                         <Button 
                           variant="ghost" 
+                          type="button"
                           className="cursor-pointer text-red-500 hover:text-red-600"
-                          onClick={() => removeTrade(tradeIndex)}
+                          onClick={() => handleDeleteTrade(tradeIndex)}
                         >
                           <Minus className="w-4 h-4"/>
                         </Button>
@@ -884,6 +904,7 @@ export function DatePicker({date, setDate} : DatePickerProps) {
       <PopoverTrigger asChild>
         <Button
           variant="outline"
+          type="button"
           data-empty={!date}
           className="data-[empty=true]:text-muted-foreground w-[280px] justify-start text-left font-normal"
         >

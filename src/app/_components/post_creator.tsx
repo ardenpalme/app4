@@ -61,15 +61,17 @@ import {
 } from "@/components/ui/tabs"
 
 const formSchema = z.object({
+  id: z.string(),
   title: z.string(),
   summary: z.string(),
   content: z.string(),
   seoTitle: z.string(),
   seoDescription: z.string(),
-  strategyId: z.number().nullable(),
+  strategyId: z.string().nullable(),
 })
 
 const dfl_form_vals = {
+  id: nanoid(),
   title: "",
   summary: "",
   content: "",
@@ -80,7 +82,7 @@ const dfl_form_vals = {
 
 export function PostCreator() {
   const [isEditMode, setIsEditMode] = React.useState(false);
-  const [selectedPostId, setSelectedPostId] = React.useState<number | null>(null);
+  const [selectedPostId, setSelectedPostId] = React.useState<string | null>(null);
   const [preview, setPreview] = React.useState<z.infer<typeof formSchema>>({
     ...dfl_form_vals
   })
@@ -88,17 +90,12 @@ export function PostCreator() {
   const {data: strategies, isLoading: strategiesLoading, isError: strategiesError} = trpc.strategy.listAll.useQuery()
   const {data: posts, isLoading: postsLoading, isError: postsError} = trpc.blog.listAllPosts.useQuery()
   const upsertPost = trpc.blog.upsertPost.useMutation();
-  const swapStrategies = trpc.blog.swapStrategies.useMutation();
-  const { data: selectedPost, isLoading : selectedPostLoading, isError : selectedPostError} =
-    trpc.blog.getPostById.useQuery(selectedPostId, {
-      enabled: !!selectedPostId, // only fetch if id is not null
-    });
+  //const swapStrategies = trpc.blog.swapStrategies.useMutation();
+  const { data: selectedPost, isLoading : selectedPostLoading, isError : selectedPostError} = trpc.blog.getPostById.useQuery(selectedPostId, { enabled: !!selectedPostId });
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      ...dfl_form_vals
-    },
+    defaultValues: dfl_form_vals,
   })
   const { watch } = form;
 
@@ -109,6 +106,7 @@ export function PostCreator() {
       .replace(/\s+/g, "-")
       .replace(/[^\w-]/g, "")}-${nanoid(5)}`;
 
+      /*
     if(selectedPost && 
        // selected post to edit has a valid strat
        selectedPost.strategy.id != null &&  
@@ -123,9 +121,11 @@ export function PostCreator() {
       const res = await swapStrategies.mutateAsync(payload)
       console.log(res)
     }
+    */
 
+   const post_id = selectedPostId ?? nanoid();
     const payload : CreatePostInputSchema = {
-      id: selectedPostId,
+      id: post_id,
       slug: slug,
       title: data.title,
       summary: data.summary,
@@ -133,30 +133,25 @@ export function PostCreator() {
       type: data.strategyId ? "STRATEGY" : "GENERIC",
       seoTitle: data.seoTitle,
       seoDescription: data.seoDescription,
-      strategy: { id: data.strategyId ?? null }, 
+      strategy: { id: data.strategyId }, 
     };
     const res = await upsertPost.mutateAsync(payload);
     console.log(`upsertPost() returned: ${res}`)
-    setPreview(watch()) //update preview
+    //setPreview(watch())
   }
 
   React.useEffect(() => {
     if (selectedPost) {
       setIsEditMode(true);
-
+      form.setValue('id', selectedPost.id);
       form.setValue('title', selectedPost.title);
       form.setValue('summary', selectedPost.summary);
       form.setValue('content', selectedPost.content);
-      form.setValue('strategyId', selectedPost.strategy.id);
+      form.setValue('strategyId', selectedPost.strategy?.id ?? null);
       form.setValue('seoTitle', selectedPost.seoTitle);
       form.setValue('seoDescription', selectedPost.seoDescription);
     }
   }, [selectedPost, form]);
-
-  const handlePostSelection = async (value: string) => {
-    const id = Number(value);
-    setSelectedPostId(id);
-  };
 
   const handleNewPost = () => {
     setSelectedPostId(null);
@@ -195,7 +190,7 @@ export function PostCreator() {
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button variant="outline">
-                              {strategies?.find((s) => s.id === Number(field.value))?.name ||
+                              {strategies?.find((s) => (field.value && s.id === field.value))?.name ||
                                 "Select Strategy"}
                               <ChevronDown className="h-4 w-4" />
                             </Button>
@@ -245,15 +240,15 @@ export function PostCreator() {
                       <DropdownMenuSeparator />
                       <DropdownMenuRadioGroup
                         value={selectedPostId?.toString() ?? ""}
-                        onValueChange={handlePostSelection}
+                        onValueChange={setSelectedPostId}
                       >
                         {posts?.map((post) => (
                           <DropdownMenuRadioItem
                             key={post.id}
-                            value={post.id.toString()}
+                            value={post.id}
                           >
                             <div className="flex flex-col">
-                              <span className="font-medium">{post.title}</span>
+                              <span className="font-medium">{post.id}</span>
                               <span className="text-xs text-muted-foreground">
                                 {post.summary.slice(0, 50)}...
                               </span>

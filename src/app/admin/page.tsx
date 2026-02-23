@@ -33,9 +33,13 @@ export default async function AdminPage() {
         <Tabs defaultValue="posts">
           <TabsList variant="line" className="pb-3">
             <TabsTrigger value="posts">Blog</TabsTrigger>
+            <TabsTrigger value="strat">Strategy</TabsTrigger>
           </TabsList>
           <TabsContent value="posts" >
             <PostCreator/>
+          </TabsContent>
+          <TabsContent value="strat" >
+            <StrategyCreator/>
           </TabsContent>
         </Tabs>
       </main>

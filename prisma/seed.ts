@@ -1,6 +1,7 @@
 import { PrismaClient, Prisma } from '../prisma/generated/prisma/client'
 import { PrismaPg } from '@prisma/adapter-pg'
 import 'dotenv/config'
+import { nanoid } from 'nanoid'
 
 const adapter = new PrismaPg({
   connectionString: process.env.DATABASE_URL,
@@ -13,6 +14,7 @@ const prisma = new PrismaClient({
 // 2 strategy posts with nested positions and trades
 const strategyPost: Prisma.StrategyCreateInput[] = [
   {
+    id: nanoid(),
     name: 'Tech Swing',
     description: 'Swing trading strategy based on moving averages and RSI on major tech stocks.',
     category: 'SWING',
@@ -21,6 +23,7 @@ const strategyPost: Prisma.StrategyCreateInput[] = [
     status: 'ACTIVE',
     post: {
       create: {
+        id: nanoid(),
         title: 'Swing Trading Strategy for Tech Stocks',
         slug: 'swing-trading-tech-stocks',
         content: 'This strategy uses the 50-day and 200-day moving averages along with RSI divergence to identify swing entries in stocks like AAPL, MSFT, and NVDA. Positions are held from a few days to several weeks.',
@@ -33,6 +36,7 @@ const strategyPost: Prisma.StrategyCreateInput[] = [
     positions: {
       create: [
         {
+          id: nanoid(),
           underlying: 'AAPL',
           status: 'OPEN',
           openedAt: new Date(),
@@ -42,6 +46,7 @@ const strategyPost: Prisma.StrategyCreateInput[] = [
           trades: {
             create: [
               {
+                id: nanoid(),
                 date: new Date(),
                 direction: 'LONG',
                 orderType: 'MARKET',
@@ -58,6 +63,7 @@ const strategyPost: Prisma.StrategyCreateInput[] = [
     },
   },
   {
+    id: nanoid(),
     name: 'ES Scalper',
     description: 'Intraday scalping strategy on S&P 500 E-mini futures using order flow and market profile.',
     category: 'SCALP',
@@ -66,6 +72,7 @@ const strategyPost: Prisma.StrategyCreateInput[] = [
     status: 'ACTIVE',
     post: {
       create: {
+        id: nanoid(),
         title: 'Scalping ES Futures',
         slug: 'scalping-es-futures',
         content: 'This scalping strategy focuses on the ES futures during the first two hours of the session. Entries are based on order flow imbalances and market profile structure. Targets are typically 2-4 points with tight stops.',
@@ -78,6 +85,7 @@ const strategyPost: Prisma.StrategyCreateInput[] = [
     positions: {
       create: [
         {
+          id: nanoid(),
           underlying: 'ES',
           status: 'OPEN',
           openedAt: new Date(),
@@ -87,6 +95,7 @@ const strategyPost: Prisma.StrategyCreateInput[] = [
           trades: {
             create: [
               {
+                id: nanoid(),
                 date: new Date(),
                 direction: 'LONG',
                 orderType: 'MARKET',
@@ -97,6 +106,7 @@ const strategyPost: Prisma.StrategyCreateInput[] = [
                 notes: 'Initial entry.',
               },
               {
+                id: nanoid(),
                 date: new Date(Date.now() + 3600000), // 1 hour later
                 direction: 'LONG',
                 orderType: 'LIMIT',
@@ -118,6 +128,7 @@ const strategyPost: Prisma.StrategyCreateInput[] = [
 // 3 generic posts (standalone)
 const genericPosts: Prisma.PostCreateInput[] = [
   {
+    id: nanoid(),
     title: 'Understanding Market Cycles',
     slug: 'understanding-market-cycles',
     content: 'Market cycles are recurring patterns of bull and bear phases driven by investor psychology and economic conditions. This post explains the four stages: accumulation, markup, distribution, and markdown.',
@@ -127,6 +138,7 @@ const genericPosts: Prisma.PostCreateInput[] = [
     seoDescription: 'Learn about accumulation, markup, distribution, and markdown phases.',
   },
   {
+    id: nanoid(),
     title: 'Risk Management in Trading',
     slug: 'risk-management-trading',
     content: 'Effective risk management is the cornerstone of long-term trading success. Topics include position sizing, stop-loss placement, risk-reward ratios, and diversification.',
@@ -136,6 +148,7 @@ const genericPosts: Prisma.PostCreateInput[] = [
     seoDescription: 'Discover key risk management principles to protect your capital.',
   },
   {
+    id: nanoid(),
     title: 'Technical Analysis Basics',
     slug: 'technical-analysis-basics',
     content: 'Technical analysis involves studying price charts and indicators to forecast future price movements. This article covers support/resistance, trend lines, and common chart patterns.',

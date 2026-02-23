@@ -40,40 +40,38 @@ export const RiskProfileEnum = z.enum([
 export type RiskProfileEnum  = z.infer<typeof RiskProfileEnum >
 
 export const StrategySchema = z.object({
-  id: z.number(),
+  id: z.string(),
   name: z.string(),
   description: z.string(),
   category: StrategyCategoryEnum,
   timeframe: TimeframeEnum,
   riskProfile: RiskProfileEnum,
   status: StrategyStatusEnum,
-  createdAt: z.date().optional(),
+  createdAt: z.date(),
   post: z.object({
-    id: z.number()
+    id: z.string(),
   }),
   positions: z.array(z.object({
-    id: z.number().nullable(),
+    id: z.string(),
     underlying: z.string(),
-    openedAt : z.date(),
+    openedAt : z.coerce.date(),
     capitalUsed : z.number(),
-    status: PositionStatusEnum.nullable(),
-    notes: z.string().optional(),
+    status: PositionStatusEnum,
+    notes: z.string().nullable(),
     trades: z.array(z.object({
-      id: z.number().nullable(),
-      date: z.date().nullable(),
-      direction: TradeDirectionEnum.nullable(),
-      orderType: OrderTypeEnum.nullable(),
-      status: TradeStatusEnum.nullable(),
+      id: z.string(),
+      date: z.coerce.date(),
+      direction: TradeDirectionEnum,
+      orderType: OrderTypeEnum,
+      status: TradeStatusEnum,
       quantity: z.number(),
     })),
   })),
 })
-export type StrategySchema = z.infer<typeof StrategySchema>
-
 
 /* HELPER SCHEMAS */
-export const CreateStrategyInputSchema = z.object({
-  id: z.number().nullable(),
+export const UpsertStrategyInputSchema = z.object({
+  id: z.string(),
   name: z.string(),
   description: z.string(),
   category: StrategyCategoryEnum,
@@ -81,7 +79,7 @@ export const CreateStrategyInputSchema = z.object({
   riskProfile: RiskProfileEnum,
   status: StrategyStatusEnum,
   post: z.object({
-    id: z.number()
+    id: z.string()
   })
 })
-export type CreateStrategyInputSchema = z.infer<typeof CreateStrategyInputSchema >
+export type UpsertStrategyInputSchema = z.infer<typeof UpsertStrategyInputSchema >

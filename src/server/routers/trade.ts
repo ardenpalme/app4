@@ -78,7 +78,38 @@ export const TradeRouter = router({
         data: data
       })
     }) 
-  })
+  }),
 
+
+  upsert : publicProcedure
+  .input(z.array(UpdateTradeSchema))
+  .mutation(async ({input}) => {
+    input.map(async (ele) => {
+      const data : Prisma.TradeCreateInput = {
+        id: ele.tradeId,
+        date : ele.date,
+        direction: ele.direction,
+        orderType : ele.orderType,
+        status: ele.status,
+        quantity: ele.quantity,
+        position: {
+          connect : {id : ele.positionId}
+        }
+      }
+      return await prisma.trade.upsert({
+        where: {id: ele.tradeId},
+        update: { ...data },
+        create: { ...data }
+      })
+    }) 
+  }),
+
+  delete : publicProcedure
+  .input(z.string())
+  .mutation(async ({input}) => {
+    return await prisma.trade.delete({
+      where: {id: input},
+    })
+  }),
 
 });

@@ -30,8 +30,8 @@ export const BlogPostRouter = router({
       })
       const result = z.array(BlogPostSchema).safeParse(data)
       if (!result.success) {
-        const tree = z.treeifyError(result.error);
-        console.error(tree)
+        const pretty = z.prettifyError(result.error);
+        console.error(pretty)
       }
       return result.data
     }),
@@ -71,10 +71,10 @@ export const BlogPostRouter = router({
     }),
 
   getPostById : publicProcedure
-    .input(z.number().nullable())
+    .input(z.string().nullable())
     .output(CreatePostInputSchema.nullable())
     .query(async ({input}) => {
-      if(input === null) return null
+      if(input == null) return null;
       const data = await prisma.post.findUnique({
         where : {id : input},
         select : {
@@ -93,21 +93,22 @@ export const BlogPostRouter = router({
             },
           },
         }
-      })
-      if(!data) return null
-      return {
-        ...data,
-        strategy : {
-          // required because prisma would return undef
-          id: data.strategy?.id ?? null
-        }
+      });
+      //console.log(data)
+      if(data == null) return null;
+      const result = CreatePostInputSchema.safeParse(data)
+      if (!result.success) {
+        const pretty = z.prettifyError(result.error);
+        console.error(pretty)
       }
+      return result.data
     }),
 
   upsertPost : publicProcedure
     .input(CreatePostInputSchema)
     .mutation(async ({input}) => {
       const data: Prisma.PostCreateInput = {
+        id: input.id,
         slug: input.slug,
         title: input.title,
         summary: input.summary,
@@ -117,27 +118,25 @@ export const BlogPostRouter = router({
         seoDescription: input.seoDescription,
       };
 
+      // if we're associating a, strategy connect it
       if(input.strategy?.id) {
         data.strategy = {
           connect: {id: input.strategy?.id}
         }
       }
 
-      if(input.id) {
-        return prisma.post.update({
-          where: { id: input.id },
-          data,
-        });
-      }
-      return prisma.post.create({
-        data,
-      });
+      return prisma.post.upsert({
+        where: {id: input.id},
+        update: {},
+        create: data
+      })
     }),
 
+    /*
     swapStrategies: publicProcedure
   .input(z.object({
-    postA_id: z.number(),
-    stratB_id: z.number(),
+    postA_id: z.string(),
+    stratB_id: z.string(),
   }))
   .mutation(async ({ input }) => {
     return await prisma.$transaction(async (tx) => {
@@ -152,7 +151,9 @@ export const BlogPostRouter = router({
         await tx.strategy.update({
           where: { id: postA_strat.id },
           data: {
-            PostId : null
+            post: {
+              disconnect: true,
+            },
           },
         });
       }
@@ -169,7 +170,9 @@ export const BlogPostRouter = router({
         await tx.strategy.update({
           where: { id: stratB.id },
           data: {
-            PostId: null, 
+            post: {
+              disconnect: true,
+            },
           },
         });
       }
@@ -185,6 +188,7 @@ export const BlogPostRouter = router({
       });
     });
   }),
+  */
 
 });
 
