@@ -1,5 +1,5 @@
 import {z} from 'zod'
-import { TradeSchema } from './trade'
+import { CreateTradeSchema, TradeSchema } from './trade'
 
 export const PositionStatusEnum = z.enum([
   "OPEN",
@@ -9,31 +9,35 @@ export const PositionStatusEnum = z.enum([
 ])
 export type PositionStatusEnum = z.infer<typeof PositionStatusEnum >
 
-export const PositionSchema = z.object({
-  id: z.number().nullable(),
+export const CreatePositionSchema = z.object({
   underlying: z.string(),
-  openedAt : z.date(),
-  closedAt : z.date().optional(),
+  openedAt : z.coerce.date(),
   capitalUsed : z.number(),
-  realizedPnL : z.number().optional(),
-  unrealizedPnL : z.number().optional(),
-  returnPct : z.number().optional(),
-  thesis: z.string().optional(),
-  notes: z.string().optional(),
-  trades : z.array(TradeSchema),
+  status: PositionStatusEnum,
   strategyId : z.number(),
+})
+export type CreatePositionSchema = z.infer<typeof CreatePositionSchema>
+
+export const PositionSchema = CreatePositionSchema.extend({
+  closedAt : z.coerce.date().nullable().optional(),
+  realizedPnL : z.number().nullable().optional(),
+  unrealizedPnL : z.number().nullable().optional(),
+  returnPct : z.number().nullable().optional(),
+  notes: z.string().nullable().optional(),
 })
 export type PositionSchema = z.infer<typeof PositionSchema>
 
-export const CreatePositionSchemaInput = z.object({
-  underlying: z.string(),
-  openedAt : z.date(),
-  closedAt : z.date().optional(),
-  capitalUsed : z.number(),
-  realizedPnL : z.number().optional(),
-  unrealizedPnL : z.number().optional(),
-  returnPct : z.number().optional(),
-  thesis: z.string().optional(),
-  notes: z.string().optional(),
+export const UpdatePositionSchema = PositionSchema.extend({
+  positionId: z.number(),
 })
-export type CreatePositionSchemaInput  = z.infer<typeof CreatePositionSchemaInput >
+export type UpdatePositionSchema = z.infer<typeof UpdatePositionSchema >
+
+/*
+export const PositionTradesSchema = PositionSchema.extend({
+  positionId: z.number(),
+  trades: z.array(z.object({id : z.number()})),
+})
+export type PositionTradesSchema = z.infer<typeof PositionTradesSchema >
+*/
+
+

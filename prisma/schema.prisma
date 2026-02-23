@@ -99,33 +99,28 @@ model Strategy {
   riskProfile   RiskProfile
   status        StrategyStatus
 
-  createdAt     DateTime         @default(now())
-
   positions     Position[]
+  createdAt     DateTime         @default(now())
 }
 
 model Position {
   id              Int       @id @default(autoincrement())
   strategyId      Int
-  strategy        Strategy  @relation(fields: [strategyId], references: [id])
+  strategy        Strategy  @relation(fields: [strategyId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   underlying      String
-
   status          PositionStatus
-
   openedAt        DateTime
-  closedAt        DateTime?
-
   capitalUsed     Float
+
+  closedAt        DateTime?
   realizedPnl     Float?
   unrealizedPnl   Float?
   returnPct       Float?
-
-  trades          Trade[]
-
   thesis          String?
   notes           String?
 
+  trades          Trade[]
   createdAt       DateTime        @default(now())
 }
 
@@ -133,24 +128,19 @@ model Trade {
   id            Int            @id @default(autoincrement())
 
   positionId    Int
-  position      Position       @relation(fields: [positionId], references: [id])
+  position      Position       @relation(fields: [positionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   date          DateTime
-
   direction     TradeDirection
   orderType     OrderType
   status        TradeStatus
-
   quantity      Float
 
   limitPrice    Float?
   filledPrice   Float?
-
   fees          Float?
   slippage      Float?
-
   realizedPnl   Float?
-
   notes         String?
 }
 

@@ -9,7 +9,6 @@ export type TradeDirectionEnum = z.infer<typeof TradeDirectionEnum>
 export const TradeStatusEnum = z.enum([
   "PENDING", 
   "FILLED", 
-  "EXPIRED",
   "PARTIAL",
   "CANCELLED",
   "REJECTED",
@@ -26,21 +25,25 @@ export const OrderTypeEnum = z.enum([
 export type OrderTypeEnum = z.infer<typeof OrderTypeEnum >
 
 export const CreateTradeSchema = z.object({
-  date: z.date(),
+  date: z.coerce.date(),
   direction: TradeDirectionEnum,
   orderType: OrderTypeEnum,
   status: TradeStatusEnum,
   quantity: z.number(),
-  limitPrice: z.number().optional(),
-  filledPrice: z.number().optional(),
-  fees: z.number().optional(),
-  slippage: z.number().optional(),
-  notes: z.string().optional(),
+  positionId : z.number()
 })
 export type CreateTradeSchema = z.infer<typeof CreateTradeSchema>
 
 export const TradeSchema = CreateTradeSchema.extend({
-  id: z.number().nullable(),
-  positionId: z.number(),
+  limitPrice: z.number().nullable().optional(),
+  filledPrice: z.number().nullable().optional(),
+  fees: z.number().nullable().optional(),
+  slippage: z.number().nullable().optional(),
+  notes: z.string().nullable().optional(),
 })
 export type TradeSchema = z.infer<typeof TradeSchema>
+
+export const UpdateTradeSchema = TradeSchema.extend({
+  tradeId : z.number(),
+})
+export type UpdateTradeSchema  = z.infer<typeof UpdateTradeSchema >

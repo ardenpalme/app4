@@ -243,7 +243,6 @@ export default function PortfolioPage() {
   );
 }
 
-
 function OptionsTradeRow({strat} : {strat: OptionsStrategySchema }) {
   const [open, setOpen] = useState(false)
   

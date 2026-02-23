@@ -3,7 +3,6 @@ import prisma from "@/lib/prisma";
 import {z} from 'zod'
 import { publicProcedure, router } from "../trpc";
 import { CreateStrategyInputSchema, StrategySchema } from "@/schemas/strategy";
-import { CreatePositionSchemaInput } from '@/schemas/position';
 
 export const StrategyRouter = router({
   listAll : publicProcedure
@@ -18,11 +17,30 @@ export const StrategyRouter = router({
         timeframe: true,
         riskProfile: true,
         status: true,
-        createdAt: true,
         post: {
           select : { id: true }
+        },
+        positions: {
+          select : {
+            id: true,
+            underlying: true,
+            openedAt : true,
+            capitalUsed : true,
+            status: true,
+            notes: true,
+            trades: {
+              select : {
+                id: true,
+                date: true,
+                direction: true,
+                orderType: true,
+                status: true,
+                quantity: true,
+              }
+            }
+          }
         }
-      },
+      }
     });
   }),
 
@@ -43,6 +61,26 @@ export const StrategyRouter = router({
         status: true,
         post: {
           select : { id: true }
+        },
+        positions: {
+          select : {
+            id: true,
+            underlying: true,
+            openedAt : true,
+            capitalUsed : true,
+            status: true,
+            notes: true,
+            trades: {
+              select : {
+                id: true,
+                date: true,
+                direction: true,
+                orderType: true,
+                status: true,
+                quantity: true,
+              }
+            }
+          }
         }
       }
     });
@@ -82,29 +120,6 @@ export const StrategyRouter = router({
       }
     });
   }),
-
-  updatePositions: publicProcedure
-  .input(z.object({
-    id: z.number(),
-    positions: z.array(CreatePositionSchemaInput),
-  }))
-  .mutation(async ({input}) => {
-    const positions = input.positions as Prisma.PositionCreateInput[]
-    return await prisma.strategy.update({
-      where: {id: input.id},
-      data: {
-        positions: {
-          // delete all existing positions for this strategy
-          deleteMany: {},
-          // replace positions with passed array
-          create: positions.map((pos) => ({ 
-            ...pos
-          })),
-        }
-      }
-    })
-  }),
-
 
 });
 

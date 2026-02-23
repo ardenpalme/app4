@@ -1,5 +1,7 @@
 import {z} from 'zod'
-import { PositionSchema } from './position'
+import { PositionSchema, PositionStatusEnum } from './position'
+import { TradeDirection } from '../../prisma/generated/prisma/enums'
+import { OrderTypeEnum, TradeDirectionEnum, TradeStatusEnum } from './trade'
 
 export const StrategyStatusEnum = z.enum([
   "DEVELOPMENT",
@@ -48,8 +50,24 @@ export const StrategySchema = z.object({
   createdAt: z.date().optional(),
   post: z.object({
     id: z.number()
-  })
-}) 
+  }),
+  positions: z.array(z.object({
+    id: z.number().nullable(),
+    underlying: z.string(),
+    openedAt : z.date(),
+    capitalUsed : z.number(),
+    status: PositionStatusEnum.nullable(),
+    notes: z.string().optional(),
+    trades: z.array(z.object({
+      id: z.number().nullable(),
+      date: z.date().nullable(),
+      direction: TradeDirectionEnum.nullable(),
+      orderType: OrderTypeEnum.nullable(),
+      status: TradeStatusEnum.nullable(),
+      quantity: z.number(),
+    })),
+  })),
+})
 export type StrategySchema = z.infer<typeof StrategySchema>
 
 

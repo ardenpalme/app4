@@ -2,7 +2,19 @@ import { Prisma } from '../../../prisma/generated/prisma/client'
 import prisma from "@/lib/prisma";
 import {z} from 'zod'
 import { publicProcedure, router } from "../trpc";
-import { CreateTradeSchema, TradeSchema } from '@/schemas/trade';
+import { CreateTradeSchema, TradeSchema, UpdateTradeSchema } from '@/schemas/trade';
+
+export const trade_sel = {
+  underlying: true,
+  openedAt : true,
+  capitalUsed : true,
+  status: true,
+  closedAt : true,
+  realizedPnL : true,
+  unrealizedPnL : true,
+  returnPct : true,
+  notes: true,
+}
 
 export const TradeRouter = router({
   listAll : publicProcedure
@@ -26,24 +38,47 @@ export const TradeRouter = router({
     })
   }),
 
-  upsert : publicProcedure
-  .input(TradeSchema)
-  .query(async ({input}) => {
-    const {id: tradeId, positionId, ..._input}  = input
-    if (tradeId) {
-      const data = _input as Prisma.TradeUpdateInput
-      //trade # tradeId must already be associated to a position
-      return prisma.trade.update({
-        where: { id: tradeId },
-        data,
-      });
-    }
-
-    //new trades need a parent position
-    const data = _input as Prisma.TradeCreateInput
-    return prisma.trade.create({
-      data,
-    });
-    
+  create : publicProcedure
+  .input(z.array(CreateTradeSchema))
+  .mutation(async ({input}) => {
+    input.map(async (ele) => {
+      const data : Prisma.TradeCreateInput = {
+        date : ele.date,
+        direction: ele.direction,
+        orderType : ele.orderType,
+        status: ele.status,
+        quantity: ele.quantity,
+        position: {
+          connect : {id : ele.positionId}
+        }
+      }
+      return await prisma.trade.create({
+        data: data
+      })
+    }) 
   }),
+
+
+  update : publicProcedure
+  .input(z.array(UpdateTradeSchema))
+  .mutation(async ({input}) => {
+    input.map(async (ele) => {
+      const data : Prisma.TradeUpdateInput = {
+        date : ele.date,
+        direction: ele.direction,
+        orderType : ele.orderType,
+        status: ele.status,
+        quantity: ele.quantity,
+        position: {
+          connect : {id : ele.positionId}
+        }
+      }
+      return await prisma.trade.update({
+        where: {id: ele.tradeId},
+        data: data
+      })
+    }) 
+  })
+
+
 });

@@ -6,10 +6,10 @@
 
 ### Hosting
 * AWS EC2 with Elastic IP
-* Neon DB
+* Neon DB (PostgreSQL)
 
 ### API's
-* EODHD with U.S. Options (financial data 15-min delayed)
+* EODHD (financial data 15-min delayed)
 * Alchemy (Crypto) 
 
 ### Notes
@@ -19,4 +19,7 @@
 ### TODO
 * Understand the `ERR_BLOCKED_BY_CLIENT` error on AWS
 * SSL secutiry for PostgreSQL queries
- 
+* Get all positions and trades for a strategy, then I can edit the fields, 
+    then delete all positions remotely (cascade delete on trades)
+    and create all new positions (remove UUID creation on PostgreSQL and generate it locally with nanoid() -> string)
+    Then for each position fields add the trades (remove UUID creation on PostgreSQL and generate trade UUID locally)
