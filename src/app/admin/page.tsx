@@ -32,8 +32,8 @@ export default async function AdminPage() {
       <main className="mx-auto max-w-5xl px-6 py-12 flex flex-col gap-y-8">
         <Tabs defaultValue="posts">
           <TabsList variant="line" className="pb-3">
-            <TabsTrigger value="posts">Blog</TabsTrigger>
-            <TabsTrigger value="strat">Strategy</TabsTrigger>
+            <TabsTrigger value="posts" className="cursor-pointer">Blog</TabsTrigger>
+            <TabsTrigger value="strat" className="cursor-pointer">Strategy</TabsTrigger>
           </TabsList>
           <TabsContent value="posts" >
             <PostCreator/>

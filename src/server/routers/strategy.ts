@@ -48,6 +48,7 @@ export const StrategyRouter = router({
     if (!result.success) {
       const pretty = z.prettifyError(result.error);
       console.error(pretty)
+      return []
     }
     return result.data
   }),
@@ -98,6 +99,7 @@ export const StrategyRouter = router({
     if (!result.success) {
       const pretty = z.prettifyError(result.error);
       console.error(pretty)
+      return null
     }
     return result.data
   }),
@@ -106,6 +108,7 @@ export const StrategyRouter = router({
   .input(UpsertStrategyInputSchema)
   .mutation(async ({ input }) => {
     const base_data = {
+      id: input.id,
       name: input.name,
       description: input.description,
       category: input.category,
@@ -114,26 +117,19 @@ export const StrategyRouter = router({
       status: input.status,
     };
 
-    if (input.id) {
-      const data = base_data as Prisma.StrategyUpdateInput
-      //strategy # input.id must already have a post
-      //connect the strategy to the passed post
-      return prisma.strategy.update({
+    if(input.post.id != null) {
+      return prisma.strategy.upsert({
         where: { id: input.id },
-        data
+        update : {...base_data },
+        create : {
+          ...base_data,
+          post : {
+            connect : {id : input.post.id} 
+          }
+        }
       });
     }
-    
-    //new strategies need a parent post
-    const data = base_data as Prisma.StrategyCreateInput
-    return prisma.strategy.create({
-      data : {
-        ...data,
-        post : {
-          connect : {id : input.post.id} 
-        }
-      }
-    });
+
   }),
 
 });

@@ -2,7 +2,7 @@ import { Prisma } from '../../../prisma/generated/prisma/client'
 import prisma from "@/lib/prisma";
 import {z} from 'zod'
 import { publicProcedure, router } from "../trpc";
-import { CreatePositionSchema, UpdatePositionSchema } from '@/schemas/position';
+import { CreatePositionSchema, PositionTradesSchema, UpdatePositionSchema } from '@/schemas/position';
 
 export const position_sel = {
   underlying: true,
@@ -17,45 +17,6 @@ export const position_sel = {
 }
 
 export const PositionRouter = router({
-  create : publicProcedure
-  .input(z.array(CreatePositionSchema))
-  .mutation(async ({input}) => {
-    input.map(async (ele) => {
-      const data : Prisma.PositionCreateInput = {
-        underlying: ele.underlying,
-        status: ele.status,
-        openedAt: ele.openedAt,
-        capitalUsed: ele.capitalUsed,
-        strategy: {
-          connect : {id : ele.strategyId}
-        }
-      }
-      return await prisma.position.create({
-        data: data
-      })
-    }) 
-  }),
-
-  update : publicProcedure
-  .input(z.array(UpdatePositionSchema))
-  .mutation(async ({input}) => {
-    input.map(async (ele) => {
-      const data : Prisma.PositionUpdateInput = {
-        underlying: ele.underlying,
-        status: ele.status,
-        openedAt: ele.openedAt,
-        capitalUsed: ele.capitalUsed,
-        strategy: {
-          connect : {id : ele.strategyId}
-        }
-      }
-      return await prisma.position.update({
-        where: {id: ele.positionId},
-        data: data
-      })
-    }) 
-  }),
-
   upsert : publicProcedure
   .input(z.array(UpdatePositionSchema))
   .mutation(async ({input}) => {
@@ -66,19 +27,19 @@ export const PositionRouter = router({
         status: ele.status,
         openedAt: ele.openedAt,
         capitalUsed: ele.capitalUsed,
-        strategy: {
-          connect : {id : ele.strategyId}
-        }
       }
-      // emulates findOrCreate()
+
       return await prisma.position.upsert({
         where: {id: ele.positionId},
         update: { ...data },
-        create: { ...data } 
+        create: { ...data,
+          strategy: {
+            connect : {id : ele.strategyId}
+          }
+        } 
       })
     }) 
   }),
-
 
   delete : publicProcedure
   .input(z.string())
@@ -86,6 +47,39 @@ export const PositionRouter = router({
     return await prisma.position.delete({
       where: {id: input},
     })
+  }),
+
+  listAll : publicProcedure
+  .output(z.array(PositionTradesSchema))
+  .query(async () => {
+    const data = await prisma.position.findMany({
+      select: {
+        id: true,
+        underlying: true,
+        openedAt : true,
+        capitalUsed : true,
+        status: true,
+        notes: true,
+        trades: {
+          select : {
+            id: true,
+            date: true,
+            direction: true,
+            orderType: true,
+            status: true,
+            quantity: true,
+          }
+        }
+      }
+    });
+    if(data == undefined) return []
+    const result = z.array(PositionTradesSchema).safeParse(data)
+    if (!result.success) {
+      const pretty = z.prettifyError(result.error);
+      console.error("listAll",pretty)
+      return []
+    }
+    return result.data
   }),
 
 });

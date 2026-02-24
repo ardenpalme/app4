@@ -17,8 +17,8 @@ import { CryptoPortfolio, PfTokResp, PricesResp, TradPortfolio } from "@/lib/typ
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { StockAllocations } from "../_components/stock_allocations"
 import { Positions } from "@/lib/ibrk_types"
-import { OptionsStrategyLegSchema, OptionsStrategySchema } from "@/schemas/blog"
 import { format } from "@formkit/tempo"
+import {z} from 'zod'
 
 import {
   Table,
@@ -30,6 +30,9 @@ import {
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { trpc } from "../_trpc/client"
+import { StrategySchema } from "@/schemas/strategy"
+import { PositionTradesRow } from "../_components/positions_trades_row"
+import { PositionTradesSchema } from "@/schemas/position"
 
 function formatCurrency(value: number) {
   return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(value)
@@ -133,20 +136,10 @@ export default function PortfolioPage() {
     fetchData()
   }, []) // Empty array = runs once on mount
 
-  const {data : options_strategies_raw, isLoading : optionsStrategiesLoading, isError} = trpc.strategy.listAll.useQuery()
-  console.log(options_strategies_raw)
+  const {data : positions, isLoading : positionsLoading} = trpc.position.listAll.useQuery()
+  console.log(positions)
 
-  //TODO Prisma returns date as ISO
-  const optionsStrategies = options_strategies_raw?.map((strategy) => ({
-    ...strategy,
-    date: new Date(strategy.date), 
-    legs: strategy.legs.map((leg) => ({
-      ...leg,
-      expiry: new Date(leg.expiry), 
-    })),
-  }));
-
-  if (loading || optionsStrategiesLoading) {
+  if (loading || positionsLoading) {
      return(
        <>
         <h1 className="text-2xl font-bold text-foreground">Investment Portfolio</h1>
@@ -211,7 +204,7 @@ export default function PortfolioPage() {
 
       <Card className="w-full gap-4">
         <CardHeader>
-          <CardTitle>Trading Log</CardTitle>
+          <CardTitle>Positions</CardTitle>
         </CardHeader>
         <CardContent>
         <Table>
@@ -231,8 +224,8 @@ export default function PortfolioPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {optionsStrategies?.map((strat) => (
-              <OptionsTradeRow key={strat.id} strat={strat} />
+            {positions && positions.map((pos) => (
+              <PositionTradesRow key={pos.id} position={PositionTradesSchema.parse(pos)} />
             ))}
           </TableBody>
         </Table>
@@ -242,99 +235,3 @@ export default function PortfolioPage() {
     </>
   );
 }
-
-function OptionsTradeRow({strat} : {strat: OptionsStrategySchema }) {
-  const [open, setOpen] = useState(false)
-  
-  return (
-    <>
-      <TableRow
-        className="cursor-pointer hover:bg-muted/50"
-        onClick={() => setOpen((prev) => !prev)}
-      >
-        <TableCell>
-          <ChevronDown
-            className={`size-4 text-muted-foreground transition-transform ${open ? "rotate-180" : ""}`}
-          />
-        </TableCell>
-        <TableCell className="hidden sm:table-cell text-muted-foreground text-sm">{format(strat.date, "short", "en")}</TableCell>
-        <TableCell className="hidden sm:table-cell font-medium">{strat.underlying}</TableCell>
-        <TableCell>{strat.name}</TableCell>
-        <TableCell className="hidden sm:table-cell text-right">
-          {strat.pnl !== null ? (
-            <span className={strat.pnl >= 0 ? "text-green-500" : "text-red-500"}>
-              {formatCurrency(strat.pnl)}
-            </span>
-          ) : (
-            <span className="text-muted-foreground">--</span>
-          )}
-        </TableCell>
-        <TableCell className="hidden sm:table-cell">
-          <Badge
-            variant={
-              strat.status === "OPEN"
-                ? "default"
-                : strat.status === "CLOSED"
-                  ? "secondary"
-                  : "outline"
-            }
-          >
-            {strat.status}
-          </Badge>
-        </TableCell>
-        <TableCell>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="size-8"
-            asChild
-            onClick={(e) => e.stopPropagation()}
-          >
-            <Link href={`/blog/${strat.post.slug}`}>
-              <ExternalLink className="size-4" />
-              <span className="sr-only">Read trade write-up</span>
-            </Link>
-          </Button>
-        </TableCell>
-      </TableRow>
-      {open && (
-        <tr>
-          <td colSpan={9} className="p-0">
-            <div className="border-b border-border bg-muted/30 px-6 py-3">
-              <Table>
-                <TableHeader>
-                  <TableRow className="hover:bg-transparent">
-                    <TableHead className="text-xs">Direction</TableHead>
-                    <TableHead className="text-xs">Type</TableHead>
-                    <TableHead className="text-xs">Strike</TableHead>
-                    <TableHead className="text-xs">Expiry</TableHead>
-                    <TableHead className="text-xs text-right hidden sm:table-cell">Contracts</TableHead>
-                    <TableHead className="text-xs text-right hidden sm:table-cell">Premium</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {strat.legs.map((leg, i) => (
-                    <TableRow key={i} className="hover:bg-transparent">
-                      <TableCell className="py-1.5">
-                        <Badge variant={leg.direction === "BUY" ? "default" : "secondary"} className="text-xs">
-                          {leg.direction}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="py-1.5 text-sm">{leg.type}</TableCell>
-                      <TableCell className="py-1.5 text-sm">{formatCurrency(leg.strike)}</TableCell>
-                      <TableCell className="py-1.5 text-sm text-muted-foreground">{format(leg.expiry,"short","en")}</TableCell>
-                      <TableCell className="py-1.5 text-sm text-right hidden sm:table-cell">{leg.contracts.length}</TableCell>
-                      <TableCell className="py-1.5 text-sm text-right hidden sm:table-cell">{formatCurrency(leg.premium)}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          </td>
-        </tr>
-      )}
-    </>
-  )
-}
-
-

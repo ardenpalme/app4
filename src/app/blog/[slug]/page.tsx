@@ -1,4 +1,4 @@
-import { CreatePostInputSchema } from "@/schemas/blog"
+import { BlogPostSchema, CreatePostInputSchema } from "@/schemas/blog"
 import {createCaller} from "@/server/index"
 
 import ReactMarkdown from 'react-markdown';
@@ -16,7 +16,8 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import Link from "next/link";
 import { BackButton } from "@/app/_components/back_button";
-import { CreateStrategyInputSchema } from "@/schemas/strategy";
+import { StrategySchema } from "@/schemas/strategy";
+import {z} from 'zod'
 
 export default async function BlogPost({
   params,
@@ -25,11 +26,11 @@ export default async function BlogPost({
 }) {
   const { slug } = await params
   const trpc_caller = createCaller({});
-  const post : CreatePostInputSchema | null= await trpc_caller.blog.getPostBySlug(slug);
+  const post : BlogPostSchema | null= await trpc_caller.blog.getPostBySlug(slug);
 
-  let strategy : CreateStrategyInputSchema | null = null;
-  if(post && post.type == 'STRATEGY') {
-    strategy = await trpc_caller.strategy.getById(post.id)
+  let strategy : z.infer<typeof StrategySchema> | null = null;
+  if(post && post.type == 'STRATEGY' && post.strategy != null && post.strategy.id != null) {
+    strategy = await trpc_caller.strategy.getById(post.strategy?.id)
   }
 
   return (
@@ -45,7 +46,7 @@ export default async function BlogPost({
         </div>
       </header>
       <main className="mx-auto max-w-3xl px-6 py-12">
-        <div className="mb-8">
+        <div className="flex flex-col gap-y-5 ">
           <Card>
             <CardHeader>
               <CardTitle className="">
@@ -63,24 +64,22 @@ export default async function BlogPost({
             </CardContent>
           </Card>
           <h1 className="text-2xl font-bold text-foreground text-balance">{post?.title}</h1>
+          <section>
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm, remarkMath]}
+              rehypePlugins={[
+                rehypeRaw,
+                rehypeSanitize,
+                rehypeHighlight,
+                rehypeSlug,
+                rehypeKatex,
+                rehypeAutolinkHeadings,
+              ]}
+            >
+              {post?.content}
+            </ReactMarkdown>
+          </section>
         </div>
-      <div className="space-y-8">
-        <section>
-          <ReactMarkdown
-            remarkPlugins={[remarkGfm, remarkMath]}
-            rehypePlugins={[
-              rehypeRaw,
-              rehypeSanitize,
-              rehypeHighlight,
-              rehypeSlug,
-              rehypeKatex,
-              rehypeAutolinkHeadings,
-            ]}
-          >
-            {post?.content}
-          </ReactMarkdown>
-        </section>
-      </div>
     </main>
   </div>
   )

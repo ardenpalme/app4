@@ -17,10 +17,8 @@ export const BlogPostRouter = router({
           summary:true,
           content: true,
           type: true,
-
           seoTitle: true,
           seoDescription: true,
-
           strategy: {
             select: {
               id: true,
@@ -28,10 +26,12 @@ export const BlogPostRouter = router({
           },
         }
       })
+      if(data == undefined) return []
       const result = z.array(BlogPostSchema).safeParse(data)
       if (!result.success) {
         const pretty = z.prettifyError(result.error);
-        console.error(pretty)
+        console.error("listAllPosts",pretty)
+        return []
       }
       return result.data
     }),
@@ -49,7 +49,7 @@ export const BlogPostRouter = router({
           summary: true,
           content: true,
           type: true,
-
+          date: true,
           seoTitle: true,
           seoDescription: true,
           strategy: {
@@ -60,14 +60,13 @@ export const BlogPostRouter = router({
         }
       })
       if(!data) return null
-      return {
-        ...data,
-        strategy : {
-          // required because prisma would return undef
-          id: data.strategy?.id ?? null
-        }
+      const result = BlogPostSchema.safeParse(data)
+      if (!result.success) {
+        const pretty = z.prettifyError(result.error);
+        console.error("get by slug",pretty)
+        return null
       }
-
+      return result.data
     }),
 
   getPostById : publicProcedure
@@ -99,7 +98,8 @@ export const BlogPostRouter = router({
       const result = CreatePostInputSchema.safeParse(data)
       if (!result.success) {
         const pretty = z.prettifyError(result.error);
-        console.error(pretty)
+        console.error("getPostById",pretty)
+        return null
       }
       return result.data
     }),
@@ -132,7 +132,6 @@ export const BlogPostRouter = router({
       })
     }),
 
-    /*
     swapStrategies: publicProcedure
   .input(z.object({
     postA_id: z.string(),
@@ -188,7 +187,6 @@ export const BlogPostRouter = router({
       });
     });
   }),
-  */
 
 });
 

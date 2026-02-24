@@ -38,68 +38,27 @@ export const TradeRouter = router({
     })
   }),
 
-  create : publicProcedure
-  .input(z.array(CreateTradeSchema))
-  .mutation(async ({input}) => {
-    input.map(async (ele) => {
-      const data : Prisma.TradeCreateInput = {
-        date : ele.date,
-        direction: ele.direction,
-        orderType : ele.orderType,
-        status: ele.status,
-        quantity: ele.quantity,
-        position: {
-          connect : {id : ele.positionId}
-        }
-      }
-      return await prisma.trade.create({
-        data: data
-      })
-    }) 
-  }),
-
-
-  update : publicProcedure
-  .input(z.array(UpdateTradeSchema))
-  .mutation(async ({input}) => {
-    input.map(async (ele) => {
-      const data : Prisma.TradeUpdateInput = {
-        date : ele.date,
-        direction: ele.direction,
-        orderType : ele.orderType,
-        status: ele.status,
-        quantity: ele.quantity,
-        position: {
-          connect : {id : ele.positionId}
-        }
-      }
-      return await prisma.trade.update({
-        where: {id: ele.tradeId},
-        data: data
-      })
-    }) 
-  }),
-
-
   upsert : publicProcedure
   .input(z.array(UpdateTradeSchema))
   .mutation(async ({input}) => {
     input.map(async (ele) => {
-      const data : Prisma.TradeCreateInput = {
+      const data = {
         id: ele.tradeId,
         date : ele.date,
         direction: ele.direction,
         orderType : ele.orderType,
         status: ele.status,
         quantity: ele.quantity,
-        position: {
-          connect : {id : ele.positionId}
-        }
       }
       return await prisma.trade.upsert({
         where: {id: ele.tradeId},
         update: { ...data },
-        create: { ...data }
+        create: { 
+          ...data,
+          position: {
+            connect : {id : ele.positionId}
+          }
+        }
       })
     }) 
   }),

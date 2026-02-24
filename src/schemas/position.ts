@@ -1,5 +1,5 @@
 import {z} from 'zod'
-import { CreateTradeSchema, TradeSchema } from './trade'
+import { CreateTradeSchema, OrderTypeEnum, TradeDirectionEnum, TradeSchema, TradeStatusEnum } from './trade'
 
 export const PositionStatusEnum = z.enum([
   "OPEN",
@@ -32,12 +32,23 @@ export const UpdatePositionSchema = PositionSchema.extend({
 })
 export type UpdatePositionSchema = z.infer<typeof UpdatePositionSchema >
 
-/*
-export const PositionTradesSchema = PositionSchema.extend({
-  positionId: z.number(),
-  trades: z.array(z.object({id : z.number()})),
-})
-export type PositionTradesSchema = z.infer<typeof PositionTradesSchema >
-*/
+export const PositionTradesSchema = z.object({
+    id: z.string(),
+    underlying: z.string(),
+    openedAt : z.coerce.date() as z.ZodDate,
+    capitalUsed : z.number(),
+    status: PositionStatusEnum,
+    notes: z.string().nullable(),
+    trades: z.array(z.object({
+      id: z.string(),
+      date: z.coerce.date() as z.ZodDate,
+      direction: TradeDirectionEnum,
+      orderType: OrderTypeEnum,
+      status: TradeStatusEnum,
+      quantity: z.number(),
+    })),
+  })
+  export type PositionTradesSchema = z.infer<typeof PositionTradesSchema >
+
 
 

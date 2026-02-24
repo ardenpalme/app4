@@ -1,6 +1,7 @@
-import { BlogPostSchema, StrategySummary } from "@/schemas/blog"
+import { BlogPostSchema } from "@/schemas/blog"
 import { PortfolioHoldings, Positions } from "./ibrk_types"
-import { CreateStrategyInputSchema } from "@/schemas/strategy"
+import { RiskProfileEnum, StrategyCategoryEnum, StrategyStatusEnum, TimeframeEnum } from "@/schemas/strategy"
+import {z} from 'zod'
 
 export interface PfTokResp {
   [key: string]: {
@@ -34,6 +35,20 @@ export interface TradPortfolio {
   allocation: PortfolioHoldings,
 }
 
-export interface DisplayPost extends BlogPostSchema {
-  data: CreateStrategyInputSchema | null,
+export const DisplayPostSchema = BlogPostSchema.extend({
+  strategy: z.object({
+    id: z.string(),
+    name: z.string(),
+    description: z.string(),
+    category: StrategyCategoryEnum,
+    timeframe: TimeframeEnum,
+    riskProfile: RiskProfileEnum,
+    status: StrategyStatusEnum,
+  })
+})
+export type DisplayPost = z.infer<typeof DisplayPostSchema>
+
+export interface DatePickerProps {
+  date: Date | undefined;
+  setDate: React.Dispatch<React.SetStateAction<Date | undefined>>;
 }

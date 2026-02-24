@@ -7,25 +7,39 @@ import { format } from "@formkit/tempo"
 import { Button } from "@/components/ui/button";
 import { FaGithub } from "react-icons/fa";
 import { DisplayPost } from "@/lib/types"
-import { CreateStrategyInputSchema } from "@/schemas/strategy"
 
 export default async function BlogPage() {
   const trpc_caller = createCaller({});
-  const all_posts_raw : BlogPostSchema[]  = await trpc_caller.blog.listAllPosts();
-  const all_posts: DisplayPost[] = await Promise.all(all_posts_raw.map(async (post : BlogPostSchema) => {
-    let strategy_summary : CreateStrategyInputSchema | null = null;
+  let all_posts_raw : BlogPostSchema[] = await trpc_caller.blog.listAllPosts();
+  console.log(all_posts_raw)
 
-    if(post.type === 'STRATEGY') {
-      strategy_summary = await trpc_caller.strategy.getById(post.strategy.id)
+  const all_posts = (await Promise.all(all_posts_raw.map(async (post: BlogPostSchema) => {
+    if (post.type === 'STRATEGY' && post.strategy?.id) {
+      const strategy_raw = await trpc_caller.strategy.getById(post.strategy.id)
+      if (strategy_raw) {
+        return {
+          id: post.id,
+          title: post.title,
+          slug: post.slug,
+          summary: post.summary,
+          content: post.content,
+          type: post.type,
+          date: post.date,
+          seoTitle: post.seoTitle,
+          seoDescription: post.seoDescription,
+          strategy: {
+            id: strategy_raw.id,
+            name: strategy_raw.name,
+            description: strategy_raw.description,
+            category: strategy_raw.category,
+            timeframe: strategy_raw.timeframe,
+            riskProfile: strategy_raw.riskProfile,
+            status: strategy_raw.status,
+          }
+        }
+      }
     }
-
-    return {
-      ...post,
-      data: strategy_summary
-    }
-  }))
-
-  all_posts.sort((a, b) => b.date.getTime() - a.date.getTime());
+  }))).filter(Boolean) as DisplayPost[];
 
   return (
     <div className="min-h-screen bg-background">
@@ -56,14 +70,15 @@ export default async function BlogPage() {
               <Card className="transition-colors hover:border-primary/40">
                 <CardHeader>
                   <div className="mb-2 flex flex-wrap items-center gap-2">
-                     {post.data && 
+                     {post.strategy && 
                       <div className="flex items-center gap-4">
-                        <Badge>{post.data.status}</Badge>
-                        <Badge variant="secondary">{post.data.category}</Badge>
-                        <Badge variant="secondary">{post.data.timeframe}</Badge>
-                        <Badge variant="secondary">{post.data.riskProfile} RISK</Badge>
-                      </div>}
-                      <span className="text-sm text-muted-foreground">{format(post.date, "short", "en")}</span>
+                        <Badge>{post.strategy.status}</Badge>
+                        <Badge variant="secondary">{post.strategy.category}</Badge>
+                        <Badge variant="secondary">{post.strategy.timeframe}</Badge>
+                        <Badge variant="secondary">{post.strategy.riskProfile} RISK</Badge>
+                      </div>
+                     }
+                      <span className="text-sm text-muted-foreground">{format(post.date, "short")}</span>
                     </div>
                   <CardTitle className="text-base">{post.title}</CardTitle>
                   <CardDescription>

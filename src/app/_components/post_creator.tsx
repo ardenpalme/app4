@@ -83,14 +83,12 @@ const dfl_form_vals = {
 export function PostCreator() {
   const [isEditMode, setIsEditMode] = React.useState(false);
   const [selectedPostId, setSelectedPostId] = React.useState<string | null>(null);
-  const [preview, setPreview] = React.useState<z.infer<typeof formSchema>>({
-    ...dfl_form_vals
-  })
+  const [preview, setPreview] = React.useState<z.infer<typeof formSchema> | null>(null)
 
   const {data: strategies, isLoading: strategiesLoading, isError: strategiesError} = trpc.strategy.listAll.useQuery()
   const {data: posts, isLoading: postsLoading, isError: postsError} = trpc.blog.listAllPosts.useQuery()
   const upsertPost = trpc.blog.upsertPost.useMutation();
-  //const swapStrategies = trpc.blog.swapStrategies.useMutation();
+  const swapStrategies = trpc.blog.swapStrategies.useMutation();
   const { data: selectedPost, isLoading : selectedPostLoading, isError : selectedPostError} = trpc.blog.getPostById.useQuery(selectedPostId, { enabled: !!selectedPostId });
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -100,19 +98,18 @@ export function PostCreator() {
   const { watch } = form;
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
+    console.log(data)
     const slug = `${data.title
       .toLowerCase()
       .trim()
       .replace(/\s+/g, "-")
       .replace(/[^\w-]/g, "")}-${nanoid(5)}`;
 
-      /*
     if(selectedPost && 
        // selected post to edit has a valid strat
-       selectedPost.strategy.id != null &&  
+       selectedPost.strategy?.id &&
        // selected strategy already is associated to another post
-       data.strategyId != selectedPost?.strategy?.id &&
-       (selectedPost.id != null && data.strategyId != null)) {
+       data.strategyId != selectedPost.strategy?.id && data.strategyId != null) {
       console.log("switching strategies for post")
       const payload = {
         postA_id: selectedPost.id,
@@ -121,7 +118,6 @@ export function PostCreator() {
       const res = await swapStrategies.mutateAsync(payload)
       console.log(res)
     }
-    */
 
    const post_id = selectedPostId ?? nanoid();
     const payload : CreatePostInputSchema = {
@@ -168,8 +164,8 @@ export function PostCreator() {
   return (
     <Tabs defaultValue="editor" className="max-w-3/4">
       <TabsList>
-        <TabsTrigger value="editor">Edit</TabsTrigger>
-        <TabsTrigger value="preview">Preview</TabsTrigger>
+        <TabsTrigger value="editor" className="cursor-pointer">Edit</TabsTrigger>
+        <TabsTrigger value="preview" className="cursor-pointer">Preview</TabsTrigger>
       </TabsList>
       <TabsContent value="editor">
         <form id="rhf-post" onSubmit={form.handleSubmit(onSubmit)} className="w-full max-w-3xl">
@@ -189,8 +185,8 @@ export function PostCreator() {
                       <div className="max-w-40 truncate">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="outline">
-                              {strategies?.find((s) => (field.value && s.id === field.value))?.name ||
+                            <Button variant="outline" className="cursor-pointer">
+                              {strategies?.find((s) => (s.id === field.value))?.name ||
                                 "Select Strategy"}
                               <ChevronDown className="h-4 w-4" />
                             </Button>
@@ -199,13 +195,13 @@ export function PostCreator() {
                             <DropdownMenuLabel>Strategies</DropdownMenuLabel>
                             <DropdownMenuSeparator />
                             <DropdownMenuRadioGroup
-                              value={field.value?.toString() ?? ""}
-                              onValueChange={(value) => field.onChange(Number(value))}
+                              value={field.value ?? ""}
+                              onValueChange={(value) => field.onChange(value)}
                             >
                               {strategies?.map((strategy) => (
                                 <DropdownMenuRadioItem
                                   key={strategy.id}
-                                  value={strategy.id.toString()}
+                                  value={strategy.id}
                                 >
                                   {strategy.name}
                                 </DropdownMenuRadioItem>
@@ -224,7 +220,7 @@ export function PostCreator() {
                         variant="outline" 
                         size="sm" 
                         type="button"
-                        className="max-w-40 justify-start"
+                        className="max-w-40 justify-start cursor-pointer"
                         >
                         <span className="truncate">
                         {isEditMode
@@ -321,6 +317,9 @@ export function PostCreator() {
                   control={form.control}
                   render={({ field, fieldState }) => (
                     <Field data-invalid={fieldState.invalid}>
+                      <FieldLabel>
+                        Content
+                      </FieldLabel>
                       <InputGroup>
                         <InputGroupTextarea
                           {...field}
@@ -355,7 +354,7 @@ export function PostCreator() {
         </form>
       </TabsContent>
       <TabsContent value="preview">
-        <Card>
+      {preview && <Card>
           <CardHeader>
             <CardTitle className="">
               {preview.title}
@@ -381,7 +380,7 @@ export function PostCreator() {
           </CardContent>
           <CardFooter>
           </CardFooter>
-        </Card>
+        </Card>}
       </TabsContent>
     </Tabs>
   );

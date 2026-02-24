@@ -6,14 +6,6 @@ import { Controller, useFieldArray, useForm } from "react-hook-form"
 import * as z from "zod"
 import { format } from "@formkit/tempo"
 import { Calendar as CalendarIcon, Minus, PlusCircle, PlusIcon, Trash } from "lucide-react"
- 
-import { cn } from "@/lib/utils"
-import { Calendar } from "@/components/ui/calendar"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -47,17 +39,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { BlogPostSchema, CreatePostInputSchema } from "@/schemas/blog"
 import { trpc } from "../_trpc/client"
 import { ChevronDown, Plus } from "lucide-react"
-import { Textarea } from "@/components/ui/textarea"
 import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs"
-import {  RiskProfileEnum, StrategyCategoryEnum, StrategySchema, _StrategySchema, StrategyStatusEnum, TimeframeEnum, UpsertStrategyInputSchema } from "@/schemas/strategy"
+import {  RiskProfileEnum, StrategyCategoryEnum, StrategySchema, StrategyStatusEnum, TimeframeEnum, UpsertStrategyInputSchema } from "@/schemas/strategy"
 import { Badge } from "@/components/ui/badge"
 import { toast } from "sonner"
 import {
@@ -74,12 +64,40 @@ import { CreateTradeSchema, OrderTypeEnum, TradeDirectionEnum, TradeStatusEnum, 
 import { Switch } from "@/components/ui/switch"
 import { nanoid } from "nanoid"
 import {PositionStatusEnum, CreatePositionSchema, UpdatePositionSchema } from "@/schemas/position"
-import { Form } from "radix-ui"
+import type {
+  UseFormWatch,
+  UseFieldArrayRemove,
+  FieldArrayWithId,
+  UseFormReturn,
+} from "react-hook-form"
+import { DatePicker } from "./date_picker"
+import { PositionTradesRow } from "./positions_trades_row"
 
 type FormValues = z.infer<typeof StrategySchema>;
 
+type PositionsTradesEditorRowProps = {
+  control: UseFormReturn<FormValues>["control"];
+  watch: UseFormReturn<FormValues>["watch"];
+
+  position: FieldArrayWithId<FormValues, "positions", "id">;
+  positionIndex: number;
+
+  removePosition: UseFieldArrayRemove;
+
+  addedPosArray: string[];
+  addedTradeArray: string[];
+
+  handleAddTradeToAdded: (tradeId: string) => void;
+  handleAddTradeToDelete: (tradeId: string) => void;
+  handleRemoveTradeFromAdded: (tradeId: string) => void;
+
+  handleAddPositionToDelete: (posId: string) => void;
+  handleRemovePositionFromAdded: (posId: string) => void;
+};
+
+
 const dfl_form_vals : FormValues = {
-  id: nanoid(),
+  id: "NA",
   name: "test",
   description: "test",
   category: "INCOME",
@@ -87,7 +105,7 @@ const dfl_form_vals : FormValues = {
   riskProfile: "LOW",
   status: "ACTIVE",
   createdAt: new Date(),
-  post: { id: nanoid() },
+  post: { id: null },
   positions: [{
     id: "",
     underlying: "APPL",
@@ -162,13 +180,13 @@ export function StrategyCreator() {
   
   const onSubmit = async (data: FormValues) => {
     console.log(data)
-    if(data.post.id === null) {
-      toast("Strategy must associate to a post")
+    if(data.post?.id === "NA") {
+      console.log("Strategy must associate to a post")
       return
     }
 
-    if(data.post.id != selectedStrategy?.post.id) {
-      toast("Switch posts for strategy in Post tab")
+    if(selectedStrategyId != null && data.post?.id != selectedStrategy?.post?.id) {
+      console.log("Switch posts for strategy in Post tab")
       return
     }
 
@@ -183,7 +201,7 @@ export function StrategyCreator() {
       timeframe: data.timeframe ?? "WEEKLY",
       riskProfile: data.riskProfile ?? "LOW",
       status: data.status ?? "ACTIVE",
-      post: { id: data.post.id }, 
+      post: { id: data.post?.id ? data.post?.id : null}
     };
     const res = await upsertStrategy.mutateAsync(payload);
     console.log(res)
@@ -292,8 +310,8 @@ export function StrategyCreator() {
   return (
     <Tabs defaultValue="editor" className="max-w-3/4">
       <TabsList>
-        <TabsTrigger value="editor">Edit</TabsTrigger>
-        <TabsTrigger value="preview">Preview</TabsTrigger>
+        <TabsTrigger value="editor" className="cursor-pointer">Edit</TabsTrigger>
+        <TabsTrigger value="preview" className="cursor-pointer">Preview</TabsTrigger>
       </TabsList>
       <TabsContent value="editor">
         <form id="rhf-strat" onSubmit={form.handleSubmit(onSubmit)} className="w-full max-w-3xl flex flex-col gap-y-2">
@@ -323,7 +341,7 @@ export function StrategyCreator() {
                             <DropdownMenuLabel>Posts</DropdownMenuLabel>
                             <DropdownMenuSeparator />
                             <DropdownMenuRadioGroup
-                              value={field.value}
+                              value={field.value ?? undefined}
                               onValueChange={(value) => field.onChange(value)}
                             >
                               {posts?.map((p) => (
@@ -348,7 +366,7 @@ export function StrategyCreator() {
                         variant="outline" 
                         size="sm" 
                         type="button"
-                        className="max-w-40 justify-start"
+                        className="max-w-40 justify-start cursor-pointer"
                         >
                         <span className="truncate">
                         {isEditMode
@@ -384,7 +402,7 @@ export function StrategyCreator() {
                   </DropdownMenu>
 
                   {isEditMode && (
-                    <Button variant="default" size="sm" onClick={handleNewStrat} type="button">
+                    <Button variant="default" size="sm" onClick={handleNewStrat} type="button" className="cursor-pointer">
                       New Strat
                     </Button>
                   )}
@@ -422,7 +440,7 @@ export function StrategyCreator() {
                       <div className="max-w-40 truncate">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="outline">
+                            <Button variant="outline" className="cursor-pointer">
                               {field.value ?? "Select Risk"}
                               <ChevronDown className="h-4 w-4" />
                             </Button>
@@ -457,7 +475,7 @@ export function StrategyCreator() {
                     <div className="max-w-40 truncate">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="outline">
+                          <Button variant="outline" className="cursor-pointer">
                             {field.value ?? "Select Timeframe"}
                             <ChevronDown className="h-4 w-4" />
                           </Button>
@@ -492,7 +510,7 @@ export function StrategyCreator() {
                     <div className="max-w-40 truncate">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="outline">
+                          <Button variant="outline" className="cursor-pointer">
                             {field.value ?? "Select Category"}
                             <ChevronDown className="h-4 w-4" />
                           </Button>
@@ -527,11 +545,12 @@ export function StrategyCreator() {
                     <div className="max-w-40 truncate">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="outline">
+                          <Button variant="outline" className="cursor-pointer">
                             {field.value ?? "Select Status"}
                             <ChevronDown className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
+
                         <DropdownMenuContent>
                           <DropdownMenuLabel>Status</DropdownMenuLabel>
                           <DropdownMenuSeparator />
@@ -616,7 +635,6 @@ export function StrategyCreator() {
                     watch={form.watch}
                     position={position}
                     positionIndex={positionIndex}
-                    positionFields={positionFields}
                     control={form.control}
                     removePosition={removePosition}
                     addedPosArray={addedPosArray}
@@ -645,7 +663,6 @@ export function StrategyCreator() {
         </form>
       </TabsContent>
       <TabsContent value="preview">
-      {!preview && <span>Save the Preview first...</span>}
       {preview && <Card>
           <CardHeader>
             <CardTitle className="">
@@ -658,7 +675,7 @@ export function StrategyCreator() {
               <Badge variant="secondary">{preview.riskProfile} RISK</Badge>
             </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="flex flex-col gap-y-4">
             {preview.description}
             <Card>
               <CardHeader>
@@ -668,24 +685,15 @@ export function StrategyCreator() {
                 <Table>
                   <TableHeader>
                     <TableRow> 
+                      <TableHead> </TableHead>
                       <TableHead className="w-[100px]"> Underlying </TableHead>
-                      <TableHead> Opened </TableHead>
-                      <TableHead> Closed </TableHead>
+                      <TableHead> Open Date </TableHead>
                       <TableHead> Capital </TableHead>
-                      <TableHead> rPnL </TableHead>
-                      <TableHead> Ret % </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {preview?.map((pos) => (
-                      <TableRow key={pos.id}>
-                        <TableCell className="font-medium"> {pos.underlying}</TableCell>
-                        <TableCell>{format(pos.openedAt, "en", "short")}</TableCell>
-                        <TableCell>{pos.capitalUsed.toFixed(2)}</TableCell>
-                        <TableCell>{pos.closedAt ? format(pos.closedAt, "en", "short") : "--"}</TableCell>
-                        <TableCell>{pos.realizedPnL ? pos.realizedPnL?.toFixed(2) : "--"}</TableCell>
-                        <TableCell>{pos.returnPct ? pos.returnPct?.toFixed(2) : "--"}</TableCell>
-                      </TableRow>
+                    {preview.positions.map((pos) => (
+                      <PositionTradesRow key={pos.id} position={pos} />
                     ))}
                   </TableBody>
                 </Table>
@@ -702,7 +710,6 @@ function PositionsTradesEditorRow(
   {control, 
     watch,
     positionIndex, 
-    positionFields, 
     removePosition, 
     addedPosArray,
     addedTradeArray,
@@ -710,7 +717,7 @@ function PositionsTradesEditorRow(
     handleAddTradeToDelete,
     handleRemoveTradeFromAdded,
     handleAddPositionToDelete,
-    handleRemovePositionFromAdded} : any) {
+    handleRemovePositionFromAdded} : PositionsTradesEditorRowProps ) {
   const [open, setOpen] = React.useState(false)
 
   const { fields: tradeFields, append: appendTrade, remove : removeTrade } = useFieldArray({
@@ -783,7 +790,7 @@ function PositionsTradesEditorRow(
         </TableCell>
 
         {/* Opened At */}
-        <TableCell className="hidden sm:table-cell text-muted-foreground text-sm">
+        <TableCell className="text-sm">
           <Controller
             name={`positions.${positionIndex}.openedAt`}
             control={control}
@@ -803,9 +810,16 @@ function PositionsTradesEditorRow(
           <Controller
             name={`positions.${positionIndex}.capitalUsed`}
             control={control}
-            render={({ field }) => (
-              <Field>
-                <Input {...field} type="number" step="any" />
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <Input {...field} 
+                    type="number" 
+                    step="any" 
+                    onChange={(e) => {
+                    const value = e.target.value;
+                    field.onChange(value === "" ? 0 : e.target.valueAsNumber);
+                  }}
+                />
               </Field>
             )}
           />
@@ -852,8 +866,10 @@ function PositionsTradesEditorRow(
                           control={control}
                           render={({ field }) => (
                             <Switch
-                              checked={field.value} 
-                              onCheckedChange={field.onChange} 
+                            checked={field.value === "LONG"}
+                            onCheckedChange={(checked) =>
+                              field.onChange(checked ? "LONG" : "SHORT")
+                            }
                             />
                           )}
                         />
@@ -891,30 +907,5 @@ function PositionsTradesEditorRow(
         </tr>
       )}
     </>
-  )
-}
-
-interface DatePickerProps {
-  date: Date | undefined;
-  setDate: React.Dispatch<React.SetStateAction<Date | undefined>>;
-}
-export function DatePicker({date, setDate} : DatePickerProps) {
-  return (
-    <Popover>
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          type="button"
-          data-empty={!date}
-          className="data-[empty=true]:text-muted-foreground w-[280px] justify-start text-left font-normal"
-        >
-          <CalendarIcon />
-          {date ? format(date, "en", "short") : <span>Pick a date</span>}
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-auto p-0">
-        <Calendar mode="single" selected={date} onSelect={setDate} />
-      </PopoverContent>
-    </Popover>
   )
 }

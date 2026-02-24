@@ -1,7 +1,8 @@
 import {z} from 'zod'
-import { PositionSchema, PositionStatusEnum } from './position'
+import { PositionSchema, PositionStatusEnum, PositionTradesSchema } from './position'
 import { TradeDirection } from '../../prisma/generated/prisma/enums'
 import { OrderTypeEnum, TradeDirectionEnum, TradeStatusEnum } from './trade'
+import { PositionTradesRow } from '@/app/_components/positions_trades_row'
 
 export const StrategyStatusEnum = z.enum([
   "DEVELOPMENT",
@@ -49,24 +50,9 @@ export const StrategySchema = z.object({
   status: StrategyStatusEnum,
   createdAt: z.date(),
   post: z.object({
-    id: z.string(),
-  }),
-  positions: z.array(z.object({
-    id: z.string(),
-    underlying: z.string(),
-    openedAt : z.coerce.date(),
-    capitalUsed : z.number(),
-    status: PositionStatusEnum,
-    notes: z.string().nullable(),
-    trades: z.array(z.object({
-      id: z.string(),
-      date: z.coerce.date(),
-      direction: TradeDirectionEnum,
-      orderType: OrderTypeEnum,
-      status: TradeStatusEnum,
-      quantity: z.number(),
-    })),
-  })),
+    id: z.string().nullable(),
+  }).nullable(),
+  positions: z.array(PositionTradesSchema),
 })
 
 /* HELPER SCHEMAS */
@@ -79,7 +65,7 @@ export const UpsertStrategyInputSchema = z.object({
   riskProfile: RiskProfileEnum,
   status: StrategyStatusEnum,
   post: z.object({
-    id: z.string()
+    id: z.string().nullable()
   })
 })
 export type UpsertStrategyInputSchema = z.infer<typeof UpsertStrategyInputSchema >

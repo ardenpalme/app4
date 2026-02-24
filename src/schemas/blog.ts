@@ -19,6 +19,6 @@ export const CreatePostInputSchema = z.object({
 export type CreatePostInputSchema = z.infer<typeof CreatePostInputSchema>
 
 export const BlogPostSchema = CreatePostInputSchema.extend({
-  date: z.date(),  // set by postgres server on creation
+  date: z.coerce.date(),  // set by postgres server on creation
 })
 export type BlogPostSchema = z.infer<typeof BlogPostSchema>

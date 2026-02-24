@@ -89,7 +89,7 @@ model Post {
 
 model Strategy {
   id            String          @id
-  PostId        String          @unique
+  PostId        String?         @unique
   post          Post?           @relation(fields: [PostId], references: [id])
 
   name          String
