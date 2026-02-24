@@ -51,7 +51,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { BlogPostSchema, CreatePostInputSchema } from "@/schemas/blog"
 import { trpc } from "../_trpc/client"
-import { ChevronDown } from "lucide-react"
+import { ChevronDown, Trash } from "lucide-react"
 import { Textarea } from "@/components/ui/textarea"
 import {
   Tabs,
@@ -86,9 +86,10 @@ export function PostCreator() {
   const [preview, setPreview] = React.useState<z.infer<typeof formSchema> | null>(null)
 
   const {data: strategies, isLoading: strategiesLoading, isError: strategiesError} = trpc.strategy.listAll.useQuery()
-  const {data: posts, isLoading: postsLoading, isError: postsError} = trpc.blog.listAllPosts.useQuery()
+  const {data: posts, isLoading: postsLoading, isError: postsError, refetch : refetchPosts} = trpc.blog.listAllPosts.useQuery()
   const upsertPost = trpc.blog.upsertPost.useMutation();
   const swapStrategies = trpc.blog.swapStrategies.useMutation();
+  const deletePost = trpc.blog.delete.useMutation();
   const { data: selectedPost, isLoading : selectedPostLoading, isError : selectedPostError} = trpc.blog.getPostById.useQuery(selectedPostId, { enabled: !!selectedPostId });
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -97,8 +98,14 @@ export function PostCreator() {
   })
   const { watch } = form;
 
-  const onSubmit = async (data: z.infer<typeof formSchema>) => {
+  const onSubmit = async (data: z.infer<typeof formSchema>, mode : "upsert" | "delete") => {
     console.log(data)
+
+    if(selectedPostId != null && mode == "delete") {
+      await deletePost.mutateAsync(selectedPostId)
+      return
+    }
+
     const slug = `${data.title
       .toLowerCase()
       .trim()
@@ -134,6 +141,8 @@ export function PostCreator() {
     const res = await upsertPost.mutateAsync(payload);
     console.log(`upsertPost() returned: ${res}`)
     //setPreview(watch())
+    form.reset(dfl_form_vals)
+    refetchPosts()
   }
 
   React.useEffect(() => {
@@ -161,6 +170,14 @@ export function PostCreator() {
     setPreview(watch());
   };
 
+  const handleDeletePost = async () => {
+    await form.handleSubmit((data) => onSubmit(data, "delete"))();
+
+    setSelectedPostId(null);
+    setIsEditMode(false);
+    refetchPosts();
+  };
+
   return (
     <Tabs defaultValue="editor" className="max-w-3/4">
       <TabsList>
@@ -168,7 +185,7 @@ export function PostCreator() {
         <TabsTrigger value="preview" className="cursor-pointer">Preview</TabsTrigger>
       </TabsList>
       <TabsContent value="editor">
-        <form id="rhf-post" onSubmit={form.handleSubmit(onSubmit)} className="w-full max-w-3xl">
+        <form id="rhf-post" onSubmit={form.handleSubmit((data) => onSubmit(data, "upsert"))} className="w-full max-w-3xl">
           <Card className="gap-y-2">
             <CardHeader>
               <div className="flex items-center justify-between w-full">
@@ -202,6 +219,7 @@ export function PostCreator() {
                                 <DropdownMenuRadioItem
                                   key={strategy.id}
                                   value={strategy.id}
+                                  className=" text-left cursor-pointer"
                                 >
                                   {strategy.name}
                                 </DropdownMenuRadioItem>
@@ -242,9 +260,10 @@ export function PostCreator() {
                           <DropdownMenuRadioItem
                             key={post.id}
                             value={post.id}
+                            className="cursor-pointer"
                           >
                             <div className="flex flex-col">
-                              <span className="font-medium">{post.id}</span>
+                              <span className="text-left font-medium">{post.title}</span>
                               <span className="text-xs text-muted-foreground">
                                 {post.summary.slice(0, 50)}...
                               </span>
@@ -256,9 +275,19 @@ export function PostCreator() {
                   </DropdownMenu>
 
                   {isEditMode && (
-                    <Button variant="default" size="sm" onClick={handleNewPost} type="button">
+                    <div className="flex items-center">
+                    <Button variant="default" size="sm" type="button" onClick={handleNewPost} >
                       New Post
                     </Button>
+                    <Button 
+                      variant="ghost" 
+                      type="button"
+                      className="cursor-pointer text-red-500 hover:text-red-600"
+                      onClick={handleDeletePost}
+                    >
+                      <Trash className="w-4 h-4"/>
+                    </Button>
+                    </div>
                   )}
                 </div>
               </div>

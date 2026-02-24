@@ -11,10 +11,10 @@ import { DisplayPost } from "@/lib/types"
 export default async function BlogPage() {
   const trpc_caller = createCaller({});
   let all_posts_raw : BlogPostSchema[] = await trpc_caller.blog.listAllPosts();
-  console.log(all_posts_raw)
+  //console.log(all_posts_raw)
 
   const all_posts = (await Promise.all(all_posts_raw.map(async (post: BlogPostSchema) => {
-    if (post.type === 'STRATEGY' && post.strategy?.id) {
+    if (post.strategy) {
       const strategy_raw = await trpc_caller.strategy.getById(post.strategy.id)
       if (strategy_raw) {
         return {
@@ -37,6 +37,18 @@ export default async function BlogPage() {
             status: strategy_raw.status,
           }
         }
+      }
+    } else {
+      return {
+        id: post.id,
+        title: post.title,
+        slug: post.slug,
+        summary: post.summary,
+        content: post.content,
+        type: post.type,
+        date: post.date,
+        seoTitle: post.seoTitle,
+        seoDescription: post.seoDescription,
       }
     }
   }))).filter(Boolean) as DisplayPost[];

@@ -210,17 +210,10 @@ export default function PortfolioPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-8">
-                <span className="sr-only">Expand</span>
-              </TableHead>
-              <TableHead className="hidden sm:table-cell">Date</TableHead>
+              <TableHead className="w-8"> </TableHead>
               <TableHead className="hidden sm:table-cell">Underlying</TableHead>
-              <TableHead>Strategy</TableHead>
-              <TableHead className="hidden sm:table-cell text-right">P&L</TableHead>
-              <TableHead className="hidden sm:table-cell">Status</TableHead>
-              <TableHead className="w-10">
-                <span className="sr-only">Write-up</span>
-              </TableHead>
+              <TableHead className="hidden sm:table-cell">Date</TableHead>
+              <TableHead className="hidden sm:table-cell">Capital Used</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

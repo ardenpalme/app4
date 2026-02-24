@@ -129,7 +129,14 @@ export const StrategyRouter = router({
         }
       });
     }
+  }),
 
+  delete : publicProcedure
+  .input(z.string())
+  .mutation(async ({ input }) => {
+    return await prisma.strategy.delete({
+      where: {id: input}
+    })
   }),
 
 });

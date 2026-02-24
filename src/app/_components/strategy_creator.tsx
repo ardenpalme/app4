@@ -129,14 +129,16 @@ export function StrategyCreator() {
   const [selectedStrategyId, setSelectedStrategyId] = React.useState<string | null>(null);
   const [preview, setPreview] = React.useState<FormValues | null>(null)
   const [selectedStrategy_snap, setSelectedStrategy_snap] = React.useState<FormValues | null>(null);
+  const [deleteSelectedStrategy, setDeleteSelectedStrategy] = React.useState<boolean>(false)
 
-  const {data: strategies } = trpc.strategy.listAll.useQuery()
+  const {data: strategies, refetch : refetchStrategies} = trpc.strategy.listAll.useQuery()
   const {data: posts } = trpc.blog.listAllPosts.useQuery()
 
   const upsertStrategy = trpc.strategy.upsertStrategy.useMutation()
   const upsertPositions = trpc.position.upsert.useMutation()
   const upsertTrades = trpc.trade.upsert.useMutation()
 
+  const deleteStrategy = trpc.strategy.delete.useMutation();
   const deletePosition = trpc.position.delete.useMutation()
   const deleteTrade = trpc.trade.delete.useMutation()
 
@@ -180,7 +182,13 @@ export function StrategyCreator() {
   
   const onSubmit = async (data: FormValues) => {
     console.log(data)
-    if(data.post?.id === "NA") {
+
+    if(selectedStrategyId != null && deleteSelectedStrategy) {
+      await deleteStrategy.mutateAsync(selectedStrategyId)
+      return
+    }
+
+    if(data.post?.id === null) {
       console.log("Strategy must associate to a post")
       return
     }
@@ -204,7 +212,7 @@ export function StrategyCreator() {
       post: { id: data.post?.id ? data.post?.id : null}
     };
     const res = await upsertStrategy.mutateAsync(payload);
-    console.log(res)
+    console.log("upserted strategy",res)
 
     //console.log(delTradeArray)
     if(delTradeArray.length > 0) {
@@ -307,6 +315,18 @@ export function StrategyCreator() {
     setPreview(watch());
   };
 
+
+  const handleDeleteStrategy = async () => {
+    setDeleteSelectedStrategy(true)
+    await form.handleSubmit(onSubmit)();
+
+    setDeleteSelectedStrategy(false)
+    setSelectedStrategyId(null)
+    setIsEditMode(false);
+    form.reset(dfl_form_vals)
+    refetchStrategies()
+  };
+
   return (
     <Tabs defaultValue="editor" className="max-w-3/4">
       <TabsList>
@@ -348,6 +368,7 @@ export function StrategyCreator() {
                                 <DropdownMenuRadioItem
                                   key={p.id}
                                   value={p.id}
+                                  className="cursor-pointer"
                                 >
                                   {p.title}
                                 </DropdownMenuRadioItem>
@@ -388,9 +409,10 @@ export function StrategyCreator() {
                           <DropdownMenuRadioItem
                             key={strat.id}
                             value={strat.id}
+                            className="cursor-pointer"
                           >
                             <div className="flex flex-col">
-                              <span className="font-medium">{strat.id}</span>
+                              <span className="font-medium">{strat.name}</span>
                               <span className="text-xs text-muted-foreground">
                                 {strat.description.slice(0, 50)}...
                               </span>
@@ -402,9 +424,19 @@ export function StrategyCreator() {
                   </DropdownMenu>
 
                   {isEditMode && (
+                    <div className="flex items-center">
                     <Button variant="default" size="sm" onClick={handleNewStrat} type="button" className="cursor-pointer">
                       New Strat
                     </Button>
+                    <Button 
+                      variant="ghost" 
+                      type="button"
+                      className="cursor-pointer text-red-500 hover:text-red-600"
+                      onClick={handleDeleteStrategy}
+                    >
+                      <Trash className="w-4 h-4"/>
+                    </Button>
+                    </div>
                   )}
                 </div>
               </div>

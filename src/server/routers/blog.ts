@@ -118,7 +118,7 @@ export const BlogPostRouter = router({
         seoDescription: input.seoDescription,
       };
 
-      // if we're associating a, strategy connect it
+      // if we're associating a strategy connect it
       if(input.strategy?.id) {
         data.strategy = {
           connect: {id: input.strategy?.id}
@@ -127,12 +127,12 @@ export const BlogPostRouter = router({
 
       return prisma.post.upsert({
         where: {id: input.id},
-        update: {},
-        create: data
+        update: {...data},
+        create: {...data}
       })
     }),
 
-    swapStrategies: publicProcedure
+  swapStrategies: publicProcedure
   .input(z.object({
     postA_id: z.string(),
     stratB_id: z.string(),
@@ -186,6 +186,14 @@ export const BlogPostRouter = router({
         },
       });
     });
+  }),
+
+  delete : publicProcedure
+  .input(z.string())
+  .mutation(async ({ input }) => {
+    return await prisma.post.delete({
+      where: {id: input}
+    })
   }),
 
 });
