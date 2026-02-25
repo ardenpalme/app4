@@ -49,7 +49,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { BlogPostSchema, CreatePostInputSchema } from "@/schemas/blog"
+import { BlogPostSchema, CreatePostInputSchema, PostTypeEnum } from "@/schemas/blog"
 import { trpc } from "../_trpc/client"
 import { ChevronDown, Trash } from "lucide-react"
 import { Textarea } from "@/components/ui/textarea"
@@ -59,6 +59,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs"
+import Link from "next/link"
 
 const formSchema = z.object({
   id: z.string(),
@@ -68,6 +69,8 @@ const formSchema = z.object({
   seoTitle: z.string(),
   seoDescription: z.string(),
   strategyId: z.string().nullable(),
+  type: PostTypeEnum,
+  link: z.string(),
 })
 
 const dfl_form_vals = {
@@ -78,6 +81,8 @@ const dfl_form_vals = {
   seoTitle: "",
   seoDescription: "",
   strategyId: null,
+  type: "GENERIC",
+  link: "",
 };
 
 export function PostCreator() {
@@ -133,16 +138,18 @@ export function PostCreator() {
       title: data.title,
       summary: data.summary,
       content: data.content,
-      type: data.strategyId ? "STRATEGY" : "GENERIC",
-      seoTitle: data.seoTitle,
+      type: data.type,
+      seoTitle: data.seoTitle, // TODO remove this attr in schema
       seoDescription: data.seoDescription,
       strategy: { id: data.strategyId }, 
+      link: data.link,
     };
     const res = await upsertPost.mutateAsync(payload);
     console.log(`upsertPost() returned: ${res}`)
-    //setPreview(watch())
-    form.reset(dfl_form_vals)
+
     refetchPosts()
+    form.reset(dfl_form_vals)
+    setSelectedPostId(null)
   }
 
   React.useEffect(() => {
@@ -155,6 +162,8 @@ export function PostCreator() {
       form.setValue('strategyId', selectedPost.strategy?.id ?? null);
       form.setValue('seoTitle', selectedPost.seoTitle);
       form.setValue('seoDescription', selectedPost.seoDescription);
+      form.setValue('link', selectedPost.link)
+      form.setValue('type', selectedPost.type)
     }
   }, [selectedPost, form]);
 
@@ -314,6 +323,59 @@ export function PostCreator() {
                   )}
                 />
 
+                {/* Link */}
+                <Controller
+                  name="link"
+                  control={form.control}
+                  render={({ field, fieldState }) => (
+                    <Field data-invalid={fieldState.invalid} >
+                      <FieldLabel className="w-24">
+                        Link
+                      </FieldLabel>
+                      <Input
+                        {...field}
+                        id="rhf-post-link"
+                        placeholder=""
+                        autoComplete="off"
+                      />
+                    </Field>
+                  )}
+                />
+
+                  {/* Post TYPE */}
+                <Controller
+                  name="type"
+                  control={form.control}
+                  render={({ field }) => (
+                    <div className="max-w-40 truncate">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="outline" className="cursor-pointer">
+                            {field.value ?? "Select Type"}
+                            <ChevronDown className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuRadioGroup
+                            value={field.value?.toString() ?? ""}
+                            onValueChange={(value) => field.onChange(value)}
+                          >
+                            {PostTypeEnum.options?.map((ele) => (
+                              <DropdownMenuRadioItem
+                                key={ele}
+                                value={ele}
+                              >
+                                {ele}
+                              </DropdownMenuRadioItem>
+                            ))}
+                          </DropdownMenuRadioGroup>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                  )}
+              />
+
                 {/* Summary */}
                 <Controller
                   name="summary"
@@ -328,6 +390,32 @@ export function PostCreator() {
                           {...field}
                           placeholder=""
                           id="rhf-post-summary"
+                          rows={4}
+                          className="min-h-20 resize-none"
+                          //aria-invalid={fieldState.invalid}
+                        />
+                      </InputGroup>
+                      {fieldState.invalid && (
+                        <FieldError errors={[fieldState.error]} />
+                      )}
+                    </Field>
+                  )}
+                />
+
+                {/* SEO Description */}
+                <Controller
+                  name="seoDescription"
+                  control={form.control}
+                  render={({ field, fieldState }) => (
+                    <Field data-invalid={fieldState.invalid}>
+                      <FieldLabel>
+                        SEO Description
+                      </FieldLabel>
+                      <InputGroup>
+                        <InputGroupTextarea
+                          {...field}
+                          placeholder=""
+                          id="rhf-post-seoDescription"
                           rows={4}
                           className="min-h-20 resize-none"
                           //aria-invalid={fieldState.invalid}
@@ -384,13 +472,16 @@ export function PostCreator() {
       </TabsContent>
       <TabsContent value="preview">
       {preview && <Card>
-          <CardHeader>
+        {preview.type != 'NOTEBOOK' && (<CardHeader>
             <CardTitle className="">
               {preview.title}
             </CardTitle>
-            <CardDescription>{preview.summary}</CardDescription>
-          </CardHeader>
+            <CardDescription>
+              {preview.summary}
+            </CardDescription>
+          </CardHeader>)}
           <CardContent>
+            {preview.type != 'NOTEBOOK' && (
             <section>
               <ReactMarkdown
                 remarkPlugins={[remarkGfm, remarkMath]}
@@ -405,7 +496,11 @@ export function PostCreator() {
               >
                 {preview.content}
               </ReactMarkdown>
-            </section>
+            </section>)}
+            {/* TODO:  The jupyter notebook is stored locally */}
+            {preview.type == 'NOTEBOOK' && (
+              <iframe src={preview.link} className="w-full h-screen"/>
+            )}
           </CardContent>
           <CardFooter>
           </CardFooter>

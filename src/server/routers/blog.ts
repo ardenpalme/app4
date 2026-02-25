@@ -19,6 +19,7 @@ export const BlogPostRouter = router({
           type: true,
           seoTitle: true,
           seoDescription: true,
+          link: true,
           strategy: {
             select: {
               id: true,
@@ -52,6 +53,7 @@ export const BlogPostRouter = router({
           date: true,
           seoTitle: true,
           seoDescription: true,
+          link: true,
           strategy: {
             select: {
               id: true,
@@ -83,9 +85,9 @@ export const BlogPostRouter = router({
           summary: true,
           content: true,
           type: true,
-
           seoTitle: true,
           seoDescription: true,
+          link: true,
           strategy: {
             select: {
               id: true,
@@ -113,9 +115,10 @@ export const BlogPostRouter = router({
         title: input.title,
         summary: input.summary,
         content: input.content,
-        type: input.strategy?.id ? "STRATEGY" : "GENERIC",
+        type: input.type,
         seoTitle: input.seoTitle,
         seoDescription: input.seoDescription,
+        link: input.link,
       };
 
       // if we're associating a strategy connect it

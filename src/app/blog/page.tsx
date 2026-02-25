@@ -8,10 +8,9 @@ import { Button } from "@/components/ui/button";
 import { FaGithub } from "react-icons/fa";
 import { DisplayPost } from "@/lib/types"
 
-export default async function BlogPage() {
+export default async function BlogsPage() {
   const trpc_caller = createCaller({});
   let all_posts_raw : BlogPostSchema[] = await trpc_caller.blog.listAllPosts();
-  //console.log(all_posts_raw)
 
   const all_posts = (await Promise.all(all_posts_raw.map(async (post: BlogPostSchema) => {
     if (post.strategy) {

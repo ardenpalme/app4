@@ -12,12 +12,54 @@ import rehypeHighlight from 'rehype-highlight';
 import rehypeSlug from 'rehype-slug';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 
+import type { Metadata } from "next";
+
 import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import Link from "next/link";
 import { BackButton } from "@/app/_components/back_button";
 import { StrategySchema } from "@/schemas/strategy";
 import {z} from 'zod'
+
+export async function generateMetadata(
+  { params }: { params: Promise<{ slug: string }> }
+): Promise<Metadata> {
+
+  const { slug } = await params;
+  const trpc_caller = createCaller({});
+  const post : BlogPostSchema | null= await trpc_caller.blog.getPostBySlug(slug);
+
+  if (!post) {
+    return {
+      title: "Post not found | ADP",
+      description: "The requested blog post does not exist.",
+    };
+  }
+
+  const description = post.seoDescription
+
+  const url = `https://ardenpalme.com/blog/${post.slug}`;
+
+  return {
+    title: `${post.title}`,
+    description,
+    alternates: {
+      canonical: url,
+    },
+    openGraph: {
+      title: post.title,
+      description,
+      url,
+      siteName: "ADP",
+      type: "article",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: post.title,
+      description,
+    },
+  };
+}
 
 export default async function BlogPost({
   params,
@@ -29,14 +71,15 @@ export default async function BlogPost({
   const post : BlogPostSchema | null= await trpc_caller.blog.getPostBySlug(slug);
 
   let strategy : z.infer<typeof StrategySchema> | null = null;
-  if(post && post.type == 'STRATEGY' && post.strategy != null && post.strategy.id != null) {
+  if(post && post.strategy != null && post.strategy.id != null) {
     strategy = await trpc_caller.strategy.getById(post.strategy?.id)
   }
 
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border">
-        <div className="mx-auto flex max-w-3xl items-center justify-between px-6 py-4">
+        <div className={post?.type == "NOTEBOOK" ? "mx-auto flex items-center max-w-7xl justify-between px-6 py-4" :
+          "mx-auto flex items-center max-w-3xl justify-between px-6 py-4"}>
           <Link href="/" className="font-semibold text-foreground">
             ADP
           </Link>
@@ -45,40 +88,58 @@ export default async function BlogPost({
           </nav>
         </div>
       </header>
-      <main className="mx-auto max-w-3xl px-6 py-12">
+      <main className={post?.type == "NOTEBOOK" ? "mx-auto px-6 max-w-7xl py-12" : "mx-auto max-w-3xl px-6 py-12"}>
         <div className="flex flex-col gap-y-5 ">
+          {strategy != null && (
           <Card>
             <CardHeader>
               <CardTitle className="">
-                {strategy?.name}
+                {strategy.name}
               </CardTitle>
               <div className="flex items-center gap-4">
-                <Badge>{strategy?.status}</Badge>
-                <Badge variant="secondary">{strategy?.category}</Badge>
-                <Badge variant="secondary">{strategy?.timeframe}</Badge>
-                <Badge variant="secondary">{strategy?.riskProfile} RISK</Badge>
+                <Badge>{strategy.status}</Badge>
+                <Badge variant="secondary">{strategy.category}</Badge>
+                <Badge variant="secondary">{strategy.timeframe}</Badge>
+                <Badge variant="secondary">{strategy.riskProfile} RISK</Badge>
               </div>
             </CardHeader>
             <CardContent>
               {strategy?.description}
             </CardContent>
+          </Card>)}
+          <Card>
+            {post?.type != 'NOTEBOOK' && (
+            <CardHeader>
+              <CardTitle className="">
+                {post?.title}
+              </CardTitle>
+              <CardDescription>
+                {post?.summary}
+              </CardDescription>
+            </CardHeader>)}
+            <CardContent>
+              {post?.type != 'NOTEBOOK' && (
+              <section>
+                <ReactMarkdown
+                  remarkPlugins={[remarkGfm, remarkMath]}
+                  rehypePlugins={[
+                    rehypeRaw,
+                    rehypeSanitize,
+                    rehypeHighlight,
+                    rehypeSlug,
+                    rehypeKatex,
+                    rehypeAutolinkHeadings,
+                  ]}
+                >
+                  {post?.content}
+                </ReactMarkdown>
+              </section>)}
+              {/* TODO:  The jupyter notebook is stored locally */}
+              {post?.type == 'NOTEBOOK' && (
+                <iframe src={post?.link} className="w-full h-screen" sandbox="allow-scripts allow-same-origin allow-popups"/>
+              )}
+            </CardContent>
           </Card>
-          <h1 className="text-2xl font-bold text-foreground text-balance">{post?.title}</h1>
-          <section>
-            <ReactMarkdown
-              remarkPlugins={[remarkGfm, remarkMath]}
-              rehypePlugins={[
-                rehypeRaw,
-                rehypeSanitize,
-                rehypeHighlight,
-                rehypeSlug,
-                rehypeKatex,
-                rehypeAutolinkHeadings,
-              ]}
-            >
-              {post?.content}
-            </ReactMarkdown>
-          </section>
         </div>
     </main>
   </div>

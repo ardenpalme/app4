@@ -31,6 +31,7 @@ const strategyPost: Prisma.StrategyCreateInput[] = [
         type: 'STRATEGY',
         seoTitle: 'Swing Trading Tech Stocks Strategy',
         seoDescription: 'Learn a proven swing trading strategy for tech stocks using moving averages and RSI.',
+        link:'',
       },
     },
     positions: {
@@ -80,6 +81,7 @@ const strategyPost: Prisma.StrategyCreateInput[] = [
         type: 'STRATEGY',
         seoTitle: 'Scalping ES Futures Strategy',
         seoDescription: 'Learn how to scalp ES futures using order flow and market profile.',
+        link:'',
       },
     },
     positions: {
@@ -136,6 +138,7 @@ const genericPosts: Prisma.PostCreateInput[] = [
     type: 'GENERIC',
     seoTitle: 'Market Cycles Explained',
     seoDescription: 'Learn about accumulation, markup, distribution, and markdown phases.',
+        link:'',
   },
   {
     id: nanoid(),
@@ -146,6 +149,7 @@ const genericPosts: Prisma.PostCreateInput[] = [
     type: 'GENERIC',
     seoTitle: 'Risk Management for Traders',
     seoDescription: 'Discover key risk management principles to protect your capital.',
+        link:'',
   },
   {
     id: nanoid(),
@@ -156,6 +160,7 @@ const genericPosts: Prisma.PostCreateInput[] = [
     type: 'GENERIC',
     seoTitle: 'Technical Analysis for Beginners',
     seoDescription: 'Learn the fundamentals of technical analysis including support, resistance, and patterns.',
+        link:'',
   },
 ]
 

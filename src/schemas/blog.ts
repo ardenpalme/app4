@@ -1,6 +1,6 @@
 import {z} from 'zod'
 
-export const PostTypeEnum = z.enum(["STRATEGY", "GENERIC"])
+export const PostTypeEnum = z.enum(["STRATEGY", "GENERIC", "NOTEBOOK"])
 export type PostTypeEnum = z.infer<typeof PostTypeEnum >
 
 export const CreatePostInputSchema = z.object({
@@ -14,7 +14,8 @@ export const CreatePostInputSchema = z.object({
   seoDescription: z.string(),
   strategy: z.object({
     id: z.string().nullable(),
-  }).nullable()
+  }).nullable(),
+  link: z.string()
 });
 export type CreatePostInputSchema = z.infer<typeof CreatePostInputSchema>
 

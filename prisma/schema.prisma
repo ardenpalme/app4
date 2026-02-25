@@ -69,6 +69,7 @@ enum RiskProfile {
 enum PostType {
   STRATEGY
   GENERIC
+  NOTEBOOK
 }
 
 model Post {
@@ -83,6 +84,7 @@ model Post {
 
   seoTitle        String?
   seoDescription  String?
+  link            String?
 
   strategy        Strategy?   @relation
 }

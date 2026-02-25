@@ -85,24 +85,21 @@ export default function Home() {
           <div className="grid gap-4">
             {projects.map((project) => (
               <Card key={project.title}>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-base flex items-center justify-between">
-                    {project.title}
-                    <Button variant="ghost" size="sm" asChild>
-                      <a href={project.link} target="_blank" rel="noopener noreferrer">
-                        <ExternalLink className="size-4" />
-                      </a>
-                    </Button>
-                  </CardTitle>
-                  <CardDescription>{project.description}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex gap-2">
-                    {project.tags.map((tag) => (
-                      <Badge key={tag} variant="secondary">{tag}</Badge>
-                    ))}
-                  </div>
-                </CardContent>
+                <Link href={project.link} rel="noopener noreferrer" target="_blank">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-base flex items-center justify-between">
+                      {project.title}
+                    </CardTitle>
+                    <CardDescription>{project.description}</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex gap-2">
+                      {project.tags.map((tag) => (
+                        <Badge key={tag} variant="secondary">{tag}</Badge>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Link>
               </Card>
             ))}
           </div>
