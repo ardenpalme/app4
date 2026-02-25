@@ -103,6 +103,7 @@ class IBRKManager {
 
   // stop pinging the gateway and stop GW process
   stopGW() {
+    console.log("stopping GW process")
     this.stop_pings()
     if (this.gwPID !== null) {
       try {

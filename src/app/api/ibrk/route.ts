@@ -48,7 +48,8 @@ export async function GET(request: NextRequest) {
   }, {})
 
 
+  ibrk.stopGW() // since the caching time > timespan in which a login is required
   cache[key] = {data: {allocation, positions}, timestamp:now}
   return NextResponse.json({allocation, positions})
-}
+} 
 
