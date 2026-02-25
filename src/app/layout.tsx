@@ -18,7 +18,7 @@ export const metadata: Metadata = {
 
   title: {
     default: "Arden Diakhate-Palme | Software Engineer",
-    template: "%s | Arden Diakhate-Palme",
+    template: "%s",
   },
 
   description:
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
   keywords: [
     "Arden Diakhate-Palme",
     "Software Engineer",
-    "Data Scientist",
+    "Data Science",
     "Machine Learning Engineer",
     "React",
     "TypeScript",
