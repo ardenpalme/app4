@@ -81,7 +81,7 @@ const dfl_form_vals = {
   seoTitle: "",
   seoDescription: "",
   strategyId: null,
-  type: "GENERIC",
+  type: "GENERIC" as const,
   link: "",
 };
 

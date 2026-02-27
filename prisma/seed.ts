@@ -164,20 +164,45 @@ const genericPosts: Prisma.PostCreateInput[] = [
   },
 ]
 
-export async function main() {
-  console.log('Seeding started...')
+// 1 pf 
+const portfolios: Prisma.PortfolioCreateInput[] = [
+  {
+    id: nanoid(),
+    date: new Date(),
+    ticker: "AAPL",
+    quantity: 10,
+    type: "STOCK",
+  },
+  {
+    id: nanoid(),
+    date: new Date(),
+    ticker: "NVDA",
+    quantity: 5,
+    type: "STOCK",
+  },
+  {
+    id: nanoid(),
+    date: new Date(),
+    ticker: "QCOM",
+    quantity: 6,
+    type: "STOCK",
+  },
+]
 
+export async function main() {
+  /*
   for (const strategy of strategyPost) {
     await prisma.strategy.create({ data: strategy })
-    console.log(`Created strategy: ${strategy.name}`)
   }
 
   for (const post of genericPosts) {
     await prisma.post.create({ data: post })
-    console.log(`Created generic post: ${post.title}`)
   }
+  */
 
-  console.log('Seeding finished.')
+  for (const pf of portfolios) {
+    await prisma.portfolio.create({data : pf})
+  }
 }
 
 main()

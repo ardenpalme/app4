@@ -54,8 +54,6 @@ export async function GET() {
   const btc_data : BTCResp = await btc_res.json()
   const btc_balance = btc_data[btc_addr].final_balance / 1e8
 
-  
-
   // Get ERC-20 tokens
   const res = await fetch(alchemyUrl , {
     method: 'POST',

@@ -86,6 +86,9 @@ importers:
       pg:
         specifier: ^8.18.0
         version: 8.18.0
+      plotly.js:
+        specifier: ^3.4.0
+        version: 3.4.0(mapbox-gl@1.13.3)
       plotly.js-dist:
         specifier: ^3.3.1
         version: 3.4.0

@@ -47,7 +47,7 @@ export default function PortfolioPage() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const resp = await fetch('/api/portfolio' )
+        const resp = await fetch('/api/trezor')
         const coins : PfTokResp = await resp.json()
 
         const p_promises = Object.keys(coins).map(async (symbol) => {
@@ -87,7 +87,7 @@ export default function PortfolioPage() {
 
 
         const total_trad_assets_usd = Object.keys(trad_pf.allocation.assetClass.long).reduce((acc, asset) => {
-            return acc + trad_pf.allocation.assetClass.long[asset]
+            trad_pf.allocation.assetClass.long[asset]
           },0)
 
         const total_pf = total_digital_assets_usd + total_trad_assets_usd

@@ -72,6 +72,12 @@ enum PostType {
   NOTEBOOK
 }
 
+enum PfPositionType {
+  STOCK
+  CRYPTO
+  CASH
+}
+
 model Post {
   id              String    @id
 
@@ -144,5 +150,13 @@ model Trade {
   slippage      Float?
   realizedPnl   Float?
   notes         String?
+}
+
+model Portfolio {
+  id            String         @id
+  date          DateTime
+  ticker        String
+  quantity      Float
+  type          PfPositionType
 }
 

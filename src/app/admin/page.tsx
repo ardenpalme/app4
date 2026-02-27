@@ -12,6 +12,7 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs"
 import { StrategyCreator } from "../_components/strategy_creator";
+import { PortfolioUploader } from "../_components/portfolio_uploader";
 
 export default async function AdminPage() {
   const cookieStore = await cookies()
@@ -34,12 +35,16 @@ export default async function AdminPage() {
           <TabsList variant="line" className="pb-3">
             <TabsTrigger value="posts" className="cursor-pointer">Blog</TabsTrigger>
             <TabsTrigger value="strat" className="cursor-pointer">Strategy</TabsTrigger>
+            <TabsTrigger value="port" className="cursor-pointer">Portfolio</TabsTrigger>
           </TabsList>
           <TabsContent value="posts" >
             <PostCreator/>
           </TabsContent>
           <TabsContent value="strat" >
             <StrategyCreator/>
+          </TabsContent>
+          <TabsContent value="port" >
+            <PortfolioUploader/>
           </TabsContent>
         </Tabs>
       </main>
