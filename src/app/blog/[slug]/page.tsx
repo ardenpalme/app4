@@ -90,31 +90,15 @@ export default async function BlogPost({
       </header>
       <main className={post?.type == "NOTEBOOK" ? "mx-auto px-6 max-w-7xl py-12" : "mx-auto max-w-3xl px-6 py-12"}>
         <div className="flex flex-col gap-y-5 ">
-          {strategy != null && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="">
-                {strategy.name}
-              </CardTitle>
-              <div className="flex items-center gap-4">
-                <Badge>{strategy.status}</Badge>
-                <Badge variant="secondary">{strategy.category}</Badge>
-                <Badge variant="secondary">{strategy.timeframe}</Badge>
-                <Badge variant="secondary">{strategy.riskProfile} RISK</Badge>
-              </div>
-            </CardHeader>
-            <CardContent>
-              {strategy?.description}
-            </CardContent>
-          </Card>)}
           <Card>
             {post?.type != 'NOTEBOOK' && (
             <CardHeader>
               <CardTitle className="">
                 {post?.title}
               </CardTitle>
-              <CardDescription>
-                {post?.summary}
+              <CardDescription className="flex items-center gap-x-2">
+                {post?.summary} 
+                {post && (<Link href={post.link} className="font-semibold text-sky-700"> [link] </Link>)}
               </CardDescription>
             </CardHeader>)}
             <CardContent>

@@ -28,12 +28,16 @@ import { addDay, format, isAfter, isBefore, isEqual } from "@formkit/tempo";
 import { CryptoPortfolio, PfTokResp, PricesResp, PricesRespHist, TradPortfolio } from "@/lib/types";
 import { Positions } from "@/lib/ibrk_types";
 import { start } from "repl";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import MyPlot from "./plot";
+import { Record } from "@prisma/client/runtime/client";
 
 const portfolioHistory = [
-  { date: "2025-01-01", value: 10000 },
-  { date: "2025-01-15", value: 10450 },
-  { date: "2025-02-01", value: 9800 },
-  { date: "2025-02-15", value: 11200 },
+  { date: "2025-01-01", balance: 10000 },
+  { date: "2025-01-15", balance: 10450 },
+  { date: "2025-02-01", balance: 9800 },
+  { date: "2025-02-15", balance: 11200 },
 ];
 
 type histDataType = Record<string, { ticker: string; close: number }> 
@@ -70,9 +74,9 @@ async function getTradAssets() {
   }, {})
 }
 
-export async function caluclatePfData(poses : PosSchema[]) {
+export async function calculatePfData(poses : PosSchema[]) {
   const start_date = new Date("2026-02-01")
-  const end_date = new Date("2026-02-26")
+  const end_date = new Date() 
 
   // get tickers
   const uniqueTickersMap = new Map<string, { ticker: string; type: string }>();
@@ -89,7 +93,6 @@ export async function caluclatePfData(poses : PosSchema[]) {
     acc[date].push({ ticker: ele.ticker, quantity: ele.quantity });
     return acc
   }, {} as Record<string, { ticker: string; quantity: number }[]>)
-  console.log(trades)
 
   // get timeframes
   const allDates = poses.map(pos => pos.date);
@@ -124,7 +127,7 @@ export async function caluclatePfData(poses : PosSchema[]) {
     }else if(ele.type == "CASH") { // TODO
       return {
         ticker: "CASH",
-        date: "",
+        date: start_date,
         close: 1,
       }
     }
@@ -140,47 +143,173 @@ export async function caluclatePfData(poses : PosSchema[]) {
   }));
   const tf_data_red = tf_data.flat(2)
 
-  const hist_prices = tf_data_red.reduce((acc, ele) => {
+  const hist_prices : Record<string, {ticker: string, close: number}[]> = tf_data_red.reduce((acc, ele) => {
     const date = format(ele.date, "YYYY-MM-DD")
     if (!acc[date]) acc[date] = [];
     acc[date].push({ ticker: ele.ticker, close: ele.close });
     return acc
-  }, {} as Record<string, {ticker: string, close: number}>)
+  }, {} as Record<string, {ticker: string, close: number}[]>)
 
-  const tmp2 = Object.keys(hist_prices).map((date) => {
+  console.log(hist_prices)
+  const nperiod_lb = 5
+  const getClose = (dates: string[], idx : number, ticker : string) => {
+    let iter = 0
+    let price = null
+
+    if(ticker === "CASH") return 1
+
+    do { 
+      price = hist_prices[dates[idx-iter]]?.find(ele => ele.ticker == ticker)
+      if(price) return price.close
+      
+      iter += 1
+    } while(iter < nperiod_lb && !price);
+
+
+    return 0
+  }
+
+  const sortedTradingDates = Object.keys(hist_prices).map(date => date).slice().sort((a,b) => {
+    return new Date(a).getTime() - new Date(b).getTime()
+  })
+
+  const tmp2 = sortedTradingDates.map((date, idx, arr) => {
     const curr_tf = timeframes.find((tf) => {
-      return (isBefore(date, tf.to_date) && isAfter(date, tf.from_date)) || isEqual(date, tf.from_date)
+      return (isBefore(date, tf.to_date) && isAfter(date, tf.from_date)) || isEqual(date, tf.from_date) || isEqual(date, tf.to_date)
     })
-    if(!curr_tf) return {date: new Date(), balance: 0 }
-    console.log(curr_tf)
+    if(!curr_tf) {
+      return {
+        [format(date, "YYYY-MM-DD")]: [{
+          balance: 0,
+          quantity: 0,
+          ticker: ''
+        }]
+      }
+    }
     const trades_ = trades[format(curr_tf?.from_date, "YYYY-MM-DD")] || []
-    const price = hist_prices[format(date, "YYYY-MM-DD")]
-    const total = trades_.reduce((acc, pos) => {
-      const p = price.find(ele => ele.ticker == pos.ticker)?.close
-      acc += pos.quantity / p
+    const tmp4 = trades_.reduce((acc, pos) => {
+      const date_str = format(date, "YYYY-MM-DD")
+      if (!acc[date_str]) acc[date_str] = [];
+      const close = getClose(arr, idx, pos.ticker)
+      if(!close) console.error(`could not retrieve close in ${nperiod_lb} day(s) lookback [${pos.ticker}]`)
+      
+      acc[date_str].push({
+        ...pos,
+        balance: close ? (pos.quantity * close) : pos.quantity
+      })
+      return acc
+    }, {} as Record<string, {ticker:string, balance: number, quantity: number}[]>)
+    return tmp4
+  })
+  const combined = tmp2.flat().reduce((ele, acc)=> {
+    return {...acc, ...ele}
+  }, {})
+  console.log(combined)
+
+  const ret1 = Object.keys(combined).map((date) => {
+    const curr_pos = combined[date]
+    const comb = curr_pos.reduce((acc, pos) => {
+      acc += pos.balance
       return acc
     }, 0)
-
     return {
       date,
-      balance: total,
+      balance : comb,
     }
   })
 
-  return tmp2
+  const ret2 = ret1.slice().sort((a, b) => {
+    return new Date(a.date).getTime() - new Date(b.date).getTime();
+  });
+
+  return {snaps : combined, plot_data: ret2}
 }
 
+function getUniqueTickers(poses : PosSchema[]) {
+  const uniqueTickersMap = new Map<string, string >();
+  poses?.forEach(pos => {
+    const key = `${pos.id}`;
+    if(!uniqueTickersMap.has(key)) {
+      uniqueTickersMap.set(key, pos.ticker)
+    }
+  })
+  return Array.from(uniqueTickersMap.values())
+}
+
+function getUniquePoses(poses : PosSchema[]) {
+  const trades = poses.reduce((acc, ele) => {
+    const date = format(ele.date, "YYYY-MM-DD")
+    if (!acc[date]) acc[date] = [];
+    acc[date].push({ ...ele });
+    return acc
+  }, {} as Record<string, PosSchema[]>)
+
+  const uniquePosesMap = new Map<string, PosSchema >();
+  Object.keys(trades).forEach(date => {
+    const curr_trade = trades[date]
+    curr_trade.forEach(trade => {
+      const key = `${date}-${trade.ticker}-${trade.quantity}`
+      if(!uniquePosesMap.has(key)) {
+        uniquePosesMap.set(key, trade)
+      }
+    })
+  })
+  return Array.from(uniquePosesMap.values())
+}
 
 export function PortfolioUploader() {
   const [pf, setPf] = useState<PosSchema[] | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
-  const {data : poses} = trpc.pf.listAll.useQuery()
+  const {data : poses, refetch : refetchPoses} = trpc.pf.listAll.useQuery()
+  const [isUpserting, setIsUpserting] = useState<boolean>(false);
+  const [plotData, setPlotData] = useState<{date: Date, balance:number}[] | null>(null);
+  const upsertPf = trpc.pf.upsertMany.useMutation();
 
   const syncPortfolio = async () => {
     setIsSyncing(true)
     try {
-      const data : PosSchema[] = await fetchPortfolio()
-      setPf(data); 
+      const loc_poses = await fetchPortfolio() as PosSchema[]
+      setPf(loc_poses); 
+
+      if(isUpserting) {
+        refetchPoses()
+        /*
+        const remote_tickers = getUniqueTickers(poses)
+        const local_tickers = getUniqueTickers(loc_poses)
+        const new_tickers = local_tickers.filter(ticker => !remote_tickers.includes(ticker));
+        const update_tickers = local_tickers.filter(ticker => remote_tickers.includes(ticker));
+        const new_ticker_payload = new_tickers.map((ticker) => {
+          const ret = loc_poses.find(ele => ele.ticker == ticker)
+          if(ret) return ret
+        })
+
+        const update_tickers_payload = update_tickers.map((ticker)=>{
+          const ret_loc = loc_poses?.find(ele => ele.ticker == ticker)
+          const ret_rem = poses?.find(ele => ele.ticker == ticker)
+          if(ret_rem && ret_loc) {
+            const db_id = ret_rem.id;
+            return {...ret_loc, id: db_id}
+          }
+        })
+        const payload = [...update_tickers_payload, ...new_ticker_payload]
+        */
+
+        const local_tickers = getUniqueTickers(loc_poses)
+        const payload = local_tickers.map((ticker) => {
+          const ret = loc_poses.find(ele => ele.ticker == ticker)
+          if(ret) return ret
+        })
+
+        if(!payload.includes(undefined)) await upsertPf.mutateAsync(payload as PosSchema[]) 
+        console.log(payload)
+      }
+
+      if(poses) { 
+        const glob_poses = getUniquePoses([...loc_poses, ...poses.map(pos => ({...pos, date: new Date(pos.date)}))]); 
+        const {plot_data, snaps} = await calculatePfData(glob_poses)
+        setPlotData(plot_data.map(p => ({ date: new Date(p.date), balance: p.balance})));
+      }
+
     } catch (err) {
       console.error("Failed to sync portfolio:", err);
       setIsSyncing(false)
@@ -189,15 +318,6 @@ export function PortfolioUploader() {
     }
   }
 
-  useEffect(() => {
-    async function foo() {
-      if(poses)
-      console.log(await caluclatePfData(poses))
-    }
-    foo()
-  }, [poses])
-
-
   return(
     <Card>
       <CardHeader>
@@ -205,19 +325,24 @@ export function PortfolioUploader() {
           <CardTitle>
             Portfolio
           </CardTitle>
-          <Button
-            type="button"
-            variant="default"
-            onClick={syncPortfolio}
-            className="cursor-pointer"
-          >
-            Sync
-            {<RefreshCw className={isSyncing ? "animate-spin" : ""}/>}
-            {/*TOOD Add a create trade tick mark so that you can refresh or create a trade or both at once*/}
-          </Button>
+          <div className="flex items-center justify-between gap-x-8">
+            <div className="flex gap-2">
+              <Label>Update Remote</Label>
+              <Checkbox checked={isUpserting} onCheckedChange={(checked) => setIsUpserting(checked === true)} />
+            </div>
+            <Button
+              type="button"
+              variant="default"
+              onClick={syncPortfolio}
+              className="cursor-pointer "
+            >
+              Sync
+              {<RefreshCw className={isSyncing ? "animate-spin" : ""}/>}
+            </Button>
+          </div>
         </div>
+        {plotData && (<MyPlot in_data={plotData} start_date="2026-02-10" end_date={format(new Date(), "YYYY-MM-DD")}/>)}
       </CardHeader>
-      {/*<MyPlot data={portfolioHistory}/>*/}
       {pf && (<CardContent>
         <Table>
           <TableHeader>
@@ -230,7 +355,7 @@ export function PortfolioUploader() {
           {isSyncing && (
             <TableRow>
               <TableCell colSpan={2}>
-                <Skeleton />
+                <Skeleton className="min-h-2"/>
               </TableCell>
             </TableRow>
           )}

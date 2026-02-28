@@ -3,7 +3,7 @@ import { ibrk } from '@/lib/ibrk';
 import '@/lib/envConfig'
 
 const cache: Record<string, { data: any; timestamp: number }> = {}
-const TTL=82_800_000 // 23 hours
+const TTL= 2 * 60 //82_800_000 // 23 hours
 
 export async function GET(request: NextRequest) {
   console.log(`LoggedIn status: ${ibrk.get_isLoggedIn()}, GW status : ${ibrk.get_isGWRunning() ? 'active' : 'inactive'}`)
@@ -47,8 +47,6 @@ export async function GET(request: NextRequest) {
     return acc
   }, {})
 
-
-  ibrk.stopGW() // since the caching time > timespan in which a login is required
   cache[key] = {data: {allocation, positions}, timestamp:now}
   return NextResponse.json({allocation, positions})
 } 

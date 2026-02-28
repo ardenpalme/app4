@@ -3,7 +3,7 @@ import { delay } from '@/lib/utils';
 import { TOTP } from '@otplib/totp';
 import NodeCryptoPlugin from '@otplib/plugin-crypto-node';
 import ScureBase32Plugin from '@otplib/plugin-base32-scure';
-import { addHour, diffSeconds, format } from "@formkit/tempo"
+import { addHour, addMinute, diffSeconds, format } from "@formkit/tempo"
 import axios from 'axios';
 import https, { Agent } from 'https';
 
@@ -47,7 +47,7 @@ class IBRKManager {
     this.curr_time.setTime(Date.now());
     this.login_ts.setTime(Date.now());
     this.relogin_ts.setTime(Date.now());
-    this.relogin_ts = addHour(this.login_ts, 12)
+    this.relogin_ts = addMinute(this.login_ts, 2)//addHour(this.login_ts, 1)
 
     this.creds = creds;
     this.isLoggedIn  = false;

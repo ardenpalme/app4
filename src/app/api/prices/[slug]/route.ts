@@ -22,7 +22,6 @@ export async function GET(
   let key = `${slug}-${type}`
   if(from_date != null && to_date != null) key = `${slug}-${type}-${to_date}-${from_date}`
   if(cache[key] && (now - cache[key].timestamp < TTL)) {
-    console.log("serving from cache")
     return NextResponse.json(cache[key].data)
   }
 
@@ -55,12 +54,10 @@ export async function GET(
       });
 
       const eodhd_data : EODHDRespHist[] = await res.json()
-      console.log(eodhd_data)
-      // {"date":"2020-01-06","open":199.6,"high":202.77,"low":199.35,"close":202.33,"adjusted_close":176.1009,"volume":4660400}
 
       const ret : PricesRespHist[] = eodhd_data.map((ele) => {
         const tmp : PricesRespHist = {
-          ticker: sym,
+          ticker: slug,
           date: ele.date,
           close: ele.close,
         }

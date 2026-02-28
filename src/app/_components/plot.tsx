@@ -1,37 +1,56 @@
 "use client"
 import dynamic from "next/dynamic";
-import { trpc } from "../_trpc/client"
-import { format } from "@formkit/tempo";
-import { PosSchema } from "@/schemas/portfolio";
-import { PricesRespHist } from "@/lib/types";
 
 const Plot = dynamic(() => import("react-plotly.js"), { ssr: false }); // Prevent SSR (important for Plotly)
 
+interface MyPlotProps {
+  date: Date,
+  balance: number
+}
 
-export default function MyPlot({ data }: MyPlotProps) {
+export default function MyPlot({
+  in_data,
+  start_date,
+  end_date,
+}: {
+  in_data: MyPlotProps[];
+  start_date: string;
+  end_date: string;
+}) {
+  // Convert start and end dates to Date objects for comparison
+  const start = new Date(start_date);
+  const end = new Date(end_date);
+
+  // Filter the data between start and end dates
+  const filteredData = in_data.filter((d) => {
+    const current = new Date(d.date);
+    return current >= start && current <= end;
+  });
+
   return (
     <Plot
       data={[
         {
-          x: data.map((d) => d.date),
-          y: data.map((d) => d.value),
+          x: filteredData.map((d) => d.date),
+          y: filteredData.map((d) => d.balance),
           type: "scatter",
           mode: "lines",
           line: { color: "#2563eb", width: 2 },
-          fill: "tozeroy", // optional nice fill
+          fill: "tozeroy",
         },
       ]}
       layout={{
-        title: "Portfolio Value",
+        title: { text: "Portfolio Value" },
         autosize: true,
         margin: { l: 70, r: 20, t: 40, b: 40 },
         xaxis: {
-          title: "Date",
+          title: { text: "Date" },
           type: "date",
         },
         yaxis: {
-          title: "Value ($)",
+          title: { text: "Value ($)" },
           tickformat: ",.2f",
+          // range: [114, 115]
         },
       }}
       config={{ responsive: true }}

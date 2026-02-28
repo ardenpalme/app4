@@ -34,14 +34,10 @@ export default async function AdminPage() {
         <Tabs defaultValue="posts">
           <TabsList variant="line" className="pb-3">
             <TabsTrigger value="posts" className="cursor-pointer">Blog</TabsTrigger>
-            <TabsTrigger value="strat" className="cursor-pointer">Strategy</TabsTrigger>
             <TabsTrigger value="port" className="cursor-pointer">Portfolio</TabsTrigger>
           </TabsList>
           <TabsContent value="posts" >
             <PostCreator/>
-          </TabsContent>
-          <TabsContent value="strat" >
-            <StrategyCreator/>
           </TabsContent>
           <TabsContent value="port" >
             <PortfolioUploader/>

@@ -41,7 +41,6 @@ export async function GET() {
   const now = Date.now()
   const key = 'portfolio'
   if(cache[key] && (now - cache[key].timestamp < TTL)) {
-    console.log("serving from cache")
     return NextResponse.json(cache[key].data)
   }
 

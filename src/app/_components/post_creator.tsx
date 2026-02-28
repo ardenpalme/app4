@@ -68,7 +68,6 @@ const formSchema = z.object({
   content: z.string(),
   seoTitle: z.string(),
   seoDescription: z.string(),
-  strategyId: z.string().nullable(),
   type: PostTypeEnum,
   link: z.string(),
 })
@@ -80,7 +79,6 @@ const dfl_form_vals = {
   content: "",
   seoTitle: "",
   seoDescription: "",
-  strategyId: null,
   type: "GENERIC" as const,
   link: "",
 };
@@ -117,19 +115,6 @@ export function PostCreator() {
       .replace(/\s+/g, "-")
       .replace(/[^\w-]/g, "")}-${nanoid(5)}`;
 
-    if(selectedPost && 
-       // selected post to edit has a valid strat
-       selectedPost.strategy?.id &&
-       // selected strategy already is associated to another post
-       data.strategyId != selectedPost.strategy?.id && data.strategyId != null) {
-      console.log("switching strategies for post")
-      const payload = {
-        postA_id: selectedPost.id,
-        stratB_id : data.strategyId
-      }
-      const res = await swapStrategies.mutateAsync(payload)
-      console.log(res)
-    }
 
    const post_id = selectedPostId ?? nanoid();
     const payload : CreatePostInputSchema = {
@@ -141,7 +126,7 @@ export function PostCreator() {
       type: data.type,
       seoTitle: data.seoTitle, // TODO remove this attr in schema
       seoDescription: data.seoDescription,
-      strategy: { id: data.strategyId }, 
+      strategy: { id: null }, 
       link: data.link,
     };
     const res = await upsertPost.mutateAsync(payload);
@@ -159,7 +144,6 @@ export function PostCreator() {
       form.setValue('title', selectedPost.title);
       form.setValue('summary', selectedPost.summary);
       form.setValue('content', selectedPost.content);
-      form.setValue('strategyId', selectedPost.strategy?.id ?? null);
       form.setValue('seoTitle', selectedPost.seoTitle);
       form.setValue('seoDescription', selectedPost.seoDescription);
       form.setValue('link', selectedPost.link)
@@ -202,43 +186,6 @@ export function PostCreator() {
                   {isEditMode ? "Edit blog post" : "Create blog post"}
                 </CardTitle>
                 <div className="flex items-center gap-2">
-                
-                  {/* Strategy Selector */}
-                  <Controller
-                    name="strategyId"
-                    control={form.control}
-                    render={({ field }) => (
-                      <div className="max-w-40 truncate">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="outline" className="cursor-pointer">
-                              {strategies?.find((s) => (s.id === field.value))?.name ||
-                                "Select Strategy"}
-                              <ChevronDown className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent>
-                            <DropdownMenuLabel>Strategies</DropdownMenuLabel>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuRadioGroup
-                              value={field.value ?? ""}
-                              onValueChange={(value) => field.onChange(value)}
-                            >
-                              {strategies?.map((strategy) => (
-                                <DropdownMenuRadioItem
-                                  key={strategy.id}
-                                  value={strategy.id}
-                                  className=" text-left cursor-pointer"
-                                >
-                                  {strategy.name}
-                                </DropdownMenuRadioItem>
-                              ))}
-                            </DropdownMenuRadioGroup>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </div>
-                    )}
-                  />
 
                   {/* Post Selector for Editing */}
                   <DropdownMenu>

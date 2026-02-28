@@ -13,44 +13,18 @@ export default async function BlogsPage() {
   let all_posts_raw : BlogPostSchema[] = await trpc_caller.blog.listAllPosts();
 
   const all_posts = (await Promise.all(all_posts_raw.map(async (post: BlogPostSchema) => {
-    if (post.strategy) {
-      const strategy_raw = await trpc_caller.strategy.getById(post.strategy.id)
-      if (strategy_raw) {
-        return {
-          id: post.id,
-          title: post.title,
-          slug: post.slug,
-          summary: post.summary,
-          content: post.content,
-          type: post.type,
-          date: post.date,
-          seoTitle: post.seoTitle,
-          seoDescription: post.seoDescription,
-          strategy: {
-            id: strategy_raw.id,
-            name: strategy_raw.name,
-            description: strategy_raw.description,
-            category: strategy_raw.category,
-            timeframe: strategy_raw.timeframe,
-            riskProfile: strategy_raw.riskProfile,
-            status: strategy_raw.status,
-          }
-        }
-      }
-    } else {
-      return {
-        id: post.id,
-        title: post.title,
-        slug: post.slug,
-        summary: post.summary,
-        content: post.content,
-        type: post.type,
-        date: post.date,
-        seoTitle: post.seoTitle,
-        seoDescription: post.seoDescription,
-      }
+    return {
+      id: post.id,
+      title: post.title,
+      slug: post.slug,
+      summary: post.summary,
+      content: post.content,
+      type: post.type,
+      date: post.date,
+      seoTitle: post.seoTitle,
+      seoDescription: post.seoDescription,
     }
-  }))).filter(Boolean) as DisplayPost[];
+  }))) as DisplayPost[];
 
   return (
     <div className="min-h-screen bg-background">
@@ -81,19 +55,11 @@ export default async function BlogsPage() {
               <Card className="transition-colors hover:border-primary/40">
                 <CardHeader>
                   <div className="mb-2 flex flex-wrap items-center gap-2">
-                     {post.strategy && 
-                      <div className="flex items-center gap-4">
-                        <Badge>{post.strategy.status}</Badge>
-                        <Badge variant="secondary">{post.strategy.category}</Badge>
-                        <Badge variant="secondary">{post.strategy.timeframe}</Badge>
-                        <Badge variant="secondary">{post.strategy.riskProfile} RISK</Badge>
-                      </div>
-                     }
-                      <span className="text-sm text-muted-foreground">{format(post.date, "short")}</span>
-                    </div>
-                  <CardTitle className="text-base">{post.title}</CardTitle>
+                    <CardTitle className="text-base">{post.title}</CardTitle>
+                    <span className="text-sm text-muted-foreground">{format(post.date, "short")}</span>
+                  </div>
                   <CardDescription>
-                    {post.summary.slice(0, 50)}...
+                    {post.summary.slice(0, 150)}...
                   </CardDescription>
                 </CardHeader>
               </Card>
