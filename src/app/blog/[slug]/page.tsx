@@ -88,8 +88,8 @@ export default async function BlogPost({
           </nav>
         </div>
       </header>
-      <main className={post?.type == "NOTEBOOK" ? "mx-auto px-6 max-w-7xl py-12" : "mx-auto max-w-3xl px-6 py-12"}>
-        <div className="flex flex-col gap-y-5 ">
+      <main className={post?.type == "NOTEBOOK" ? "mx-auto max-w-7xl p-4 sm:px-6 sm:py-8" : "mx-auto max-w-3xl p-4 sm:px-6 sm:py-8"}>
+        <div className="flex flex-col gap-y-2 sm:gap-y-5 ">
           <Card>
             {post?.type != 'NOTEBOOK' && (
             <CardHeader>
@@ -130,4 +130,3 @@ export default async function BlogPost({
   )
 
 }
-

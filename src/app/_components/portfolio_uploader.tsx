@@ -273,27 +273,6 @@ export function PortfolioUploader() {
 
       if(isUpserting) {
         refetchPoses()
-        /*
-        const remote_tickers = getUniqueTickers(poses)
-        const local_tickers = getUniqueTickers(loc_poses)
-        const new_tickers = local_tickers.filter(ticker => !remote_tickers.includes(ticker));
-        const update_tickers = local_tickers.filter(ticker => remote_tickers.includes(ticker));
-        const new_ticker_payload = new_tickers.map((ticker) => {
-          const ret = loc_poses.find(ele => ele.ticker == ticker)
-          if(ret) return ret
-        })
-
-        const update_tickers_payload = update_tickers.map((ticker)=>{
-          const ret_loc = loc_poses?.find(ele => ele.ticker == ticker)
-          const ret_rem = poses?.find(ele => ele.ticker == ticker)
-          if(ret_rem && ret_loc) {
-            const db_id = ret_rem.id;
-            return {...ret_loc, id: db_id}
-          }
-        })
-        const payload = [...update_tickers_payload, ...new_ticker_payload]
-        */
-
         const local_tickers = getUniqueTickers(loc_poses)
         const payload = local_tickers.map((ticker) => {
           const ret = loc_poses.find(ele => ele.ticker == ticker)

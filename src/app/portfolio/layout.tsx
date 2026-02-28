@@ -42,7 +42,7 @@ export default function PortfolioLayout({
           </Button>
         </div>
       </header>
-      <main className="mx-auto max-w-5xl px-6 py-12 flex flex-col gap-y-8">
+      <main className="flex flex-col mx-auto max-w-5xl p-4 sm:px-6 sm:py-12 gap-y-2 sm:gap-y-8 ">
         {/* Layout UI */}
         {/* Place children where you want to render a page or nested layout */}
         {children}

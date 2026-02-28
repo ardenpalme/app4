@@ -40,7 +40,6 @@ export default function MyPlot({
         },
       ]}
       layout={{
-        title: { text: "Portfolio Value" },
         autosize: true,
         margin: { l: 70, r: 20, t: 40, b: 40 },
         xaxis: {
@@ -50,7 +49,6 @@ export default function MyPlot({
         yaxis: {
           title: { text: "Value ($)" },
           tickformat: ",.2f",
-          // range: [114, 115]
         },
       }}
       config={{ responsive: true }}
