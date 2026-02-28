@@ -14,6 +14,8 @@ import {
 import { StrategyCreator } from "../_components/strategy_creator";
 import { PortfolioUploader } from "../_components/portfolio_uploader";
 
+export const dynamic = 'force-dynamic';  // Forces server-side rendering
+
 export default async function AdminPage() {
   const cookieStore = await cookies()
   const authCookie = cookieStore.get("auth") as { name: string; value: string } | undefined;

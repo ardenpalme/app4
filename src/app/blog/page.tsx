@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { FaGithub } from "react-icons/fa";
 import { DisplayPost } from "@/lib/types"
 
+export const dynamic = 'force-dynamic';  // Forces server-side rendering
+
 export default async function BlogsPage() {
   const trpc_caller = createCaller({});
   let all_posts_raw : BlogPostSchema[] = await trpc_caller.blog.listAllPosts();
