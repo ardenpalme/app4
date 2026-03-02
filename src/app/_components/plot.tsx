@@ -47,7 +47,7 @@ export default function MyPlot({
           type: "date",
         },
         yaxis: {
-          title: { text: "Value ($)" },
+          title: { text: "Pct Increase" },
           tickformat: ",.2f",
         },
       }}
