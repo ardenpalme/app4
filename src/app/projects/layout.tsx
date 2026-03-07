@@ -1,29 +1,8 @@
-import Link from "next/link";
+import Link from "next/link"
 import { Button } from "@/components/ui/button";
-import { FaGithub } from "react-icons/fa";
 import { ArrowLeft } from "lucide-react";
 
-import type { Metadata } from "next";
-
-export const metadata: Metadata = {
-  title: "Investment Portfolio | Arden Diakhate-Palme",
-  description:
-    "Investment Strategies Performance Tracking",
-  openGraph: {
-    title: "Investment Portfolio | Arden Diakhate-Palme",
-    description:
-      "Investment Strategies Performance Tracking",
-    url: "https://ardenpalme.com/portfolio",
-    images: [
-      { url: "/portfolio-og-image.png", width: 1200, height: 630, alt: "Investment Portfolio" },
-    ],
-    siteName: "ADP Portfolio",
-    type: "website",
-  }
-};
-
-
-export default function PortfolioLayout({
+export default function ProjectLayout({
   children,
 }: {
   children: React.ReactNode
@@ -51,4 +30,3 @@ export default function PortfolioLayout({
     </div>
   )
 }
-

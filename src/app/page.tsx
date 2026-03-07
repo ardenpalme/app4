@@ -8,12 +8,18 @@ import { FaGithub, FaLinkedin } from "react-icons/fa"
 
 const projects = [
   {
+    title: "Uniswap v3: Impermanent Loss and Swap fees Modeling",
+    description: "Research into optimal liquidity providing to Uniswap pools",
+    tags: ["Python"],
+    link: "/projects/uniswap",
+  },
+  {
     title: "Multi-hop Wireless Sensor Network",
     description: "Developed a networking stack in C for an STM32 using LoRa transceivers. \
                   Implemented link-state routing and the spanning-tree protocol. \
                   Minimized node power-consumption with smart scheduling, low-power processor modes, and by modifying neighbor-discovery algorithms.",
     tags: ["C++", "STM", "Python"],
-    link: "https://www.dropbox.com/scl/fi/z8h8soif596dri2a3fql6/ECE_Capstone_Final_Report.pdf?rlkey=dltg8h74d4z6lalb2zg7c8oc5&st=11bnlb3x&dl=0",
+    link: "/projects/wsn",
   },
   {
     title: "RISC-V CPU",
@@ -21,13 +27,13 @@ const projects = [
                   Implemented a branch prediction module for conditionals and function calls/returns with a BTB. \
                   Measured processor performance with matrix multiplication benchmarks.",
     tags: ["SystemVeilog"],
-    link: "https://github.com/ardenpalme/Academic-Projects/tree/master/RISCV_CPU",
+    link: "/projects/riscv-cpu",
   },
   {
-    title: "Real-time Operating System",
+    title: "Real-time Kernel",
     description: "Implemented on an ARM Cortex M processor in C using rate monotonic scheduling, immediate ceiling priority protocol, and memory protection.",
     tags: ["C", "Eagle CAD"],
-    link: "https://github.com/ardenpalme/Academic-Projects/blob/master/ARM_RTOS/lab4.pdf",
+    link: "/projects/riscv-cpu",
   },
 ]
 
@@ -85,7 +91,7 @@ export default function Home() {
           <div className="grid gap-4">
             {projects.map((project) => (
               <Card key={project.title}>
-                <Link href={project.link} rel="noopener noreferrer" target="_blank">
+                <Link href={project.link}>
                   <CardHeader className="pb-2">
                     <CardTitle className="text-base flex items-center justify-between">
                       {project.title}
