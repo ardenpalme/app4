@@ -26,3 +26,4 @@
 * Remove all console.log's
 * Add more fields to edit for each position
 * Place projects into database and add an editor for them too with a link field
+* Config based on whether in prod environment or local environment

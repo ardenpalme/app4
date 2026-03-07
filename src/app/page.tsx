@@ -33,7 +33,7 @@ const projects = [
     title: "Real-time Kernel",
     description: "Implemented on an ARM Cortex M processor in C using rate monotonic scheduling, immediate ceiling priority protocol, and memory protection.",
     tags: ["C", "Eagle CAD"],
-    link: "/projects/riscv-cpu",
+    link: "/projects/rtos",
   },
 ]
 
