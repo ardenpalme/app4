@@ -32,6 +32,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import MyPlot from "./plot";
 import { Record } from "@prisma/client/runtime/client";
+import Link from "next/link";
+import { check } from "zod";
 
 const portfolioHistory = [
   { date: "2025-01-01", balance: 10000 },
@@ -263,7 +265,17 @@ export function PortfolioUploader() {
   const {data : poses, refetch : refetchPoses} = trpc.pf.listAll.useQuery()
   const [isUpserting, setIsUpserting] = useState<boolean>(false);
   const [plotData, setPlotData] = useState<{date: Date, balance:number}[] | null>(null);
+  const [isETRADEConnected, setIsETRADEConnected] = useState<boolean>(false)
   const upsertPf = trpc.pf.upsertMany.useMutation();
+
+  useEffect(() => {
+    async function checkConn () {
+      const resp = await fetch('/api/etrade/check_auth')
+      const data = await resp.json()
+      setIsETRADEConnected(data.authenticated)
+    }
+    checkConn()
+  },[])
 
   const syncPortfolio = async () => {
     setIsSyncing(true)
@@ -304,20 +316,27 @@ export function PortfolioUploader() {
           <CardTitle>
             Portfolio
           </CardTitle>
-          <div className="flex items-center justify-between gap-x-8">
+          <div className="flex items-center justify-between gap-x-4">
             <div className="flex gap-2">
               <Label>Update Remote</Label>
               <Checkbox checked={isUpserting} onCheckedChange={(checked) => setIsUpserting(checked === true)} />
             </div>
             <Button
               type="button"
-              variant="default"
               onClick={syncPortfolio}
-              className="cursor-pointer "
+              variant={isETRADEConnected ? "default" : "secondary"}
+              className={isETRADEConnected ? "cursor-pointer" : ""}
             >
               Sync
               {<RefreshCw className={isSyncing ? "animate-spin" : ""}/>}
             </Button>
+
+            {!isETRADEConnected && (<Button
+              type="button"
+              asChild
+            >
+              <Link href="/api/etrade/start">Connect E*TRADE</Link>
+            </Button>)}
           </div>
         </div>
         {plotData && (<MyPlot in_data={plotData} start_date="2026-02-10" end_date={format(new Date(), "YYYY-MM-DD")}/>)}

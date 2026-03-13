@@ -83,3 +83,62 @@ export interface PricesRespHist{
   date: Date,
   close: number,
 }
+
+export type PortfolioResponse = {
+  PortfolioResponse: {
+    AccountPortfolio: {
+      accountId: string;
+      totalPages: number;
+      Position: Position[] | Position; // can be array or single object
+    };
+  };
+};
+
+export type Position = {
+  positionId: string;
+  Product: Product;
+  symbolDescription: string;
+  dateAcquired: number;
+  pricePaid: number;
+  commissions: number;
+  otherFees: number;
+  quantity: number;
+  positionIndicator: string;
+  positionType: 'LONG' | 'SHORT';
+  daysGain: number;
+  daysGainPct: number;
+  marketValue: number;
+  totalCost: number;
+  totalGain: number;
+  totalGainPct: number;
+  pctOfPortfolio: number;
+  costPerShare: number;
+  todayCommissions: number;
+  todayFees: number;
+  todayPricePaid: number;
+  todayQuantity: number;
+  Quick: QuickData;
+  lotsDetails: string;
+  quoteDetails: string;
+};
+
+export type Product = {
+  expiryDay: number;
+  expiryMonth: number;
+  expiryYear: number;
+  productId: {
+    symbol: string;
+  };
+  securityType: 'EQ' | string;
+  strikePrice: number;
+  symbol: string;
+};
+
+export type QuickData = {
+  change: number;
+  changePct: number;
+  lastTrade: number;
+  lastTradeTime: number;
+  volume: number;
+};
+
