@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 import * as z from "zod";
 import * as React from "react";
@@ -23,12 +23,22 @@ import {
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
 
+import { Suspense } from "react";
+
 const loginSchema = z.object({
   verifier_code: z.string().min(1, "verifier code required"),
 });
 type LoginFormValues = z.infer<typeof loginSchema>;
 
-export default function LoginETRADEPage() {
+export default function loginPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <LoginETRADEPage />
+    </Suspense>
+  );
+}
+
+export function LoginETRADEPage() {
   const [isConnected, setIsConnected] = React.useState<boolean>(false)
   const params = useSearchParams();
   const authorizeUrl = params.get("authorizeUrl");
