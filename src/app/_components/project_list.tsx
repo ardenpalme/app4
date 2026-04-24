@@ -7,7 +7,7 @@ import { DisplayPost } from "@/lib/types"
 
 export const dynamic = 'force-dynamic';  // Forces server-side rendering
 
-export default async function BlogsPage() {
+export default async function ProjectList() {
   const trpc_caller = createCaller({});
   let all_posts_raw : BlogPostSchema[] = await trpc_caller.blog.listAllPosts();
 

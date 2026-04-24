@@ -56,7 +56,7 @@ class ETRADEManager {
     const oauth_token_secret = params.get('oauth_token_secret') ?? ""
 
     const authorizeUrl = new URL("https://us.etrade.com/e/t/etws/authorize");
-    authorizeUrl.searchParams.set("key", process.env.E_TRADE_SANDBOX_API_KEY!);
+    authorizeUrl.searchParams.set("key", process.env.E_TRADE_PROD_API_KEY!);
     authorizeUrl.searchParams.set("token", oauth_token ?? "");
 
     return {authorizeUrl, oauth_token: oauth_token, oauth_token_secret: oauth_token_secret}
@@ -116,7 +116,7 @@ class ETRADEManager {
 };
 
 const creds : ETRADECredentials = {
-  api_key: process.env.E_TRADE_SANDBOX_API_KEY!,
-  api_key_secret: process.env.E_TRADE_SANDBOX_API_KEY_SECRET!,
+  api_key: process.env.E_TRADE_PROD_API_KEY!,
+  api_key_secret: process.env.E_TRADE_PROD_API_KEY_SECRET!,
 }
 export const etrade= new ETRADEManager(creds);

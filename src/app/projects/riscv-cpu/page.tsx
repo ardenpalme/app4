@@ -35,7 +35,7 @@ export default function RISCVCPUPage(){
         </CardHeader>
         <CardContent>
           <div className="flex flex-col items-center justify-between gap-x-3">
-            <div className="max-w-9/10">
+            <div className="max-w-full sm:max-w-9/10">
               <p>
                 This 5-stage pipelined CPU supports the RV32I RISC-V instruction set architecture (ISA). 
                 The processor also includes RAW hazard detection, branch prediction, and a direct-mapped cache (see MEM stage). 
@@ -54,28 +54,10 @@ export default function RISCVCPUPage(){
               <br/>
               [<Link href="https://github.com/ardenpalme/Academic-Projects/tree/master/RISCV_CPU" className="text-blue-600">source code</Link>]
             </div>
-            <div className="max-w-3/4 p-2 relative ">
-              <Carousel
-                opts={{
-                  align: "start",
-                }}
-                >
-                <CarouselContent>
-                  {images.map((img) => (
-                    <CarouselItem key={img.id} className="flex aspect-square items-start justify-center p-6 max-h-80">
-                    <Image
-                      src={img.file}
-                      width={500}
-                      height={500}
-                      alt={img.alt}
-                      className=""
-                    />
-                    </CarouselItem>
-                  ))}
-                </CarouselContent>
-                <CarouselPrevious className="cursor-pointer"/>
-                <CarouselNext className="cursor-pointer"/>
-              </Carousel>
+            <div className="max-w-full grid grid-cols-1 sm:grid-cols-2 ">
+            {images.map((img)=>(
+              <Image key={img.id} width={500} height={500} className='w-full h-auto' src={img.file} alt={img.alt}/>
+            ))}
             </div>
           </div>
         </CardContent>

@@ -126,10 +126,10 @@ export async function calculatePfData(poses : PosSchema[]) {
       prices_arg = "US"
     }else if(ele.type == "CRYPTO") {
       prices_arg = "CC"
-    }else if(ele.type == "CASH") { // TODO
+    }else if(ele.type == "CASH") { 
       return {
         ticker: "CASH",
-        date: start_date,
+        date: timeframes[0].from_date,
         close: 1,
       }
     }
@@ -292,7 +292,7 @@ export function PortfolioUploader() {
         })
 
         if(!payload.includes(undefined)) await upsertPf.mutateAsync(payload as PosSchema[]) 
-        console.log(payload)
+        console.log(">>", payload)
       }
 
       if(poses) { 

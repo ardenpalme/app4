@@ -60,6 +60,7 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs"
 import Link from "next/link"
+import PDFViewerClient from "@/app/_components/pdf-viewer-client";
 
 const formSchema = z.object({
   id: z.string(),
@@ -419,16 +420,21 @@ export function PostCreator() {
       </TabsContent>
       <TabsContent value="preview">
       {preview && <Card>
-        {preview.type != 'NOTEBOOK' && (<CardHeader>
-            <CardTitle className="">
-              {preview.title}
+          <CardHeader>
+            <CardTitle>
+              {preview?.title}
             </CardTitle>
-            <CardDescription>
-              {preview.summary}
+            <CardDescription className="flex items-center gap-x-2">
+              {preview?.summary} 
+              {preview && preview?.type == 'GENERIC' && (
+                <Link href={preview.link} target="_blank" rel="noopener noreferrer" className="font-semibold text-sky-700"> 
+                  [link] 
+                </Link>
+              )}
             </CardDescription>
-          </CardHeader>)}
+          </CardHeader>
           <CardContent>
-            {preview.type != 'NOTEBOOK' && (
+            {preview.type == 'GENERIC' && (
             <section>
               <ReactMarkdown
                 remarkPlugins={[remarkGfm, remarkMath]}
@@ -447,6 +453,11 @@ export function PostCreator() {
             {/* TODO:  The jupyter notebook is stored locally */}
             {preview.type == 'NOTEBOOK' && (
               <iframe src={preview.link} className="w-full h-screen"/>
+            )}
+            {preview.type == 'PDF' && preview.link && (
+              <div className="h-svh">
+                <PDFViewerClient src={preview.link} />
+              </div>
             )}
           </CardContent>
           <CardFooter>

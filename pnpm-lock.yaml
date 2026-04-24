@@ -11,6 +11,27 @@ importers:
 
   .:
     dependencies:
+      '@embedpdf/core':
+        specifier: ^2.14.1
+        version: 2.14.1(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))
+      '@embedpdf/engines':
+        specifier: ^2.14.1
+        version: 2.14.1(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))
+      '@embedpdf/plugin-document-manager':
+        specifier: ^2.14.1
+        version: 2.14.1(@embedpdf/core@2.14.1(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))
+      '@embedpdf/plugin-interaction-manager':
+        specifier: ^2.14.1
+        version: 2.14.1(@embedpdf/core@2.14.1(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))
+      '@embedpdf/plugin-render':
+        specifier: ^2.14.1
+        version: 2.14.1(@embedpdf/core@2.14.1(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))
+      '@embedpdf/plugin-scroll':
+        specifier: ^2.14.1
+        version: 2.14.1(@embedpdf/core@2.14.1(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(@embedpdf/plugin-viewport@2.14.1(@embedpdf/core@2.14.1(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))
+      '@embedpdf/plugin-viewport':
+        specifier: ^2.14.1
+        version: 2.14.1(@embedpdf/core@2.14.1(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))
       '@embedpdf/react-pdf-viewer':
         specifier: ^2.8.0
         version: 2.8.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))
@@ -327,8 +348,26 @@ packages:
   '@electric-sql/pglite@0.3.15':
     resolution: {integrity: sha512-Cj++n1Mekf9ETfdc16TlDi+cDDQF0W7EcbyRHYOAeZdsAe8M/FJg18itDTSwyHfar2WIezawM9o0EKaRGVKygQ==}
 
+  '@embedpdf/core@2.14.1':
+    resolution: {integrity: sha512-L0lNn5WGnGDPaI1q2wnavVF6C6haRtvPGbMfqhZrjr7V+e0GExeoTO0VjK1DwH4IIBHOuD6nsQFYI89+nY/sJA==}
+    peerDependencies:
+      preact: ^10.26.4
+      react: '>=16.8.0'
+      react-dom: '>=16.8.0'
+      svelte: '>=5 <6'
+      vue: '>=3.2.0'
+
   '@embedpdf/core@2.8.0':
     resolution: {integrity: sha512-ui0HR4fl7ndiGPw40kMBxXCO9gZHctV1u3Q+/XTd34ONYJ+Pa2LoWNVW2IuPDK7PgKzABPT2axntowlVLPP10g==}
+    peerDependencies:
+      preact: ^10.26.4
+      react: '>=16.8.0'
+      react-dom: '>=16.8.0'
+      svelte: '>=5 <6'
+      vue: '>=3.2.0'
+
+  '@embedpdf/engines@2.14.1':
+    resolution: {integrity: sha512-k+HHuhj7dPKZC+8wUvMbpEUbNfi6F5r96Ky2XbNhBxiMQSWlVljBQVfZWcq9Jy3TLslwn5m2BbrvvHw+UVqe3w==}
     peerDependencies:
       preact: ^10.26.4
       react: '>=16.8.0'
@@ -366,8 +405,14 @@ packages:
   '@embedpdf/fonts-tc@1.0.0':
     resolution: {integrity: sha512-rGZJbVD6DYS5BbXdpEMnWkpVF0Knar+bsiyb2o3+YRx7O8eyFubEBQUSUInirQk69HA6fc3GhYCg7TyC/oD76Q==}
 
+  '@embedpdf/models@2.14.1':
+    resolution: {integrity: sha512-jbuoXKv4jW8F1o8EzCmPIB5U/yVC5DWlWhxL9ZfvBiBgW2HIy68ydcu+AykqOG75eAvCfxqcvF2HzSDsV3+K0A==}
+
   '@embedpdf/models@2.8.0':
     resolution: {integrity: sha512-kk3Fm8exMmEX9Ce7VQePybmo04NQGdpsO3FsX1YOQqHpLVBk7tiTeOdetjBqI+YhQ2zWLa2naNKSOSGGzYLyxA==}
+
+  '@embedpdf/pdfium@2.14.1':
+    resolution: {integrity: sha512-4FKhpeb7CYfkZ1k0WyDTq8i2FlIO5MaR0ywIDJ0goxOjenKkYOgHQ4747B5evxRzNEC2H5V3Rk6Dunf7TlIYBQ==}
 
   '@embedpdf/pdfium@2.8.0':
     resolution: {integrity: sha512-RlNLRNboF1Y6fNDy4sJ/a/FEYxATZyeM+n25r3KZJjG+RaM6bxBWXvWlFlGBU5Vx2eqQ5AzDAmIE9cn1agFmqA==}
@@ -427,6 +472,16 @@ packages:
       svelte: '>=5 <6'
       vue: '>=3.2.0'
 
+  '@embedpdf/plugin-document-manager@2.14.1':
+    resolution: {integrity: sha512-Qdj6Xkmpyt0aLHCkqZbOsOK5xzwI4IjaV8C2ihPiggB/iPDhoyXPklJb3wXmJfxjTIl+aw+FZmmPkmr4IpYn7w==}
+    peerDependencies:
+      '@embedpdf/core': 2.14.1
+      preact: ^10.26.4
+      react: '>=16.8.0'
+      react-dom: '>=16.8.0'
+      svelte: '>=5 <6'
+      vue: '>=3.2.0'
+
   '@embedpdf/plugin-document-manager@2.8.0':
     resolution: {integrity: sha512-SS+IKJ2+rk4dHM3PvQQrvnfNdb5oOF1INR5r2w0MKo22C9WPD8Ncg1Jak/mCrGbSrJemW3pkIrKZhoREQtSrbA==}
     peerDependencies:
@@ -471,6 +526,16 @@ packages:
     resolution: {integrity: sha512-DsqkkzsWYUfi0oVWT12Z5VcVuwIzXVNdcJ2OPHdPGS/a6M2bH63MV2YGSaVqm1jkV9B6CyND1zqgaaG5SUPHKw==}
     peerDependencies:
       '@embedpdf/core': 2.8.0
+      preact: ^10.26.4
+      react: '>=16.8.0'
+      react-dom: '>=16.8.0'
+      svelte: '>=5 <6'
+      vue: '>=3.2.0'
+
+  '@embedpdf/plugin-interaction-manager@2.14.1':
+    resolution: {integrity: sha512-eyH45cF3vHeZ5BlcgIjH212EtUhi20FvKSRZeLWZW72noOn6saXRDScLy/XGbtfGFjJoTrzkNA553hvrRpqVKA==}
+    peerDependencies:
+      '@embedpdf/core': 2.14.1
       preact: ^10.26.4
       react: '>=16.8.0'
       react-dom: '>=16.8.0'
@@ -523,6 +588,16 @@ packages:
       svelte: '>=5 <6'
       vue: '>=3.2.0'
 
+  '@embedpdf/plugin-render@2.14.1':
+    resolution: {integrity: sha512-KRjeSZeQRrg6fuyUgSU43yE6bOrRredpEiAfPI/FUCGgniO9nokTHjnFYg5G3UtVteJdnzdnKwzBl5sY++NQkg==}
+    peerDependencies:
+      '@embedpdf/core': 2.14.1
+      preact: ^10.26.4
+      react: '>=16.8.0'
+      react-dom: '>=16.8.0'
+      svelte: '>=5 <6'
+      vue: '>=3.2.0'
+
   '@embedpdf/plugin-render@2.8.0':
     resolution: {integrity: sha512-jVGSuyg366LmFzbDpqszLbu3G6VOfv1u46D1C0ph6pL3jisTlRswRosaXS4eVE/fAYTryBrI0olCpVYYct4bQw==}
     peerDependencies:
@@ -537,6 +612,17 @@ packages:
     resolution: {integrity: sha512-lWATWEwhkBW77dJaKXlSJbqEMLTSy1lOhn0kDAZ5eyPZRo+7UWe7LHuT5HWzzRlbY9rpvnyixCT6Zp9rKT+WnQ==}
     peerDependencies:
       '@embedpdf/core': 2.8.0
+      preact: ^10.26.4
+      react: '>=16.8.0'
+      react-dom: '>=16.8.0'
+      svelte: '>=5 <6'
+      vue: '>=3.2.0'
+
+  '@embedpdf/plugin-scroll@2.14.1':
+    resolution: {integrity: sha512-ppnP4t43EVNiXr2coEwybQ7BYucbUEpdTGlcEBm38DhLywgseVVySrcIMx7rHdM7ZylsW7uwS84hCFndTpPezg==}
+    peerDependencies:
+      '@embedpdf/core': 2.14.1
+      '@embedpdf/plugin-viewport': 2.14.1
       preact: ^10.26.4
       react: '>=16.8.0'
       react-dom: '>=16.8.0'
@@ -616,6 +702,16 @@ packages:
       '@embedpdf/plugin-render': 2.8.0
       '@embedpdf/plugin-scroll': 2.8.0
       '@embedpdf/plugin-viewport': 2.8.0
+      preact: ^10.26.4
+      react: '>=16.8.0'
+      react-dom: '>=16.8.0'
+      svelte: '>=5 <6'
+      vue: '>=3.2.0'
+
+  '@embedpdf/plugin-viewport@2.14.1':
+    resolution: {integrity: sha512-U45B46XoaAFxC3yKnVhBO8Z5Wa+ca17UW7esJC/yWneJ2dNfSnvRAR7309KKP/RpZfDmn/lfJDVOFGCDbR3hvw==}
+    peerDependencies:
+      '@embedpdf/core': 2.14.1
       preact: ^10.26.4
       react: '>=16.8.0'
       react-dom: '>=16.8.0'
@@ -6081,10 +6177,37 @@ snapshots:
 
   '@electric-sql/pglite@0.3.15': {}
 
+  '@embedpdf/core@2.14.1(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))':
+    dependencies:
+      '@embedpdf/engines': 2.14.1(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))
+      '@embedpdf/models': 2.14.1
+      preact: 10.28.4
+      react: 19.2.3
+      react-dom: 19.2.3(react@19.2.3)
+      svelte: 5.53.7
+      vue: 3.5.29(typescript@5.9.3)
+
   '@embedpdf/core@2.8.0(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))':
     dependencies:
       '@embedpdf/engines': 2.8.0(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))
       '@embedpdf/models': 2.8.0
+      preact: 10.28.4
+      react: 19.2.3
+      react-dom: 19.2.3(react@19.2.3)
+      svelte: 5.53.7
+      vue: 3.5.29(typescript@5.9.3)
+
+  '@embedpdf/engines@2.14.1(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))':
+    dependencies:
+      '@embedpdf/fonts-arabic': 1.0.0
+      '@embedpdf/fonts-hebrew': 1.0.0
+      '@embedpdf/fonts-jp': 1.0.0
+      '@embedpdf/fonts-kr': 1.0.0
+      '@embedpdf/fonts-latin': 1.0.0
+      '@embedpdf/fonts-sc': 1.0.0
+      '@embedpdf/fonts-tc': 1.0.0
+      '@embedpdf/models': 2.14.1
+      '@embedpdf/pdfium': 2.14.1
       preact: 10.28.4
       react: 19.2.3
       react-dom: 19.2.3(react@19.2.3)
@@ -6122,17 +6245,21 @@ snapshots:
 
   '@embedpdf/fonts-tc@1.0.0': {}
 
+  '@embedpdf/models@2.14.1': {}
+
   '@embedpdf/models@2.8.0': {}
+
+  '@embedpdf/pdfium@2.14.1': {}
 
   '@embedpdf/pdfium@2.8.0': {}
 
-  '@embedpdf/plugin-annotation@2.8.0(06290958b91248e8d4b5b5b7f0350c58)':
+  '@embedpdf/plugin-annotation@2.8.0(8ed550702fbbdb8befb1521913467fc5)':
     dependencies:
-      '@embedpdf/core': 2.8.0(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))
+      '@embedpdf/core': 2.14.1(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))
       '@embedpdf/models': 2.8.0
-      '@embedpdf/plugin-history': 2.8.0(@embedpdf/core@2.8.0(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))
-      '@embedpdf/plugin-interaction-manager': 2.8.0(@embedpdf/core@2.8.0(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))
-      '@embedpdf/plugin-selection': 2.8.0(@embedpdf/core@2.8.0(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(@embedpdf/plugin-interaction-manager@2.8.0(@embedpdf/core@2.8.0(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))
+      '@embedpdf/plugin-history': 2.8.0(@embedpdf/core@2.14.1(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))
+      '@embedpdf/plugin-interaction-manager': 2.14.1(@embedpdf/core@2.14.1(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))
+      '@embedpdf/plugin-selection': 2.8.0(@embedpdf/core@2.14.1(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(@embedpdf/plugin-interaction-manager@2.14.1(@embedpdf/core@2.14.1(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))
       '@embedpdf/utils': 2.8.0(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))
       preact: 10.28.4
       react: 19.2.3
@@ -6182,6 +6309,16 @@ snapshots:
       svelte: 5.53.7
       vue: 3.5.29(typescript@5.9.3)
 
+  '@embedpdf/plugin-document-manager@2.14.1(@embedpdf/core@2.14.1(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))':
+    dependencies:
+      '@embedpdf/core': 2.14.1(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))
+      '@embedpdf/models': 2.14.1
+      preact: 10.28.4
+      react: 19.2.3
+      react-dom: 19.2.3(react@19.2.3)
+      svelte: 5.53.7
+      vue: 3.5.29(typescript@5.9.3)
+
   '@embedpdf/plugin-document-manager@2.8.0(@embedpdf/core@2.8.0(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))':
     dependencies:
       '@embedpdf/core': 2.8.0(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))
@@ -6212,9 +6349,9 @@ snapshots:
       svelte: 5.53.7
       vue: 3.5.29(typescript@5.9.3)
 
-  '@embedpdf/plugin-history@2.8.0(@embedpdf/core@2.8.0(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))':
+  '@embedpdf/plugin-history@2.8.0(@embedpdf/core@2.14.1(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))':
     dependencies:
-      '@embedpdf/core': 2.8.0(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))
+      '@embedpdf/core': 2.14.1(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))
       '@embedpdf/models': 2.8.0
       preact: 10.28.4
       react: 19.2.3
@@ -6226,6 +6363,16 @@ snapshots:
     dependencies:
       '@embedpdf/core': 2.8.0(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))
       '@embedpdf/models': 2.8.0
+      preact: 10.28.4
+      react: 19.2.3
+      react-dom: 19.2.3(react@19.2.3)
+      svelte: 5.53.7
+      vue: 3.5.29(typescript@5.9.3)
+
+  '@embedpdf/plugin-interaction-manager@2.14.1(@embedpdf/core@2.14.1(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))':
+    dependencies:
+      '@embedpdf/core': 2.14.1(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))
+      '@embedpdf/models': 2.14.1
       preact: 10.28.4
       react: 19.2.3
       react-dom: 19.2.3(react@19.2.3)
@@ -6268,11 +6415,21 @@ snapshots:
     dependencies:
       '@embedpdf/core': 2.8.0(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))
       '@embedpdf/models': 2.8.0
-      '@embedpdf/plugin-annotation': 2.8.0(06290958b91248e8d4b5b5b7f0350c58)
-      '@embedpdf/plugin-history': 2.8.0(@embedpdf/core@2.8.0(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))
+      '@embedpdf/plugin-annotation': 2.8.0(8ed550702fbbdb8befb1521913467fc5)
+      '@embedpdf/plugin-history': 2.8.0(@embedpdf/core@2.14.1(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))
       '@embedpdf/plugin-interaction-manager': 2.8.0(@embedpdf/core@2.8.0(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))
-      '@embedpdf/plugin-selection': 2.8.0(@embedpdf/core@2.8.0(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(@embedpdf/plugin-interaction-manager@2.8.0(@embedpdf/core@2.8.0(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))
+      '@embedpdf/plugin-selection': 2.8.0(@embedpdf/core@2.14.1(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(@embedpdf/plugin-interaction-manager@2.14.1(@embedpdf/core@2.14.1(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))
       '@embedpdf/utils': 2.8.0(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))
+      preact: 10.28.4
+      react: 19.2.3
+      react-dom: 19.2.3(react@19.2.3)
+      svelte: 5.53.7
+      vue: 3.5.29(typescript@5.9.3)
+
+  '@embedpdf/plugin-render@2.14.1(@embedpdf/core@2.14.1(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))':
+    dependencies:
+      '@embedpdf/core': 2.14.1(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))
+      '@embedpdf/models': 2.14.1
       preact: 10.28.4
       react: 19.2.3
       react-dom: 19.2.3(react@19.2.3)
@@ -6293,6 +6450,17 @@ snapshots:
     dependencies:
       '@embedpdf/core': 2.8.0(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))
       '@embedpdf/models': 2.8.0
+      preact: 10.28.4
+      react: 19.2.3
+      react-dom: 19.2.3(react@19.2.3)
+      svelte: 5.53.7
+      vue: 3.5.29(typescript@5.9.3)
+
+  '@embedpdf/plugin-scroll@2.14.1(@embedpdf/core@2.14.1(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(@embedpdf/plugin-viewport@2.14.1(@embedpdf/core@2.14.1(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))':
+    dependencies:
+      '@embedpdf/core': 2.14.1(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))
+      '@embedpdf/models': 2.14.1
+      '@embedpdf/plugin-viewport': 2.14.1(@embedpdf/core@2.14.1(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))
       preact: 10.28.4
       react: 19.2.3
       react-dom: 19.2.3(react@19.2.3)
@@ -6320,11 +6488,11 @@ snapshots:
       svelte: 5.53.7
       vue: 3.5.29(typescript@5.9.3)
 
-  '@embedpdf/plugin-selection@2.8.0(@embedpdf/core@2.8.0(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(@embedpdf/plugin-interaction-manager@2.8.0(@embedpdf/core@2.8.0(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))':
+  '@embedpdf/plugin-selection@2.8.0(@embedpdf/core@2.14.1(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(@embedpdf/plugin-interaction-manager@2.14.1(@embedpdf/core@2.14.1(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))':
     dependencies:
-      '@embedpdf/core': 2.8.0(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))
+      '@embedpdf/core': 2.14.1(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))
       '@embedpdf/models': 2.8.0
-      '@embedpdf/plugin-interaction-manager': 2.8.0(@embedpdf/core@2.8.0(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))
+      '@embedpdf/plugin-interaction-manager': 2.14.1(@embedpdf/core@2.14.1(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))
       '@embedpdf/utils': 2.8.0(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))
       preact: 10.28.4
       react: 19.2.3
@@ -6379,6 +6547,16 @@ snapshots:
       svelte: 5.53.7
       vue: 3.5.29(typescript@5.9.3)
 
+  '@embedpdf/plugin-viewport@2.14.1(@embedpdf/core@2.14.1(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))':
+    dependencies:
+      '@embedpdf/core': 2.14.1(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))
+      '@embedpdf/models': 2.14.1
+      preact: 10.28.4
+      react: 19.2.3
+      react-dom: 19.2.3(react@19.2.3)
+      svelte: 5.53.7
+      vue: 3.5.29(typescript@5.9.3)
+
   '@embedpdf/plugin-viewport@2.8.0(@embedpdf/core@2.8.0(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))':
     dependencies:
       '@embedpdf/core': 2.8.0(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))
@@ -6416,7 +6594,7 @@ snapshots:
       '@embedpdf/engines': 2.8.0(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))
       '@embedpdf/models': 2.8.0
       '@embedpdf/pdfium': 2.8.0
-      '@embedpdf/plugin-annotation': 2.8.0(06290958b91248e8d4b5b5b7f0350c58)
+      '@embedpdf/plugin-annotation': 2.8.0(8ed550702fbbdb8befb1521913467fc5)
       '@embedpdf/plugin-attachment': 2.8.0(@embedpdf/core@2.8.0(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))
       '@embedpdf/plugin-bookmark': 2.8.0(@embedpdf/core@2.8.0(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))
       '@embedpdf/plugin-capture': 2.8.0(@embedpdf/core@2.8.0(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(@embedpdf/plugin-interaction-manager@2.8.0(@embedpdf/core@2.8.0(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(@embedpdf/plugin-render@2.8.0(@embedpdf/core@2.8.0(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))
@@ -6424,7 +6602,7 @@ snapshots:
       '@embedpdf/plugin-document-manager': 2.8.0(@embedpdf/core@2.8.0(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))
       '@embedpdf/plugin-export': 2.8.0(@embedpdf/core@2.8.0(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))
       '@embedpdf/plugin-fullscreen': 2.8.0(@embedpdf/core@2.8.0(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))
-      '@embedpdf/plugin-history': 2.8.0(@embedpdf/core@2.8.0(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))
+      '@embedpdf/plugin-history': 2.8.0(@embedpdf/core@2.14.1(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))
       '@embedpdf/plugin-i18n': 2.8.0(@embedpdf/core@2.8.0(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))
       '@embedpdf/plugin-interaction-manager': 2.8.0(@embedpdf/core@2.8.0(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))
       '@embedpdf/plugin-pan': 2.8.0(@embedpdf/core@2.8.0(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(@embedpdf/plugin-interaction-manager@2.8.0(@embedpdf/core@2.8.0(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(@embedpdf/plugin-viewport@2.8.0(@embedpdf/core@2.8.0(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))
@@ -6434,7 +6612,7 @@ snapshots:
       '@embedpdf/plugin-rotate': 2.8.0(@embedpdf/core@2.8.0(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))
       '@embedpdf/plugin-scroll': 2.8.0(@embedpdf/core@2.8.0(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(@embedpdf/plugin-viewport@2.8.0(@embedpdf/core@2.8.0(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))
       '@embedpdf/plugin-search': 2.8.0(@embedpdf/core@2.8.0(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))
-      '@embedpdf/plugin-selection': 2.8.0(@embedpdf/core@2.8.0(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(@embedpdf/plugin-interaction-manager@2.8.0(@embedpdf/core@2.8.0(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))
+      '@embedpdf/plugin-selection': 2.8.0(@embedpdf/core@2.14.1(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(@embedpdf/plugin-interaction-manager@2.14.1(@embedpdf/core@2.14.1(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))
       '@embedpdf/plugin-spread': 2.8.0(@embedpdf/core@2.8.0(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))
       '@embedpdf/plugin-thumbnail': 2.8.0(@embedpdf/core@2.8.0(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(@embedpdf/plugin-render@2.8.0(@embedpdf/core@2.8.0(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3)))(preact@10.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(svelte@5.53.7)(vue@3.5.29(typescript@5.9.3))
       '@embedpdf/plugin-tiling': 2.8.0(990d8c348d0b57b03d6d160b41e700be)

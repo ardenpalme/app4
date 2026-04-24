@@ -48,7 +48,7 @@ export async function fetchPortfolio() {
     cash.quantity = cash.quantity + Number(etrade_balance.Cash.moneyMktBalance)
     */
 
-    let payload = [...stocks_pf, ...crypto_pf, cash]
+    let payload = [...stocks_pf, ...crypto_pf]
 
     const resp4 = await fetch('/api/etrade/portfolio')
     const etrade_pf : PortfolioResponse = await resp4.json()

@@ -16,24 +16,27 @@ import { PDFViewer } from '@embedpdf/react-pdf-viewer';
 
 export default function WSNPage(){
   return (
-    <div className="max-w-6xl">
-    <Tabs defaultValue="paper" className="w-full">
+    <div className="max-w-full h-svh">
+    <Tabs defaultValue="paper" className="w-full h-full">
       <TabsList>
-        <TabsTrigger value="paper">Paper</TabsTrigger>
-        <TabsTrigger value="notebook">Notebook</TabsTrigger>
+        <TabsTrigger value="paper" className="cursor-pointer">Paper</TabsTrigger>
+        <TabsTrigger value="notebook" className="cursor-pointer">Notebook</TabsTrigger>
       </TabsList>
-      <TabsContent value="paper">
-        <Card>
+      <TabsContent value="paper" className="h-full">
+        <Card className="h-full flex flex-col">
           <CardHeader>
             <CardTitle>Impermanent loss and Swap Fee Modeling in Uniswap v3</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="flex-1 min-h-0">
             <PDFViewer
               config={{ 
                 src: '/IPR.pdf', 
-                disabledCategories: ['document-export', 'document-print', 'redaction', 'annotation', 'panel']
+                disabledCategories: ['document-export', 'document-print', 'redaction', 'annotation', 'panel'],
+                zoom: {
+                  defaultZoomLevel: 'fit-width'
+                }
               }}
-              style={{ height: '600px' }}
+              style={{ height: '100%', width: '100%' }}
               />
           </CardContent>
         </Card>

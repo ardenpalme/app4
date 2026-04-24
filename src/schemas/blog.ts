@@ -1,6 +1,6 @@
 import {z} from 'zod'
 
-export const PostTypeEnum = z.enum(["STRATEGY", "GENERIC", "NOTEBOOK"])
+export const PostTypeEnum = z.enum(["STRATEGY", "GENERIC", "NOTEBOOK", "PDF"])
 export type PostTypeEnum = z.infer<typeof PostTypeEnum >
 
 export const CreatePostInputSchema = z.object({

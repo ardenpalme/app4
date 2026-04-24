@@ -5,37 +5,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { FaGithub, FaLinkedin } from "react-icons/fa"
+import ProjectList from "./_components/project_list"
 
-const projects = [
-  {
-    title: "Uniswap v3: Impermanent Loss and Swap fees Modeling",
-    description: "Research into optimal liquidity providing to Uniswap pools",
-    tags: ["Python"],
-    link: "/projects/uniswap",
-  },
-  {
-    title: "Multi-hop Wireless Sensor Network",
-    description: "Developed a networking stack in C for an STM32 using LoRa transceivers. \
-                  Implemented link-state routing and the spanning-tree protocol. \
-                  Minimized node power-consumption with smart scheduling, low-power processor modes, and by modifying neighbor-discovery algorithms.",
-    tags: ["C++", "STM", "Python"],
-    link: "/projects/wsn",
-  },
-  {
-    title: "RISC-V CPU",
-    description: "Designed and implemented a 5-stage pipelined processor in SystemVerilog to support the RISC-V RV32I ISA. \
-                  Implemented a branch prediction module for conditionals and function calls/returns with a BTB. \
-                  Measured processor performance with matrix multiplication benchmarks.",
-    tags: ["SystemVeilog"],
-    link: "/projects/riscv-cpu",
-  },
-  {
-    title: "Real-time Kernel",
-    description: "Implemented on an ARM Cortex M processor in C using rate monotonic scheduling, immediate ceiling priority protocol, and memory protection.",
-    tags: ["C", "Eagle CAD"],
-    link: "/projects/rtos",
-  },
-]
+export const dynamic = 'force-dynamic';  // Forces server-side rendering
 
 export default function Home() {
   return (
@@ -46,9 +18,6 @@ export default function Home() {
             ADP
           </Link>
           <nav className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" asChild>
-              <Link href="/blog">Blog</Link>
-            </Button>
             <Button variant="ghost" size="sm" asChild>
               <Link href="/portfolio">Portfolio</Link>
             </Button>
@@ -88,27 +57,7 @@ export default function Home() {
 
         <section>
           <h2 className="mb-6 text-lg font-semibold text-foreground">Projects</h2>
-          <div className="grid gap-4">
-            {projects.map((project) => (
-              <Card key={project.title}>
-                <Link href={project.link}>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-base flex items-center justify-between">
-                      {project.title}
-                    </CardTitle>
-                    <CardDescription>{project.description}</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex gap-2">
-                      {project.tags.map((tag) => (
-                        <Badge key={tag} variant="secondary">{tag}</Badge>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Link>
-              </Card>
-            ))}
-          </div>
+          <ProjectList />
         </section>
       </main>
     </div>

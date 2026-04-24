@@ -22,8 +22,8 @@ export default function RISCVCPUPage(){
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center justify-between gap-x-3">
-            <div className="max-w-7/10">
+          <div className="flex items-center flex-col sm:flex-row justify-between gap-x-3">
+            <div className="max-w-full sm:max-w-7/10">
               <p> 
                   Additionally designed a PCB shield in EagleCAD for an STM32 Nucleo Board (ARM Cortex M4) 
                   to attach peripherals (e.g. h-bridge and servo motoro). The kernel ran on the STM bare-metal (with boot.S loader).
@@ -50,7 +50,7 @@ export default function RISCVCPUPage(){
               width={500}
               height={500}
               alt="PCB Designed with EagleCAD"
-              className="p-2 max-w-60"
+              className="sm:max-w-60 max-w-full py-10"
             />
           </div>
         </CardContent>

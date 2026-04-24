@@ -27,3 +27,5 @@
 * Add more fields to edit for each position
 * Place projects into database and add an editor for them too with a link field
 * Config based on whether in prod environment or local environment
+* Persist the cash and previously existing stocks, make an option to copy over last values to new values on sync database admin page
+* Remove strategy fields from the prisma schema

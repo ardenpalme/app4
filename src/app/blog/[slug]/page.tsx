@@ -20,6 +20,7 @@ import Link from "next/link";
 import { BackButton } from "@/app/_components/back_button";
 import { StrategySchema } from "@/schemas/strategy";
 import {z} from 'zod'
+import PDFViewerClient from "@/app/_components/pdf-viewer-client";
 
 export async function generateMetadata(
   { params }: { params: Promise<{ slug: string }> }
@@ -78,7 +79,7 @@ export default async function BlogPost({
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border">
-        <div className={post?.type == "NOTEBOOK" ? "mx-auto flex items-center max-w-7xl justify-between px-6 py-4" :
+        <div className={post?.type == "NOTEBOOK" || post?.type =="PDF" ? "mx-auto flex items-center max-w-7xl justify-between px-6 py-4" :
           "mx-auto flex items-center max-w-3xl justify-between px-6 py-4"}>
           <Link href="/" className="font-semibold text-foreground">
             ADP
@@ -88,21 +89,24 @@ export default async function BlogPost({
           </nav>
         </div>
       </header>
-      <main className={post?.type == "NOTEBOOK" ? "mx-auto max-w-7xl p-4 sm:px-6 sm:py-8" : "mx-auto max-w-3xl p-4 sm:px-6 sm:py-8"}>
+      <main className={post?.type == "NOTEBOOK" || post?.type =="PDF" ? "mx-auto max-w-7xl p-4 sm:px-6 sm:py-8" : "mx-auto max-w-3xl p-4 sm:px-6 sm:py-8"}>
         <div className="flex flex-col gap-y-2 sm:gap-y-5 ">
           <Card>
-            {post?.type != 'NOTEBOOK' && (
             <CardHeader>
-              <CardTitle className="">
+              <CardTitle>
                 {post?.title}
               </CardTitle>
               <CardDescription className="flex items-center gap-x-2">
                 {post?.summary} 
-                {post && (<Link href={post.link} className="font-semibold text-sky-700"> [link] </Link>)}
+                {post && post?.type == 'GENERIC' && (
+                  <Link href={post.link} target="_blank" rel="noopener noreferrer" className="font-semibold text-sky-700"> 
+                    [link] 
+                  </Link>
+                )}
               </CardDescription>
-            </CardHeader>)}
+            </CardHeader>
             <CardContent>
-              {post?.type != 'NOTEBOOK' && (
+              {post?.type == 'GENERIC' && (
               <section>
                 <ReactMarkdown
                   remarkPlugins={[remarkGfm, remarkMath]}
@@ -118,9 +122,14 @@ export default async function BlogPost({
                   {post?.content}
                 </ReactMarkdown>
               </section>)}
-              {/* TODO:  The jupyter notebook is stored locally */}
+              {/* TODO:  The jupyter notebook (.html file) is stored locally */}
               {post?.type == 'NOTEBOOK' && (
                 <iframe src={post?.link} className="w-full h-screen" sandbox="allow-scripts allow-same-origin allow-popups"/>
+              )}
+              {post?.type == 'PDF' && post?.link && (
+                <div className="h-svh">
+                  <PDFViewerClient src={post.link} />
+                </div>
               )}
             </CardContent>
           </Card>
