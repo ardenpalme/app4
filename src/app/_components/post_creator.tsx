@@ -103,7 +103,6 @@ export function PostCreator() {
   const { watch } = form;
 
   const onSubmit = async (data: z.infer<typeof formSchema>, mode : "upsert" | "delete") => {
-    console.log(data)
 
     if(selectedPostId != null && mode == "delete") {
       await deletePost.mutateAsync(selectedPostId)
@@ -130,8 +129,7 @@ export function PostCreator() {
       strategy: { id: null }, 
       link: data.link,
     };
-    const res = await upsertPost.mutateAsync(payload);
-    console.log(`upsertPost() returned: ${res}`)
+    await upsertPost.mutateAsync(payload);
 
     refetchPosts()
     form.reset(dfl_form_vals)

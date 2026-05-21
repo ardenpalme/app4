@@ -4,7 +4,6 @@ import { etrade } from "@/lib/etrade";
 export async function POST(req: NextRequest) {
   const body = await req.json() as { verifier_code?: string };
   const oauth_verifier = body.verifier_code ?? "";
-  console.log({oauth_verifier })
 
   const oauth_token = req.cookies.get("oauth_token")?.value ?? ""
   const oauth_token_secret = req.cookies.get("oauth_token_secret")?.value ?? "";

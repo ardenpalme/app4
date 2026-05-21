@@ -110,7 +110,6 @@ class ETRADEManager {
 
     const xmlData = await resp.text();
     const parser = new XMLParser({ ignoreAttributes: false, parseAttributeValue: true });
-    console.log(xmlData)
     return parser.parse(xmlData);
   }
 };

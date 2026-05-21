@@ -42,7 +42,6 @@ export function LoginETRADEPage() {
   const [isConnected, setIsConnected] = React.useState<boolean>(false)
   const params = useSearchParams();
   const authorizeUrl = params.get("authorizeUrl");
-  console.log({authorizeUrl})
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),

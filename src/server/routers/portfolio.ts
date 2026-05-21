@@ -24,7 +24,6 @@ export const PortfolioRouter = router({
       console.error("listAll (Portfolio)",pretty)
       return []
     }
-    console.log("trpc.pf.listAll:", result.data)
     return result.data
   }),
 

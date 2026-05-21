@@ -95,7 +95,6 @@ export const BlogPostRouter = router({
           },
         }
       });
-      //console.log(data)
       if(data == null) return null;
       const result = CreatePostInputSchema.safeParse(data)
       if (!result.success) {

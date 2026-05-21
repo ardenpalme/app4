@@ -1,7 +1,7 @@
 "use client"
 
 import { PosSchema } from "@/schemas/portfolio";
-import { PfTokResp, PortfolioResponse, Position, TradPortfolio } from "./types";
+import { PfTokResp, PortfolioResponse, Position} from "./types";
 import { nanoid } from "nanoid";
 
 export async function fetchPortfolio() {
@@ -19,36 +19,18 @@ export async function fetchPortfolio() {
       return ret
     });
 
-    const resp3  = await fetch('/api/ibrk')
-    const trad_pf : TradPortfolio = await resp3.json()
-    console.log(trad_pf)
-
-    const stocks_pf = Object.keys(trad_pf.positions).map((ticker) => {
-      const ret : PosSchema = {
-        id: nanoid(),
-        date: new Date(),
-        ticker,
-        quantity: trad_pf.positions[ticker].position,
-        type: "STOCK",
-      }
-      return ret
-    })
+    const resp5 = await fetch('/api/etrade/balance')
+    const {BalanceResponse : etrade_balance} =  await resp5.json()
 
     let cash = {
       id:nanoid(),
         date: new Date(),
       ticker: "CASH",
-      quantity: trad_pf.allocation.assetClass.long["CASH"],
+      quantity: Number(etrade_balance.Cash.moneyMktBalance),
       type: "CASH"
     }
 
-    /*
-    const resp5 = await fetch('/api/etrade/balance')
-    const {BalanceResponse : etrade_balance} =  await resp5.json()
-    cash.quantity = cash.quantity + Number(etrade_balance.Cash.moneyMktBalance)
-    */
-
-    let payload = [...stocks_pf, ...crypto_pf]
+    let payload = [cash, ...crypto_pf]
 
     const resp4 = await fetch('/api/etrade/portfolio')
     const etrade_pf : PortfolioResponse = await resp4.json()
@@ -57,8 +39,6 @@ export async function fetchPortfolio() {
       const positions: Position[] = Array.isArray(etrade_pf.PortfolioResponse.AccountPortfolio.Position)
         ? etrade_pf.PortfolioResponse.AccountPortfolio.Position
         : [etrade_pf.PortfolioResponse.AccountPortfolio.Position];
-
-      console.log(etrade_pf)
 
       const etrade_stocks_pf = positions.map((pos) => {
         const ret : PosSchema = {
@@ -70,7 +50,6 @@ export async function fetchPortfolio() {
         }
         return ret
       })
-      console.log(etrade_stocks_pf)
       payload = [...payload, ...etrade_stocks_pf]
     }
 

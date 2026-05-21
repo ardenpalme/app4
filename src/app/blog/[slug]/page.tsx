@@ -18,7 +18,6 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import Link from "next/link";
 import { BackButton } from "@/app/_components/back_button";
-import { StrategySchema } from "@/schemas/strategy";
 import {z} from 'zod'
 import PDFViewerClient from "@/app/_components/pdf-viewer-client";
 
@@ -70,11 +69,6 @@ export default async function BlogPost({
   const { slug } = await params
   const trpc_caller = createCaller({});
   const post : BlogPostSchema | null= await trpc_caller.blog.getPostBySlug(slug);
-
-  let strategy : z.infer<typeof StrategySchema> | null = null;
-  if(post && post.strategy != null && post.strategy.id != null) {
-    strategy = await trpc_caller.strategy.getById(post.strategy?.id)
-  }
 
   return (
     <div className="min-h-screen bg-background">

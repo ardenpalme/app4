@@ -23,6 +23,5 @@ export function normalizePrices(data : {date: Date, balance: number}[]) {
       balance: pct_change
     }
   })
-  console.log(ret)
   return ret
 }

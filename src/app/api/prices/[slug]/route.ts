@@ -42,7 +42,6 @@ export async function GET(
       'period': 'd',
       'api_token' : `${process.env.EODHD_api_token}`,
     })
-    console.log(EODHD_url + `${sym}.${type}?${url_params}`)
 
     try {
       const res = await fetch(EODHD_url + `${sym}.${type}?${url_params}`, {
@@ -88,7 +87,6 @@ export async function GET(
     })
 
     try {
-      console.log(EODHD_url + `${sym}.${type}?${url_params}`)
       const res = await fetch(EODHD_url + `${sym}.${type}?${url_params}`, {
         method : 'GET',
         headers: {

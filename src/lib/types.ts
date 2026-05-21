@@ -1,5 +1,4 @@
 import { BlogPostSchema } from "@/schemas/blog"
-import { PortfolioHoldings, Positions } from "./ibrk_types"
 import { RiskProfileEnum, StrategyCategoryEnum, StrategyStatusEnum, TimeframeEnum } from "@/schemas/strategy"
 import {z} from 'zod'
 
@@ -28,11 +27,6 @@ export interface CryptoPortfolio{
     close: number,
     pct_change: number,
   }
-}
-
-export interface TradPortfolio {
-  positions : Positions,
-  allocation: PortfolioHoldings,
 }
 
 export const DisplayPostSchema = BlogPostSchema.extend({

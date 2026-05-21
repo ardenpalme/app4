@@ -1,24 +1,9 @@
 "use client"
 
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs"
-
-import Link from "next/link"
-import { ArrowLeft, ChevronDown, ExternalLink } from "lucide-react"
-import { Button } from "@/components/ui/button"
 import { useEffect, useState } from "react"
 import { Skeleton } from "@/components/ui/skeleton"
-import { CryptoAllocations } from "../_components/allocations"
-import { CryptoPortfolio, PfTokResp, PricesResp, TradPortfolio } from "@/lib/types"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { StockAllocations } from "../_components/stock_allocations"
-import { Positions } from "@/lib/ibrk_types"
 import { format } from "@formkit/tempo"
-import {z} from 'zod'
 
 import {
   Table,
@@ -31,10 +16,7 @@ import {
 import { trpc } from "../_trpc/client"
 import MyPlot from "../_components/plot"
 import { calculatePfData } from "../_components/portfolio_uploader"
-import { PosSchema } from "@/schemas/portfolio"
-import { Sen } from "next/font/google"
 import { normalizePrices } from "@/lib/utils"
-import { start } from "repl"
 
 export default function PortfolioPage() {
   const [plotData, setPlotData] = useState<{date: Date, balance:number}[] | null>(null);
@@ -54,19 +36,16 @@ export default function PortfolioPage() {
           }
         })
         const {plot_data, snaps} = await calculatePfData(tmp)
-        console.log(snaps)
         setPlotData(normalizePrices(plot_data.map(p => ({ date: new Date(p.date), balance: p.balance}))));
         const dates = Object.keys(snaps).slice().sort((a,b) => {
           return new Date(a).getTime() - new Date(b).getTime()
         })
-        console.log(dates)
         const firstTradeDate = dates[0]
         const lastTradeDate = dates[dates.length-1]
         setAllocDate(new Date(lastTradeDate))
         setStartDate(new Date(firstTradeDate))
         const lastTrade = snaps[lastTradeDate]
         setLatestTrade(lastTrade)
-        //console.log(lastTrade)
         const latestTradeTotalUSD = lastTrade.reduce((acc, ele) => {
           acc += ele.balance
           return acc

@@ -24,57 +24,12 @@ import { useEffect, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PosSchema } from "@/schemas/portfolio";
 import { trpc } from "../_trpc/client";
-import { addDay, format, isAfter, isBefore, isEqual } from "@formkit/tempo";
-import { CryptoPortfolio, PfTokResp, PricesResp, PricesRespHist, TradPortfolio } from "@/lib/types";
-import { Positions } from "@/lib/ibrk_types";
-import { start } from "repl";
+import { format, isAfter, isBefore, isEqual } from "@formkit/tempo";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import MyPlot from "./plot";
 import { Record } from "@prisma/client/runtime/client";
 import Link from "next/link";
-import { check } from "zod";
-
-const portfolioHistory = [
-  { date: "2025-01-01", balance: 10000 },
-  { date: "2025-01-15", balance: 10450 },
-  { date: "2025-02-01", balance: 9800 },
-  { date: "2025-02-15", balance: 11200 },
-];
-
-type histDataType = Record<string, { ticker: string; close: number }> 
-type pfBalanceType = Record<string, { balance: number }> 
-
-async function getDigitalAssets() {
-  const resp = await fetch('/api/trezor')
-  const coins : PfTokResp = await resp.json()
-
-  const holdings = Object.keys(coins).map((symbol) => {
-    return {
-      [symbol]: {
-        balance: coins[symbol].balance
-      }
-    }
-  });
-
-  return holdings.reduce((acc, price) => {
-    return {...acc, ...price}
-  }, {})
-}
-
-async function getTradAssets() {
-  const resp3  = await fetch('/api/ibrk')
-  const trad_pf : TradPortfolio = await resp3.json()
-
-  return Object.keys(trad_pf.positions).reduce((acc, contract) => {
-    const ret  = {
-      [contract] : {
-        balance: trad_pf.positions[contract].position,
-      }
-    }
-    return {...ret, ...acc}
-  }, {})
-}
 
 export async function calculatePfData(poses : PosSchema[]) {
   const start_date = new Date("2026-02-01")
@@ -152,7 +107,6 @@ export async function calculatePfData(poses : PosSchema[]) {
     return acc
   }, {} as Record<string, {ticker: string, close: number}[]>)
 
-  console.log(hist_prices)
   const nperiod_lb = 5
   const getClose = (dates: string[], idx : number, ticker : string) => {
     let iter = 0
@@ -206,7 +160,6 @@ export async function calculatePfData(poses : PosSchema[]) {
   const combined = tmp2.flat().reduce((ele, acc)=> {
     return {...acc, ...ele}
   }, {})
-  console.log(combined)
 
   const ret1 = Object.keys(combined).map((date) => {
     const curr_pos = combined[date]
@@ -292,7 +245,6 @@ export function PortfolioUploader() {
         })
 
         if(!payload.includes(undefined)) await upsertPf.mutateAsync(payload as PosSchema[]) 
-        console.log(">>", payload)
       }
 
       if(poses) { 

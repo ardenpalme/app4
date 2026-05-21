@@ -7,65 +7,6 @@ datasource db {
   provider = "postgresql"
 }
 
-enum TradeDirection {
-  LONG
-  SHORT
-}
-
-enum TradeStatus {
-  PENDING
-  FILLED
-  PARTIAL
-  CANCELLED
-  REJECTED
-}
-
-enum OrderType {
-  MARKET
-  LIMIT
-  STOP
-  STOP_LIMIT
-  TRAILING_STOP
-}
-
-enum PositionStatus {
-  OPEN
-  CLOSED
-  EXPIRED
-  STOPPED
-}
-
-enum StrategyStatus {
-  DEVELOPMENT
-  ACTIVE
-  PAUSED
-  RETIRED
-}
-
-enum StrategyCategory {
-  INCOME
-  SWING
-  SCALP
-  TREND
-  BREAKOUT
-  REVERSAL
-}
-
-enum Timeframe {
-  INTRADAY
-  DAILY
-  WEEKLY
-  MONTHLY
-  POSITION
-}
-
-enum RiskProfile {
-  LOW
-  MODERATE
-  HIGH
-  SPECULATIVE
-}
-
 enum PostType {
   STRATEGY
   GENERIC
@@ -92,65 +33,6 @@ model Post {
   seoTitle        String?
   seoDescription  String?
   link            String?
-
-  strategy        Strategy?   @relation
-}
-
-model Strategy {
-  id            String          @id
-  PostId        String?         @unique
-  post          Post?           @relation(fields: [PostId], references: [id], onDelete: Cascade)
-
-  name          String
-  description   String
-  category      StrategyCategory
-  timeframe     Timeframe
-  riskProfile   RiskProfile
-  status        StrategyStatus
-
-  positions     Position[]
-  createdAt     DateTime         @default(now())
-}
-
-model Position {
-  id              String    @id
-  strategyId      String
-  strategy        Strategy  @relation(fields: [strategyId], references: [id], onDelete: Cascade)
-
-  underlying      String
-  status          PositionStatus
-  openedAt        DateTime
-  capitalUsed     Float
-
-  closedAt        DateTime?
-  realizedPnl     Float?
-  unrealizedPnl   Float?
-  returnPct       Float?
-  thesis          String?
-  notes           String?
-
-  trades          Trade[]
-  createdAt       DateTime        @default(now())
-}
-
-model Trade {
-  id            String         @id
-
-  positionId    String
-  position      Position       @relation(fields: [positionId], references: [id], onDelete: Cascade)
-
-  date          DateTime
-  direction     TradeDirection
-  orderType     OrderType
-  status        TradeStatus
-  quantity      Float
-
-  limitPrice    Float?
-  filledPrice   Float?
-  fees          Float?
-  slippage      Float?
-  realizedPnl   Float?
-  notes         String?
 }
 
 model Portfolio {
@@ -160,4 +42,3 @@ model Portfolio {
   quantity      Float
   type          PfPositionType
 }
-

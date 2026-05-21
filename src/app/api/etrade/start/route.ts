@@ -4,7 +4,6 @@ import { etrade } from '@/lib/etrade';
 
 export async function GET(request: NextRequest) {
   const {authorizeUrl, oauth_token, oauth_token_secret} = await etrade.authenticate()
-  console.log(authorizeUrl)
 
   const redirectUrl = new URL("/login_etrade", request.url);
   redirectUrl.searchParams.set("authorizeUrl", authorizeUrl.toString());
