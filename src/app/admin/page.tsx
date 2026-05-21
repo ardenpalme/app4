@@ -11,7 +11,6 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs"
-import { StrategyCreator } from "../_components/strategy_creator";
 import { PortfolioUploader } from "../_components/portfolio_uploader";
 
 export const dynamic = 'force-dynamic';  // Forces server-side rendering

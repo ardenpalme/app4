@@ -1,5 +1,4 @@
 import { BlogPostSchema } from "@/schemas/blog"
-import { RiskProfileEnum, StrategyCategoryEnum, StrategyStatusEnum, TimeframeEnum } from "@/schemas/strategy"
 import {z} from 'zod'
 
 export interface PfTokResp {
@@ -29,18 +28,7 @@ export interface CryptoPortfolio{
   }
 }
 
-export const DisplayPostSchema = BlogPostSchema.extend({
-  strategy: z.object({
-    id: z.string(),
-    name: z.string(),
-    description: z.string(),
-    category: StrategyCategoryEnum,
-    timeframe: TimeframeEnum,
-    riskProfile: RiskProfileEnum,
-    status: StrategyStatusEnum,
-  })
-})
-export type DisplayPost = z.infer<typeof DisplayPostSchema>
+export type DisplayPost = z.infer<typeof BlogPostSchema>
 
 export interface DatePickerProps {
   date: Date | undefined;
