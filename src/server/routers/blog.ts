@@ -20,11 +20,6 @@ export const BlogPostRouter = router({
           seoTitle: true,
           seoDescription: true,
           link: true,
-          strategy: {
-            select: {
-              id: true,
-            },
-          },
         }
       })
       if(data == undefined) return []
@@ -54,11 +49,6 @@ export const BlogPostRouter = router({
           seoTitle: true,
           seoDescription: true,
           link: true,
-          strategy: {
-            select: {
-              id: true,
-            },
-          },
         }
       })
       if(!data) return null
@@ -88,11 +78,6 @@ export const BlogPostRouter = router({
           seoTitle: true,
           seoDescription: true,
           link: true,
-          strategy: {
-            select: {
-              id: true,
-            },
-          },
         }
       });
       if(data == null) return null;
@@ -120,75 +105,12 @@ export const BlogPostRouter = router({
         link: input.link,
       };
 
-      // if we're associating a strategy connect it
-      if(input.strategy?.id) {
-        data.strategy = {
-          connect: {id: input.strategy?.id}
-        }
-      }
-
       return prisma.post.upsert({
         where: {id: input.id},
         update: {...data},
         create: {...data}
       })
     }),
-
-  swapStrategies: publicProcedure
-  .input(z.object({
-    postA_id: z.string(),
-    stratB_id: z.string(),
-  }))
-  .mutation(async ({ input }) => {
-    return await prisma.$transaction(async (tx) => {
-      // 1. Check if Post A already has a strategy associated
-      const postA_strat = await tx.strategy.findUnique({
-        where: { PostId: input.postA_id },
-        select: { id: true },
-      });
-
-      // 2. If Post A already has a strategy, dissociate it (disconnect the relation)
-      if (postA_strat?.id) {
-        await tx.strategy.update({
-          where: { id: postA_strat.id },
-          data: {
-            post: {
-              disconnect: true,
-            },
-          },
-        });
-      }
-
-      // 3. Ensure that stratB_id exists and check if it is already assigned to another post
-      const stratB = await tx.strategy.findUnique({
-        where: { id: input.stratB_id },
-        select: { id: true, PostId: true },
-      });
-
-      // If stratB is already associated with another Post, dissociate it
-      if (stratB && stratB.PostId !== null) {
-        // Dissociate stratB from its current post
-        await tx.strategy.update({
-          where: { id: stratB.id },
-          data: {
-            post: {
-              disconnect: true,
-            },
-          },
-        });
-      }
-
-      // 4. Now safely associate stratB_id with Post A
-      await tx.strategy.update({
-        where: { id: input.stratB_id },
-        data: {
-          post: {
-            connect: { id: input.postA_id }, // Connect stratB to Post A
-          },
-        },
-      });
-    });
-  }),
 
   delete : publicProcedure
   .input(z.string())

@@ -12,9 +12,6 @@ export const CreatePostInputSchema = z.object({
   type: PostTypeEnum,
   seoTitle: z.string(),
   seoDescription: z.string(),
-  strategy: z.object({
-    id: z.string().nullable(),
-  }).nullable(),
   link: z.string()
 });
 export type CreatePostInputSchema = z.infer<typeof CreatePostInputSchema>
