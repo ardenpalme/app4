@@ -7,64 +7,38 @@ datasource db {
   provider = "postgresql"
 }
 
-enum OptionType {
-  CALL
-  PUT
-}
-
-enum TradeDirection {
-  BUY
-  SELL
-}
-
-enum TradeStatus {
-  OPEN
-  CLOSED
-  EXPIRED
-}
-
 enum PostType {
-  OPTIONS_STRATEGY
+  STRATEGY
   GENERIC
+  NOTEBOOK
+  PDF
+}
+
+enum PfPositionType {
+  STOCK
+  CRYPTO
+  CASH
 }
 
 model Post {
-  id              Int     @id @default(autoincrement())
-  slug            String  @unique
+  id              String    @id
+
+  slug            String    @unique
   title           String
-  date            DateTime
+  date            DateTime  @default(now())
   content         String
   summary         String
   type            PostType
 
-  optionsStrategy OptionsStrategy?
+  seoTitle        String?
+  seoDescription  String?
+  link            String?
 }
 
-model OptionsStrategy {
-  id          Int             @id @default(autoincrement())
-  PostId      Int             @unique
-  post        Post            @relation(fields: [PostId], references: [id])
-
-  date        DateTime
-  underlying  String
-  name        String
-  status      TradeStatus
-  netPremium  Float
-  pnl         Float?
-
-  legs        OptionsStrategyLeg[]
+model Portfolio {
+  id            String         @id
+  date          DateTime
+  ticker        String
+  quantity      Float
+  type          PfPositionType
 }
-
-model OptionsStrategyLeg {
-  id          Int               @id @default(autoincrement())
-
-  strategyId  Int               
-  strategy    OptionsStrategy   @relation(fields: [strategyId], references: [id])
-  type        OptionType
-  direction   TradeDirection
-  strike      Float
-  expiry      DateTime
-  contracts   String[]
-  premium     Float
-}
-

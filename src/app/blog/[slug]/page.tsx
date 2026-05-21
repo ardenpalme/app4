@@ -1,5 +1,6 @@
-import { BlogPostSchema, OptionsStrategySchema } from "@/schemas/blog"
+import { BlogPostSchema, CreatePostInputSchema } from "@/schemas/blog"
 import {createCaller} from "@/server/index"
+
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
@@ -11,25 +12,53 @@ import rehypeHighlight from 'rehype-highlight';
 import rehypeSlug from 'rehype-slug';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 
+import type { Metadata } from "next";
+
 import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-import { format } from "@formkit/tempo"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import Link from "next/link";
 import { BackButton } from "@/app/_components/back_button";
+import {z} from 'zod'
+import PDFViewerClient from "@/app/_components/pdf-viewer-client";
 
-function formatCurrency(value: number) {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-  }).format(value)
+export async function generateMetadata(
+  { params }: { params: Promise<{ slug: string }> }
+): Promise<Metadata> {
+
+  const { slug } = await params;
+  const trpc_caller = createCaller({});
+  const post : BlogPostSchema | null= await trpc_caller.blog.getPostBySlug(slug);
+
+  if (!post) {
+    return {
+      title: "Post not found | ADP",
+      description: "The requested blog post does not exist.",
+    };
+  }
+
+  const description = post.seoDescription
+
+  const url = `https://ardenpalme.com/blog/${post.slug}`;
+
+  return {
+    title: `${post.title}`,
+    description,
+    alternates: {
+      canonical: url,
+    },
+    openGraph: {
+      title: post.title,
+      description,
+      url,
+      siteName: "ADP",
+      type: "article",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: post.title,
+      description,
+    },
+  };
 }
 
 export default async function BlogPost({
@@ -39,17 +68,13 @@ export default async function BlogPost({
 }) {
   const { slug } = await params
   const trpc_caller = createCaller({});
-  const post : BlogPostSchema | null= await trpc_caller.blog.getBlogPostBySlug(slug);
-
-  let trade_data : OptionsStrategySchema | null = null;
-  if(post && post.type == 'OPTIONS_STRATEGY') {
-    trade_data = await trpc_caller.blog.getOptionsStrategyById(post.id)
-  }
+  const post : BlogPostSchema | null= await trpc_caller.blog.getPostBySlug(slug);
 
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border">
-        <div className="mx-auto flex max-w-3xl items-center justify-between px-6 py-4">
+        <div className={post?.type == "NOTEBOOK" || post?.type =="PDF" ? "mx-auto flex items-center max-w-7xl justify-between px-6 py-4" :
+          "mx-auto flex items-center max-w-3xl justify-between px-6 py-4"}>
           <Link href="/" className="font-semibold text-foreground">
             ADP
           </Link>
@@ -58,91 +83,53 @@ export default async function BlogPost({
           </nav>
         </div>
       </header>
-      <main className="mx-auto max-w-3xl px-6 py-12">
-        <div className="mb-8">
-          <div className="mb-4 flex flex-wrap items-center gap-2">
-          {trade_data && (<>
-            <Badge variant={trade_data?.status === "OPEN" ? "default" : trade_data?.status === "CLOSED" ? "secondary" : "outline"}>
-              {trade_data?.status}
-            </Badge>
-            <Badge variant="outline">
-              {trade_data?.name}
-            </Badge>
-            </>)}
-
-            <span className="text-sm text-muted-foreground">{trade_data && format(trade_data.date,"short","en")}</span>
-
-            {trade_data && trade_data.pnl !== null && (
-              <span
-                className={`text-sm ${
-                  trade_data.pnl >= 0 ? "text-green-600" : "text-red-600"
-                }`}
-              >
-                {trade_data.pnl >= 0 ? "+" : ""}
-                {trade_data.pnl.toFixed(2)}%
-              </span>
-            )}
-
-          </div>
-          <h1 className="text-2xl font-bold text-foreground text-balance">{post?.title}</h1>
+      <main className={post?.type == "NOTEBOOK" || post?.type =="PDF" ? "mx-auto max-w-7xl p-4 sm:px-6 sm:py-8" : "mx-auto max-w-3xl p-4 sm:px-6 sm:py-8"}>
+        <div className="flex flex-col gap-y-2 sm:gap-y-5 ">
+          <Card>
+            <CardHeader>
+              <CardTitle>
+                {post?.title}
+              </CardTitle>
+              <CardDescription className="flex items-center gap-x-2">
+                {post?.summary} 
+                {post && post?.type == 'GENERIC' && (
+                  <Link href={post.link} target="_blank" rel="noopener noreferrer" className="font-semibold text-sky-700"> 
+                    [link] 
+                  </Link>
+                )}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {post?.type == 'GENERIC' && (
+              <section>
+                <ReactMarkdown
+                  remarkPlugins={[remarkGfm, remarkMath]}
+                  rehypePlugins={[
+                    rehypeRaw,
+                    rehypeSanitize,
+                    rehypeHighlight,
+                    rehypeSlug,
+                    rehypeKatex,
+                    rehypeAutolinkHeadings,
+                  ]}
+                >
+                  {post?.content}
+                </ReactMarkdown>
+              </section>)}
+              {/* TODO:  The jupyter notebook (.html file) is stored locally */}
+              {post?.type == 'NOTEBOOK' && (
+                <iframe src={post?.link} className="w-full h-screen" sandbox="allow-scripts allow-same-origin allow-popups"/>
+              )}
+              {post?.type == 'PDF' && post?.link && (
+                <div className="h-svh">
+                  <PDFViewerClient src={post.link} />
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </div>
-
-      {trade_data && <Card className="mb-8">
-        <CardHeader>
-          <CardTitle className="text-sm font-medium text-muted-foreground">Trade Details</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Direction</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Strike</TableHead>
-                <TableHead>Expiry</TableHead>
-                <TableHead className="text-right">Contracts</TableHead>
-                <TableHead className="text-right">Premium</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-            {trade_data.legs.map((leg) => (
-              <TableRow key={leg.id} className="hover:bg-transparent"> 
-                <TableCell className="py-1.5">
-                  <Badge variant={leg.direction === "BUY" ? "default" : "secondary"} className="text-xs">
-                    {leg.direction}
-                  </Badge>
-                </TableCell>
-                <TableCell className="py-1.5 text-sm">{leg.type}</TableCell>
-                <TableCell className="py-1.5 text-sm">{formatCurrency(leg.strike)}</TableCell>
-                <TableCell className="py-1.5 text-sm text-muted-foreground">{format(leg.expiry,"short","en")}</TableCell>
-                <TableCell className="py-1.5 text-sm text-right">{leg.contracts.length}</TableCell>
-                <TableCell className="py-1.5 text-sm text-right">{formatCurrency(leg.premium)}</TableCell>
-              </TableRow>
-            ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>}
-
-      <div className="space-y-8">
-        <section>
-          <ReactMarkdown
-            remarkPlugins={[remarkGfm, remarkMath]}
-            rehypePlugins={[
-              rehypeRaw,
-              rehypeSanitize,
-              rehypeHighlight,
-              rehypeSlug,
-              rehypeKatex,
-              rehypeAutolinkHeadings,
-            ]}
-          >
-            {post?.content}
-          </ReactMarkdown>
-        </section>
-      </div>
     </main>
   </div>
   )
 
 }
-

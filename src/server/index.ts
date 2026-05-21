@@ -1,9 +1,10 @@
 import { BlogPostRouter } from './routers/blog';
-import { createCallerFactory, publicProcedure, router } from './trpc';
+import { PortfolioRouter } from './routers/portfolio';
+import { createCallerFactory, router } from './trpc';
  
 export const appRouter = router({
   blog: BlogPostRouter,
-  //test: publicProcedure.query(async () => { return [10,20,30]; })
+  pf : PortfolioRouter,
 });
  
 // Export type router type signature,
