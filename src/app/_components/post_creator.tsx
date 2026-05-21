@@ -89,10 +89,8 @@ export function PostCreator() {
   const [selectedPostId, setSelectedPostId] = React.useState<string | null>(null);
   const [preview, setPreview] = React.useState<z.infer<typeof formSchema> | null>(null)
 
-  const {data: strategies, isLoading: strategiesLoading, isError: strategiesError} = trpc.strategy.listAll.useQuery()
   const {data: posts, isLoading: postsLoading, isError: postsError, refetch : refetchPosts} = trpc.blog.listAllPosts.useQuery()
   const upsertPost = trpc.blog.upsertPost.useMutation();
-  const swapStrategies = trpc.blog.swapStrategies.useMutation();
   const deletePost = trpc.blog.delete.useMutation();
   const { data: selectedPost, isLoading : selectedPostLoading, isError : selectedPostError} = trpc.blog.getPostById.useQuery(selectedPostId, { enabled: !!selectedPostId });
 
@@ -126,7 +124,6 @@ export function PostCreator() {
       type: data.type,
       seoTitle: data.seoTitle, // TODO remove this attr in schema
       seoDescription: data.seoDescription,
-      strategy: { id: null }, 
       link: data.link,
     };
     await upsertPost.mutateAsync(payload);
