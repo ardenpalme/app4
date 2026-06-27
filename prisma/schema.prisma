@@ -45,6 +45,6 @@ model Portfolio {
 
 model Schedule {
   id            String         @id
-  start         DateTime
+  start         String
   durationSec   Int
 }

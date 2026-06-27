@@ -42,7 +42,7 @@ export default function GardenPage() {
             <TableBody>
               {schedules.map((schedule) => (
                 <TableRow key={schedule.id}>
-                  <TableCell> {format(schedule.start, "medium")} </TableCell>
+                  <TableCell> {schedule.start} </TableCell>
                   <TableCell> {formatDuration(schedule.durationSec)} </TableCell>
                 </TableRow>
               ))}

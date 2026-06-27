@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  const data = await prisma.schedule.findMany({
+  const data = await prisma.schedule.findFirst({
     select : {
       id: true,
       start: true,
