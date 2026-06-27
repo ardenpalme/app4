@@ -42,3 +42,9 @@ model Portfolio {
   quantity      Float
   type          PfPositionType
 }
+
+model Schedule {
+  id            String         @id
+  start         DateTime
+  durationSec   Int
+}

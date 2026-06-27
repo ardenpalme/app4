@@ -1,3 +1,4 @@
+import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 import { timingSafeEqual } from "crypto";
 
@@ -24,8 +25,14 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  // 3. Do the work
-  const data = { message: "hello", time: Date.now() };
+  const data = await prisma.schedule.findMany({
+    select : {
+      id: true,
+      start: true,
+      durationSec: true
+    }
+  });
+
   return NextResponse.json(data);
 }
 

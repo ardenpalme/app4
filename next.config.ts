@@ -2,6 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  output: "standalone",
   typescript: {
     // !! WARN !!
     // Dangerously allow production builds to successfully complete even if
