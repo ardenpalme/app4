@@ -48,3 +48,12 @@ model Schedule {
   start         String
   durationSec   Int
 }
+
+model DeviceLog {
+  id          String   @id @default(cuid())
+  compressed  Bytes
+  encoding    String
+  receivedAt  DateTime @default(now())
+
+  @@index([receivedAt])
+}

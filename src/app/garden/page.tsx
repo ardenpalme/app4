@@ -10,8 +10,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { format } from "@formkit/tempo";
 
-import { format } from "@formkit/tempo"
 
 function formatDuration(totalSeconds: number): string {
   const h = Math.floor(totalSeconds / 3600);
@@ -27,10 +27,12 @@ function formatDuration(totalSeconds: number): string {
 export default function GardenPage() {
 
   const {data : schedules, isLoading : isSchedulesLoading} = trpc.schedule.listAll.useQuery()
+  const {data : logs, isLoading : isLogsLoading} = trpc.log.listLatest.useQuery()
   return (
     <Card>
       <CardHeader> Watering Schedule </CardHeader>
       <CardContent>
+          {isSchedulesLoading && <p>Loading...</p>}
           {schedules && (
           <Table>
             <TableHeader>
@@ -48,6 +50,24 @@ export default function GardenPage() {
               ))}
             </TableBody>
           </Table>)}
+          {logs && (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Time</TableHead>
+                <TableHead>Message</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {logs.map((log) => (
+                <TableRow key={log.time}>
+                  <TableCell> {log.time ? format(log.time, { date: "medium", time: "long" }, 'de') : ""} </TableCell>
+                  <TableCell> {log.message} </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>)}
+
       </CardContent>
     </Card>
   );

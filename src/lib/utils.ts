@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
+import { timingSafeEqual } from "crypto";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -24,4 +25,15 @@ export function normalizePrices(data : {date: Date, balance: number}[]) {
     }
   })
   return ret
+}
+
+export function isValidKey(provided: string): boolean {
+  const expected = process.env.ESP32_API_KEY;
+  if (!expected) return false;
+
+  const a = Buffer.from(provided);
+  const b = Buffer.from(expected);
+  // Length check first — timingSafeEqual throws on length mismatch
+  if (a.length !== b.length) return false;
+  return timingSafeEqual(a, b);
 }

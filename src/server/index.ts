@@ -1,5 +1,5 @@
 import { BlogPostRouter } from './routers/blog';
-import { GardenRouter } from './routers/garden';
+import { DeviceLogRouter, GardenRouter } from './routers/garden';
 import { PortfolioRouter } from './routers/portfolio';
 import { createCallerFactory, router } from './trpc';
  
@@ -7,6 +7,7 @@ export const appRouter = router({
   blog: BlogPostRouter,
   pf : PortfolioRouter,
   schedule : GardenRouter,
+  log : DeviceLogRouter
 });
  
 // Export type router type signature,
