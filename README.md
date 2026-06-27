@@ -14,6 +14,13 @@
 
 ### Notes
 * change @/lib/envConfig.ts to set the puppeteer_params_aws to null if running locally (refactored)
+* Always increase swapfile size before `run build` on AWS EC2 (t3.small)
+```
+sudo fallocate -l 4G /swapfile
+sudo chmod 600 /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile
+```
 
 ### TODO
 * Understand the `ERR_BLOCKED_BY_CLIENT` error on AWS
