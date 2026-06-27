@@ -2,7 +2,6 @@ import prisma from "@/lib/prisma";
 import {z} from 'zod'
 import { publicProcedure, router } from "../trpc";
 import { LogLineSchema, ScheduleSchema } from '@/schemas/garden';
-import { inflateSync, inflateRawSync } from "zlib";
 
 export const GardenRouter = router({
   listAll: publicProcedure
@@ -32,22 +31,15 @@ export const DeviceLogRouter = router({
   .query(async () => {
     const rows = await prisma.deviceLog.findMany({
       orderBy: { receivedAt: "desc" },
-      take: 20,
-      select: { compressed: true, encoding: true },
+      take: 20, // batches of 32
+      select: { messages: true },
     });
 
-    const lines: { time: Date | null; message: string }[] = [];
+    let lines: { time: Date | null; message: string }[] = [];
     for (const row of rows) {
       let text: string;
-      try {
-        const buf = Buffer.from(row.compressed);
-        text = row.encoding === "deflate"
-          ? inflateSync(buf).toString("utf8")
-          : buf.toString("utf8");
-      } catch {
-        text = "[corrupt or unreadable log batch]";
-      }
-
+      const buf = Buffer.from(row.messages);
+      text = buf.toString("utf8");
       for (const raw of text.split("\0")) {
         const line = raw.trim();
         if (!line) continue;

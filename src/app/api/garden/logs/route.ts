@@ -10,15 +10,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  // read the raw compressed bytes — do NOT inflate
-  const compressed = Buffer.from(await req.arrayBuffer());
-  const encoding = req.headers.get("content-encoding") ?? "text/plain";
-
+  const messages = Buffer.from(await req.arrayBuffer());
   await prisma.deviceLog.create({
-    data: {
-      compressed,
-      encoding,
-    },
+    data: { messages },
   });
 
   return NextResponse.json({ ok: true });

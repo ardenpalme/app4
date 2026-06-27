@@ -51,8 +51,7 @@ model Schedule {
 
 model DeviceLog {
   id          String   @id @default(cuid())
-  compressed  Bytes
-  encoding    String
+  messages    Bytes
   receivedAt  DateTime @default(now())
 
   @@index([receivedAt])
