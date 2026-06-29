@@ -44,9 +44,10 @@ model Portfolio {
 }
 
 model Schedule {
-  id            String         @id
+  id            String   @id @default(cuid())
   start         String
   durationSec   Int
+  auto          Boolean
 }
 
 model DeviceLog {

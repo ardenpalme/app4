@@ -4,25 +4,31 @@ import { publicProcedure, router } from "../trpc";
 import { LogLineSchema, ScheduleSchema } from '@/schemas/garden';
 
 export const GardenRouter = router({
-  listAll: publicProcedure
-    .output(z.array(ScheduleSchema))
+  list: publicProcedure
+    .output(ScheduleSchema.nullable())
     .query(async () => {
-      const data = await prisma.schedule.findMany({
+      return prisma.schedule.findFirst({
         select : {
           id: true,
           start: true,
-          durationSec: true
+          durationSec: true,
+          auto: true,
         }
       })
-      if(data == undefined) return []
-      const result = z.array(ScheduleSchema).safeParse(data)
-      if (!result.success) {
-        const pretty = z.prettifyError(result.error);
-        console.error("listAllSchedules",pretty)
-        return []
-      }
-      return result.data
     }),
+
+  updateUnique: publicProcedure
+    .input(ScheduleSchema)
+    .mutation(async ({input}) => {
+      return prisma.schedule.update({
+        where: {id: input.id},
+        data: {
+          start: input.start,
+          auto: input.auto,
+          durationSec: input.durationSec
+        }
+      })
+    })
 })
 
 export const DeviceLogRouter = router({

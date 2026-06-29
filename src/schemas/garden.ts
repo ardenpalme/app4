@@ -3,7 +3,8 @@ import {z} from 'zod'
 export const ScheduleSchema = z.object({
   id: z.string(),
   start: z.string(),
-  durationSec: z.int()
+  durationSec: z.int(),
+  auto: z.boolean(),
 })
 
 export const LogsSchema = z.array(z.object({
