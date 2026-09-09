@@ -3,11 +3,13 @@ import '@/lib/envConfig'
 
 export async function POST(req: NextRequest) {
   const body = await req.json() as { password?: string };
+  console.log("received:", JSON.stringify(body.password));
+  console.log("expected:", JSON.stringify(process.env.GARDEN_PASSWORD));
 
-  if (body.password === process.env.AUTH_PASSWORD) {
+  if (body.password === process.env.GARDEN_PASSWORD) {
     const res = NextResponse.json({ success: true });
     res.cookies.set({
-      name: "auth",
+      name: "garden_auth",
       value: "1",
       httpOnly: true,
       path: "/",
@@ -18,3 +20,4 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({ success: false }, { status: 401 });
 }
+

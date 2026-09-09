@@ -11,7 +11,7 @@ export const GardenRouter = router({
         select : {
           id: true,
           start: true,
-          durationSec: true,
+          zone_durations: true,
           auto: true,
         }
       })
@@ -24,8 +24,8 @@ export const GardenRouter = router({
         where: {id: input.id},
         data: {
           start: input.start,
+          zone_durations : input.zone_durations,
           auto: input.auto,
-          durationSec: input.durationSec
         }
       })
     })

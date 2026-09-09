@@ -78,9 +78,6 @@ export default async function BlogPost({
           <Link href="/" className="font-semibold text-foreground">
             ADP
           </Link>
-          <nav className="flex items-center gap-2">
-            <BackButton />
-          </nav>
         </div>
       </header>
       <main className={post?.type == "NOTEBOOK" || post?.type =="PDF" ? "mx-auto max-w-7xl p-4 sm:px-6 sm:py-8" : "mx-auto max-w-3xl p-4 sm:px-6 sm:py-8"}>

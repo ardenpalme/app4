@@ -5,8 +5,8 @@ import { isValidKey } from "@/lib/utils";
 export const runtime = "nodejs";   // Bytes/Buffer need Node runtime
 
 export async function POST(req: NextRequest) {
-  const key = req.headers.get("x-api-key");
-  if (!key || !isValidKey(key)) {
+  const in_key = req.headers.get("x-api-key");
+  if (!isValidKey(in_key ?? "0", process.env.ESP32_API_KEY ?? "1")) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

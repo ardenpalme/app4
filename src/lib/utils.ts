@@ -27,13 +27,8 @@ export function normalizePrices(data : {date: Date, balance: number}[]) {
   return ret
 }
 
-export function isValidKey(provided: string): boolean {
-  const expected = process.env.ESP32_API_KEY;
-  if (!expected) return false;
-
+export function isValidKey(provided : string, expected : string): boolean {
   const a = Buffer.from(provided);
   const b = Buffer.from(expected);
-  // Length check first — timingSafeEqual throws on length mismatch
-  if (a.length !== b.length) return false;
-  return timingSafeEqual(a, b);
+  return a.length === b.length && timingSafeEqual(a, b);
 }

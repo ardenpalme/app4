@@ -39,7 +39,7 @@ export default function LoginPage() {
 
   const onSubmit = async (data: LoginFormValues) => {
     try {
-      const res = await fetch("/api/login", {
+      const res = await fetch("/api/login_garden", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -47,7 +47,7 @@ export default function LoginPage() {
 
       if (!res.ok) throw new Error("Incorrect password");
 
-      router.push("/admin")
+      router.push("/garden")
     } catch (error: any) {
       setError("Incorrect password");
     }
@@ -57,7 +57,7 @@ export default function LoginPage() {
     <div className="flex justify-center  items-center min-h-screen" > 
     <Card className="w-full sm:max-w-md">
       <CardHeader>
-        <CardTitle>Author Login</CardTitle>
+        <CardTitle>Garden Login</CardTitle>
       </CardHeader>
       <CardContent>
         <form id="login-form" onSubmit={form.handleSubmit(onSubmit)}>
@@ -92,4 +92,5 @@ export default function LoginPage() {
     </div>
   );
 }
+
 
