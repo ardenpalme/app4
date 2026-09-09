@@ -3,7 +3,7 @@ import {z} from 'zod'
 export const ScheduleSchema = z.object({
   id: z.string(),
   start: z.string(),
-  zone_durations: z.array(z.number().int().min(120).max(7200)),
+  zone_durations: z.array(z.number().int().min(0).max(7200)),
   auto: z.boolean(),
 })
 

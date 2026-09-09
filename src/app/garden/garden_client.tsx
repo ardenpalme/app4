@@ -51,7 +51,7 @@ function WeatherMap({ lat = 45.283563805956376, lng = 0.06211854617756197 }) {
 
 const inputScheduleSchema = z.object({
   start: z.string(),
-  zones: z.array(z.number().int().min(2).max(120)),
+  zones: z.array(z.number().int().min(0).max(120)),
   auto: z.boolean(),
 })
 
